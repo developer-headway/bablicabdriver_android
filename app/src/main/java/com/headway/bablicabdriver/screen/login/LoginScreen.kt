@@ -1,7 +1,6 @@
 package com.headway.bablicabdriver.screen.login
 
 import android.util.Log
-import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -56,7 +55,7 @@ import com.headway.bablicabdriver.res.components.buttons.FilledButtonGradient
 import com.headway.bablicabdriver.res.components.textfields.PhoneNumberTextField
 import com.headway.bablicabdriver.res.components.textview.TextView
 import com.headway.bablicabdriver.res.components.toast.ToastExpandHorizontal
-import com.headway.bablicabdriver.res.dialog.CommonErrorDialogs
+import com.headway.bablicabdriver.res.components.dialog.CommonErrorDialogs
 import com.headway.bablicabdriver.res.routes.Routes
 import com.headway.bablicabdriver.ui.theme.MyColors
 import com.headway.bablicabdriver.ui.theme.MyFonts

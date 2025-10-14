@@ -52,7 +52,7 @@ import com.headway.bablicabdriver.res.components.buttons.FilledButtonGradient
 import com.headway.bablicabdriver.res.components.textfields.OtpInputField
 import com.headway.bablicabdriver.res.components.textview.TextView
 import com.headway.bablicabdriver.res.components.toast.ToastExpandHorizontal
-import com.headway.bablicabdriver.res.dialog.CommonErrorDialogs
+import com.headway.bablicabdriver.res.components.dialog.CommonErrorDialogs
 import com.headway.bablicabdriver.res.preferenceManage.SharedPreferenceManager
 import com.headway.bablicabdriver.res.routes.Routes
 import com.headway.bablicabdriver.ui.theme.MyColors

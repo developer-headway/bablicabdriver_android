@@ -17,9 +17,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -33,6 +32,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.gandiva.neumorphic.neu
 import com.gandiva.neumorphic.shape.Flat
+import com.gandiva.neumorphic.shape.Oval
 import com.gandiva.neumorphic.shape.RoundedCorner
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.CameraPosition
@@ -51,11 +52,14 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import com.headway.bablicabdriver.R
 import com.headway.bablicabdriver.api.ErrorsData
 import com.headway.bablicabdriver.api.NetWorkFail
+import com.headway.bablicabdriver.res.Loader
+import com.headway.bablicabdriver.res.components.buttons.CustomSwitchButton1
 import com.headway.bablicabdriver.res.components.textview.TextView
 import com.headway.bablicabdriver.res.components.toast.ToastExpandHorizontal
-import com.headway.bablicabdriver.res.dialog.CommonErrorDialogs
-import com.headway.bablicabdriver.res.dialog.goToSettingsDialog
-import com.headway.bablicabdriver.res.dialog.permissionDeniedDialog
+import com.headway.bablicabdriver.res.components.dialog.CommonErrorDialogs
+import com.headway.bablicabdriver.res.components.dialog.RideSelectDialog
+import com.headway.bablicabdriver.res.components.dialog.goToSettingsDialog
+import com.headway.bablicabdriver.res.components.dialog.permissionDeniedDialog
 import com.headway.bablicabdriver.res.preferenceManage.SharedPreferenceManager
 import com.headway.bablicabdriver.res.routes.Routes
 import com.headway.bablicabdriver.ui.theme.MyColors
@@ -81,6 +85,10 @@ fun HomeScreen(
     val scope = rememberCoroutineScope()
     val sharedPreferenceManager = SharedPreferenceManager(context)
     var isRefreshing by remember {
+        mutableStateOf(false)
+    }
+
+    val showRideDialog = rememberSaveable {
         mutableStateOf(false)
     }
     ////////////////////////////////////////////////////////
@@ -175,25 +183,16 @@ fun HomeScreen(
                 .pullRefresh(refreshState)
         ) {
 
-            val vehicleLocations = listOf(
-                LatLng(23.0386000, 72.5624068), // Delhi
-                LatLng(23.0367000, 72.5624068), // Mumbai
-                LatLng(23.0376464, 72.5670000),
-                LatLng(23.0376464, 72.5580000),
-                LatLng(23.0413000, 72.5648000),
-            )
 
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
             ) {
 
                 Box {
                     GoogleMap(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .height(480.dp),
+                            .fillMaxSize(),
                         cameraPositionState = cameraPositionState,
                         properties = MapProperties(isMyLocationEnabled = true)
                     ) {
@@ -203,9 +202,8 @@ fun HomeScreen(
                     Row(
                         modifier = Modifier
                             .padding(top = 20.dp)
-                            .padding(horizontal = 12.dp)
                             .fillMaxWidth()
-                            .height(40.dp)
+                            .height(52.dp)
                             .neu(
                                 lightShadowColor = MyColors.clr_7E7E7E_13,
                                 darkShadowColor = MyColors.clr_7E7E7E_13,
@@ -215,49 +213,95 @@ fun HomeScreen(
                                 color = MyColors.clr_white_100,
                                 shape = RoundedCornerShape(12.dp)
                             )
-                            .padding(horizontal = 12.dp)
-                            .clickable{
-                                navHostController.navigate(Routes.LocationsScreen.route) {
-                                    launchSingleTop = true
-                                }
-                                
-                            } ,
+                            .padding(horizontal = 16.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
 
                         TextView(
-                            text = "Shree Kashi Parekh Complex Ahemdabad-380001",
+                            text = "Available for Ride ?",
                             textColor = MyColors.clr_132234_100,
-                            fontFamily = MyFonts.fontRegular,
-                            fontSize = 12.sp,
+                            fontFamily = MyFonts.fontSemiBold,
+                            fontSize = 14.sp,
                             maxLines = 1,
+                            modifier = Modifier
+                        )
+                        Spacer(
+                            modifier = Modifier
+                                .width(10.dp)
+                        )
+
+                        var check by rememberSaveable {
+                            mutableStateOf(false)
+                        }
+
+                        CustomSwitchButton1(
+                            value = check,
+                            onCheckedChange = {checked ->
+                                check = checked
+
+                                navHostController.navigate(Routes.OpenRidesScreen.route) {
+                                    launchSingleTop = true
+                                }
+                            }
+                        )
+
+                        Spacer(
                             modifier = Modifier
                                 .weight(1f)
                         )
-                        Spacer(
-                            modifier = Modifier
-                                .width(10.dp)
-                        )
 
-                        Image(
-                            painter = painterResource(R.drawable.ic_gps),
-                            contentDescription = stringResource(R.string.img_des),
+                        Box(
                             modifier = Modifier
-                                .size(16.dp)
-                        )
-                        Spacer(
-                            modifier = Modifier
-                                .width(10.dp)
-                        )
+                        ) {
+                            Image(
+                                painter = painterResource(R.drawable.ic_notification),
+                                contentDescription = stringResource(R.string.img_des),
+                                modifier = Modifier
+                                    .size(16.dp)
+                            )
 
-                        Image(
-                            painter = painterResource(R.drawable.ic_heart),
-                            contentDescription = stringResource(R.string.img_des),
-                            modifier = Modifier
-                                .size(16.dp)
-                        )
+                            Box(
+                                modifier = Modifier
+                                    .size(8.dp)
+                                    .background(
+                                        color = MyColors.clr_00BCF1_100,
+                                        shape = CircleShape
+                                    )
+                                    .clip(shape = CircleShape)
+                                    .align(Alignment.TopEnd)
+                            )
+                        }
+
 
                     }
+
+
+                    Box(
+                        modifier = Modifier
+                            .padding(end = 16.dp, bottom = 30.dp)
+                            .size(40.dp)
+                            .align(Alignment.BottomEnd)
+                            .neu(
+                                darkShadowColor = MyColors.clr_7E7E7E_13,
+                                lightShadowColor = MyColors.clr_7E7E7E_13,
+                                shadowElevation = 2.dp,
+                                shape = Flat(Oval),
+                            )
+                            .background(
+                                color = MyColors.clr_white_100,
+                                shape = CircleShape
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.ic_location_recenter),
+                            modifier = Modifier
+                                .size(22.dp),
+                            contentDescription = stringResource(R.string.img_des)
+                        )
+                    }
+
+
                 }
 
 
@@ -286,18 +330,20 @@ fun HomeScreen(
                 if (networkError== NetWorkFail.NetworkError.ordinal) {
                     errorStates.showInternetError.value = false
                     networkError = NetWorkFail.NoError.ordinal
-//                    callMemberDashboardApi()
                 }
             },
         )
 
 
 
-//        if (memberDashboardVm._isLoading.collectAsState().value || acceptDeclineVisitorVm._isLoading.collectAsState().value) {
-//            Loader()
-//        }
+        if (false) {
+            Loader()
+        }
 
     }
+
+
+
 
 }
 

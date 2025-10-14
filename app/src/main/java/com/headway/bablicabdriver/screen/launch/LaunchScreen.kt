@@ -18,6 +18,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.headway.bablicabdriver.R
 import com.headway.bablicabdriver.res.preferenceManage.SharedPreferenceManager
 import com.headway.bablicabdriver.res.routes.Routes
@@ -31,7 +32,14 @@ fun LaunchScreen(navHostController: NavHostController) {
 
     LaunchedEffect(true) {
         delay(1000)
-        val destination = Routes.IntroScreen.route
+        val destination = Routes.DashboardScreen.route
+        if(!sharedPreferenceManager.getIsLogin()) {
+            if (sharedPreferenceManager.getShowIntro()) {
+                Routes.IntroScreen.route
+            } else {
+                Routes.LoginScreen.route
+            }
+        }
         navHostController.navigate(destination) {
             launchSingleTop = true
             popUpTo(Routes.LaunchScreen.route) {

@@ -53,9 +53,9 @@ import com.headway.bablicabdriver.res.components.bar.TopNavigationBar
 import com.headway.bablicabdriver.res.components.buttons.FilledButtonGradient
 import com.headway.bablicabdriver.res.components.textfields.FilledTextField
 import com.headway.bablicabdriver.res.components.textview.TextView
-import com.headway.bablicabdriver.res.dialog.CameraOrGallerySelector
-import com.headway.bablicabdriver.res.dialog.goToSettingsDialog
-import com.headway.bablicabdriver.res.dialog.permissionDeniedDialog
+import com.headway.bablicabdriver.res.components.dialog.CameraOrGallerySelector
+import com.headway.bablicabdriver.res.components.dialog.goToSettingsDialog
+import com.headway.bablicabdriver.res.components.dialog.permissionDeniedDialog
 import com.headway.bablicabdriver.res.routes.Routes
 import com.headway.bablicabdriver.ui.theme.MyColors
 import com.headway.bablicabdriver.ui.theme.MyFonts

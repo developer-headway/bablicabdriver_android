@@ -1,4 +1,4 @@
-package com.headway.bablicabdriver.res.dialog
+package com.headway.bablicabdriver.res.components.dialog
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box

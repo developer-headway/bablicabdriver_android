@@ -46,7 +46,7 @@ import com.headway.bablicabdriver.R
 import com.headway.bablicabdriver.api.ErrorsData
 import com.headway.bablicabdriver.model.dashboard.BottomTab
 import com.headway.bablicabdriver.res.components.textview.TextView
-import com.headway.bablicabdriver.res.dialog.CommonErrorDialogs
+import com.headway.bablicabdriver.res.components.dialog.CommonErrorDialogs
 import com.headway.bablicabdriver.screen.dashboard.home.HomeScreen
 import com.headway.bablicabdriver.ui.theme.MyColors
 import com.headway.bablicabdriver.ui.theme.MyFonts

@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.headway.bablicabdriver.res.routes.Routes
 import com.headway.bablicabdriver.screen.dashboard.DashboardScreen
+import com.headway.bablicabdriver.screen.dashboard.home.openRides.OpenRidesScreen
 import com.headway.bablicabdriver.screen.intro.IntroScreen
 import com.headway.bablicabdriver.screen.launch.LaunchScreen
 import com.headway.bablicabdriver.screen.login.LoginScreen
@@ -118,7 +119,15 @@ fun NavigationGraph(
                 }
             )
 
-
+            composable2 (
+                route = Routes.OpenRidesScreen.route,
+                content = {
+                    OpenRidesScreen(
+                        navHostController = navHostController,
+                        mainViewModel = mainViewModel
+                    )
+                }
+            )
 
 
 

@@ -1,23 +1,21 @@
-package com.headway.bablicabdriver.res.dialog
+package com.headway.bablicabdriver.res.components.dialog
 
 import android.app.AlertDialog
 import android.content.Context
 import com.headway.bablicabdriver.R
 
-
-fun goToSettingsDialog(
+fun permissionDeniedDialog(
     context : Context,
-    onGoToSettings : () -> Unit
+    onGrant : () -> Unit
 ){
     val dialogBuilder = AlertDialog.Builder(context)
     dialogBuilder.setCancelable(true)
-    dialogBuilder.setTitle(context.getString(R.string.alert))
-    dialogBuilder.setMessage(context.getString(R.string.this_feature_requires_few_permissions_kindly_go_to_settings_and_grant_them))
+    dialogBuilder.setMessage(context.getString(R.string.this_feature_requires_few_permissions_kindly_grant_the_permissions_to_enjoy_app_s_feature_properly))
     dialogBuilder.setPositiveButton(
-        context.getString(R.string.go_to_settings)
+        context.getString(R.string.ok)
     ) { dialog, _ ->
         dialog.cancel()
-        onGoToSettings()
+        onGrant()
     }
     dialogBuilder.setNegativeButton(
         context.getString(R.string.cancel)

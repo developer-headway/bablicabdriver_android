@@ -16,14 +16,14 @@ object BottomTab {
         selIcon = R.drawable.ic_home_sel
     )
     val obj2 = BottomTabModel(
+        title = R.string.my_ride,
+        icon = R.drawable.ic_my_ride,
+        selIcon = R.drawable.ic_my_ride_sel
+    )
+    val obj3 = BottomTabModel(
         title = R.string.wallet,
         icon = R.drawable.ic_wallet,
         selIcon = R.drawable.ic_wallet_sel
-    )
-    val obj3 = BottomTabModel(
-        title = R.string.rewards,
-        icon = R.drawable.ic_reward,
-        selIcon = R.drawable.ic_reward_sel
     )
     val obj4 = BottomTabModel(
         title = R.string.setting,

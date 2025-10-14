@@ -1,4 +1,4 @@
-package com.headway.bablicabdriver.res.dialog
+package com.headway.bablicabdriver.res.components.dialog
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn

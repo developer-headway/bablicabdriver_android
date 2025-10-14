@@ -5,6 +5,7 @@
     <string name="this_feature_requires_few_permissions_kindly_go_to_settings_and_grant_them">This feature requires few permissions. Kindly go to settings and grant them.</string>
     <string name="go_to_settings">Go to settings</string>
     <string name="cancel">Cancel</string>
+
     <string name="this_field_can_not_be_empty">This field cannot be empty.</string>
     <string name="kindly_enter_valid_email">Kindly enter valid email.</string>
     <string name="kindly_enter_valid_mobile">Kindly enter valid mobile number.</string>
@@ -71,10 +72,12 @@
 
     <!--  Dashboard screen  -->
     <string name="home">Home</string>
+    <string name="my_ride">My Ride</string>
     <string name="wallet">Wallet</string>
     <string name="rewards">Rewards</string>
     <string name="setting">Setting</string>
-
+    <string name="cancel_ride">Cancel Ride</string>
+    <string name="accept_ride">Accept Ride</string>
 
     <!--  Photo dialog  -->
     <string name="select_camera_gallery">Select Camera or Gallery</string>
