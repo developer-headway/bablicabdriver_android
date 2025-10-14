@@ -1,0 +1,93 @@
+<resources>
+    <string name="app_name">Babli Cab Driver</string>
+
+    <!--  reusable strings  -->
+    <string name="this_feature_requires_few_permissions_kindly_go_to_settings_and_grant_them">This feature requires few permissions. Kindly go to settings and grant them.</string>
+    <string name="go_to_settings">Go to settings</string>
+    <string name="cancel">Cancel</string>
+    <string name="this_field_can_not_be_empty">This field cannot be empty.</string>
+    <string name="kindly_enter_valid_email">Kindly enter valid email.</string>
+    <string name="kindly_enter_valid_mobile">Kindly enter valid mobile number.</string>
+    <string name="kindly_enter_valid_otp">Kindly enter valid verification code.</string>
+    <string name="service_provider_profile">Service provider profile image cannot be empty.</string>
+    <string name="retry">Retry</string>
+    <string name="this_feature_requires_few_permissions_kindly_grant_the_permissions_to_enjoy_app_s_feature_properly">This feature requires few permissions. Kindly grant the permissions to enjoy app\'s feature properly.</string>
+    <string name="ok">Ok</string>
+    <string name="alert">Alert !</string>
+    <string name="no_internet_connection">"No internet connection ! "</string>
+    <string name="no_recode_found">No Recodes Found</string>
+    <string name="img_des">image description</string>
+    <string name="kindly_select_given_filed">Kindly select given filed.</string>
+
+    <!--  Intro screen  -->
+    <string name="skip">Skip</string>
+    <string name="submit">Submit</string>
+    <string name="lets_start">Let\'s Start</string>
+    <string name="next">Next</string>
+    <string name="intro_title1">Making your drive best is our responsibility</string>
+    <string name="intro_des1">Lorem ipsum dolor sit amet, consectetur</string>
+    <string name="intro_title2">Get All Visitor Info</string>
+    <string name="intro_des2">Get complete visitor details instantly! Track check-ins, view visitor history, and manage access seamlessly with our smart visitor management app.</string>
+    <string name="intro_title3">Connect With Society Member</string>
+    <string name="intro_des3">Stay connected with society members effortlessly! Our app enables seamless communication, updates, and collaboration for a well-managed community.</string>
+
+    <!--  Login Screen  -->
+    <string name="enter_phone_number">Enter Phone Number</string>
+    <string name="get_verification_code">Get Verification Code</string>
+    <string name="well_text_a_code">We’ll text a code to verify your phone number</string>
+    <string name="login">Login</string>
+    <string name="welcome_to_the_app">Welcome back to the app</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="terms_conditions">Terms &amp; Conditions</string>
+
+    <string name="by_continuing">By continuing, you agree that you have read and accept our </string>
+    <string name="t_c">T&amp;Cs</string>
+
+    <!--  OTP Verification Screen  -->
+    <string name="otp_verification">OTP Verification</string>
+    <string name="enter_the_verification">Enter The Verification Code We Just Sent on\nYour Phone Number.</string>
+    <string name="resend_otp_in">Resend OTP in</string>
+    <string name="verify">Verify</string>
+    <string name="resend_otp">Resend OTP</string>
+
+
+
+    <!--  Register screen  -->
+    <string name="create_profile">Create Profile</string>
+    <string name="upload_profile_photo">Upload Profile Photo</string>
+    <string name="name">Name</string>
+    <string name="first_name">First Name</string>
+    <string name="last_name">Last Name</string>
+    <string name="email">Email</string>
+    <string name="enter_name">Enter Name</string>
+    <string name="enter_email">Enter Email</string>
+
+
+    <string name="owner">Owner</string>
+    <string name="tenant">Tenant</string>
+
+
+
+    <!--  Dashboard screen  -->
+    <string name="home">Home</string>
+    <string name="wallet">Wallet</string>
+    <string name="rewards">Rewards</string>
+    <string name="setting">Setting</string>
+
+
+    <!--  Photo dialog  -->
+    <string name="select_camera_gallery">Select Camera or Gallery</string>
+    <string name="camera">Camera</string>
+    <string name="gallery">Gallery</string>
+
+
+    <!--  Logout Alert Dialog  -->
+    <string name="logout_alert">Logout Alert</string>
+    <string name="logout_alert_des">Are you sure you want to logout?</string>
+    <string name="no_stay_here">No, Stay here</string>
+    <string name="yes_logout">Yes, Logout</string>
+    <string name="select_an_option">Select an option</string>
+
+
+</resources>

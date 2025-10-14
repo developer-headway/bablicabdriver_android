@@ -1,0 +1,528 @@
+package com.headway.bablicabdriver.screen.register
+
+import android.Manifest
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
+import androidx.navigation.NavHostController
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import com.canhub.cropper.CropImageContract
+import com.canhub.cropper.CropImageContractOptions
+import com.canhub.cropper.CropImageOptions
+import com.canhub.cropper.CropImageView
+import com.headway.bablicabdriver.R
+import com.headway.bablicabdriver.res.components.bar.TopNavigationBar
+import com.headway.bablicabdriver.res.components.buttons.FilledButtonGradient
+import com.headway.bablicabdriver.res.components.textfields.FilledTextField
+import com.headway.bablicabdriver.res.components.textview.TextView
+import com.headway.bablicabdriver.res.dialog.CameraOrGallerySelector
+import com.headway.bablicabdriver.res.dialog.goToSettingsDialog
+import com.headway.bablicabdriver.res.dialog.permissionDeniedDialog
+import com.headway.bablicabdriver.res.routes.Routes
+import com.headway.bablicabdriver.ui.theme.MyColors
+import com.headway.bablicabdriver.ui.theme.MyFonts
+import com.headway.bablicabdriver.utils.AppUtils
+import com.headway.bablicabdriver.utils.createImageFile
+import com.headway.bablicabdriver.utils.dashedBorder
+import com.headway.bablicabdriver.utils.permissionhandler.goToSettings
+import com.headway.bablicabdriver.utils.permissionhandler.rememberPermissionsState
+import com.headway.bablicabdriver.utils.shimmerEffect
+import com.headway.bablicabdriver.viewmodel.MainViewModel
+import java.util.Objects
+
+@Composable
+fun RegisterScreen(
+    navHostController: NavHostController,
+    mainViewModel: MainViewModel,
+) {
+    val context = LocalContext.current
+
+    var selType by rememberSaveable {
+        mutableStateOf("Owner")
+    }
+
+    val mobileNum = navHostController.previousBackStackEntry?.savedStateHandle?.get<String>("mobile_number")
+    val firstName = rememberTextFieldState()
+    var firstNameError by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    val lastName = rememberTextFieldState()
+    var lastNameError by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    val email = rememberTextFieldState()
+    var emailError by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    /////////////////////////////////////////////
+    /////////////////////////////////////////////
+
+
+    var cameraUri by remember {
+        mutableStateOf<Uri> (Uri.EMPTY)
+    }
+
+
+    ////////////////////////
+    ////////////////////////
+    val showGalleryOrImagePicker = remember {
+        mutableStateOf(false)
+    }
+    var imageUri by rememberSaveable {
+        mutableStateOf(Uri.EMPTY)
+    }
+
+
+    val cropImage = rememberLauncherForActivityResult(CropImageContract()) { result ->
+        if (result.uriContent != null){
+            result.uriContent?.let { uri ->
+                showGalleryOrImagePicker.value = false
+                imageUri = uri
+            }
+        }
+    }
+    fun handleUriInput(uri: Uri?){
+        cropImage.launch(
+            CropImageContractOptions(
+                uri = uri,
+                cropImageOptions = CropImageOptions(
+                    imageSourceIncludeCamera = false,
+                    imageSourceIncludeGallery = true,
+                    autoZoomEnabled = true,
+                    allowFlipping = false,
+                    centerMoveEnabled = true,
+                    multiTouchEnabled = false,
+                    snapRadius = 0f,
+                    initialCropWindowPaddingRatio = 0f,
+                    scaleType = CropImageView.ScaleType.FIT_CENTER,
+                    outputCompressQuality = 40
+                )
+            ),
+        )
+    }
+
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture(),
+        onResult = {
+            if (it) {
+                handleUriInput(cameraUri)
+            }
+        }
+    )
+    val cameraPermission = rememberPermissionsState(permissions = listOf(
+        Manifest.permission.CAMERA
+    ),
+        onGrantedAction = {
+            val file = context.createImageFile()
+            cameraUri = FileProvider.getUriForFile(
+                Objects.requireNonNull(context),
+                context.applicationContext.packageName + ".provider", file
+            )
+
+            cameraLauncher.launch(cameraUri)
+        },
+        onDeniedAction = {
+            permissionDeniedDialog(context) {}
+        },
+        onPermanentlyDeniedAction = {
+            goToSettingsDialog(context) {
+                context.goToSettings(it)
+            }
+        }
+    )
+
+    val pickMedia = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { it?.let { uri -> handleUriInput(uri) } }
+
+
+    /////////////////////////////////////////////
+    /////////////////////////////////////////////
+
+    Scaffold(
+        modifier = Modifier
+            .fillMaxSize(),
+        contentWindowInsets = WindowInsets(0.dp),
+        bottomBar = {
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        color = MyColors.clr_white_100,
+                    )
+                    .imePadding()
+            ) {
+
+                FilledButtonGradient(
+                    text = stringResource(R.string.next),
+                    textColor = MyColors.clr_white_100,
+                    onClick = {
+                        firstNameError = firstName.text.isEmpty()
+                        lastNameError = lastName.text.isEmpty()
+                        if (email.text.isNotEmpty()) {
+                            emailError = !AppUtils.emailRegex.matcher(email.text.toString().lowercase()).matches()
+                        }
+                        navHostController.navigate(Routes.DashboardScreen.route) {
+                            launchSingleTop = true
+                        }
+
+                    },
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp)
+                )
+
+                Spacer(
+                    modifier = Modifier
+                        .height(16.dp)
+                )
+            }
+        },
+        topBar = {
+            TopNavigationBar(
+                title = "",
+                onBackPress = {
+                    navHostController.popBackStack()
+                }
+            )
+        },
+        containerColor = MyColors.clr_white_100
+    ) { innerPadding ->
+
+
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        ) {
+
+
+
+
+            Spacer(
+                modifier = Modifier
+                    .height(20.dp)
+            )
+
+            TextView(
+                text = stringResource(R.string.create_profile),
+                textColor = MyColors.clr_132234_100,
+                fontSize = 18.sp,
+                fontFamily = MyFonts.fontSemiBold,
+                modifier = Modifier
+                    .padding(horizontal = 20.dp)
+            )
+            Spacer(
+                modifier = Modifier
+                    .height(12.dp)
+            )
+            TextView(
+                text = stringResource(R.string.upload_profile_photo),
+                textColor = MyColors.clr_607080_100,
+                fontSize = 14.sp,
+                fontFamily = MyFonts.fontRegular,
+                modifier = Modifier
+                    .padding(horizontal = 20.dp)
+            )
+
+            Spacer(
+                modifier = Modifier
+                    .height(10.dp)
+            )
+
+            Box(
+                modifier = Modifier
+                    .padding(horizontal = 20.dp)
+                    .size(96.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(82.dp)
+                        .clip(shape = CircleShape)
+                        .dashedBorder(
+                            width = 1.5.dp,
+                            color = MyColors.clr_575757_50,
+                            radius = 41.dp
+                        )
+                        .clickable {
+                            showGalleryOrImagePicker.value = true
+                        }
+                        .padding(2.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+
+                    if(imageUri== Uri.EMPTY) {
+                        Box(
+                            modifier = Modifier
+                                .size(96.dp)
+                                .background(
+                                    color = MyColors.clr_DCDCDC_100,
+                                    shape = CircleShape
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+
+                            Image(
+                                painter = painterResource(R.drawable.ic_camera),
+                                contentDescription = stringResource(R.string.img_des),
+                                modifier = Modifier
+                                    .size(24.dp),
+                                colorFilter = ColorFilter.tint(
+                                    color = MyColors.clr_575757_100
+                                )
+                            )
+                        }
+                    }
+                    else {
+                        var imgLoading by remember {
+                            mutableStateOf(true)
+                        }
+                        AsyncImage(
+                            model = ImageRequest
+                                .Builder(context)
+                                .data(
+                                    imageUri
+                                )
+                                .crossfade(true)
+                                .build(),
+                            contentDescription = "",
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clip(shape = CircleShape)
+                                .shimmerEffect(imgLoading),
+                            contentScale = ContentScale.Crop,
+                            onLoading = {
+                                imgLoading = true
+                            },
+                            onSuccess = {
+                                imgLoading = false
+                            }
+                        )
+                    }
+                }
+
+            }
+
+
+
+            Spacer(
+                modifier = Modifier
+                    .height(12.dp)
+            )
+
+
+            TextView(
+                text = stringResource(R.string.first_name),
+                textColor = MyColors.clr_607080_100,
+                fontSize = 14.sp,
+                fontFamily = MyFonts.fontRegular,
+                modifier = Modifier
+                    .padding(horizontal = 20.dp)
+            )
+
+            Spacer(
+                modifier = Modifier
+                    .height(10.dp)
+            )
+
+
+            FilledTextField(
+                state = firstName,
+                placeHolder = stringResource(R.string.enter_name),
+                isTyping = {
+                    firstNameError = false
+                },
+                borderColor = MyColors.clr_E8E8E8_100,
+                modifier = Modifier
+                    .padding(horizontal = 20.dp),
+                textFontFamily = MyFonts.fontMedium,
+                textColor = MyColors.clr_5A5A5A_100,
+                textFontSize = 14.sp,
+                isLast = false,
+                isTypeNumeric = false
+            )
+
+            TextView(
+                text =  if(firstNameError) { stringResource(R.string.this_field_can_not_be_empty) } else "",
+                modifier = Modifier
+                    .padding(top = 3.dp)
+                    .padding(horizontal = 20.dp)
+                    .height(18.dp),
+                fontSize = 10.sp,
+                fontFamily = MyFonts.fontRegular,
+                textColor = MyColors.clr_FA4949_100
+            )
+
+
+            Spacer(
+                modifier = Modifier
+                    .height(12.dp)
+            )
+
+
+            TextView(
+                text = stringResource(R.string.last_name),
+                textColor = MyColors.clr_607080_100,
+                fontSize = 14.sp,
+                fontFamily = MyFonts.fontRegular,
+                modifier = Modifier
+                    .padding(horizontal = 20.dp)
+            )
+
+            Spacer(
+                modifier = Modifier
+                    .height(10.dp)
+            )
+
+
+            FilledTextField(
+                state = lastName,
+                placeHolder = stringResource(R.string.enter_name),
+                isTyping = {
+                    lastNameError = false
+                },
+                borderColor = MyColors.clr_E8E8E8_100,
+                modifier = Modifier
+                    .padding(horizontal = 20.dp),
+                textFontFamily = MyFonts.fontMedium,
+                textColor = MyColors.clr_5A5A5A_100,
+                textFontSize = 14.sp,
+                isLast = false,
+                isTypeNumeric = false
+            )
+
+            TextView(
+                text =  if(lastNameError) { stringResource(R.string.this_field_can_not_be_empty) } else "",
+                modifier = Modifier
+                    .padding(top = 3.dp)
+                    .padding(horizontal = 20.dp)
+                    .height(18.dp),
+                fontSize = 10.sp,
+                fontFamily = MyFonts.fontRegular,
+                textColor = MyColors.clr_FA4949_100
+            )
+
+
+
+            Spacer(
+                modifier = Modifier
+                    .height(12.dp)
+            )
+
+            TextView(
+                text = stringResource(R.string.email),
+                textColor = MyColors.clr_607080_100,
+                fontSize = 14.sp,
+                fontFamily = MyFonts.fontRegular,
+                modifier = Modifier
+                    .padding(horizontal = 20.dp)
+            )
+
+            Spacer(
+                modifier = Modifier
+                    .height(6.dp)
+            )
+
+
+
+            FilledTextField(
+                state = email,
+                placeHolder = stringResource(R.string.enter_email),
+                isTyping = {
+                    emailError = false
+                },
+                borderColor = MyColors.clr_E8E8E8_100,
+                modifier = Modifier
+                    .padding(horizontal = 20.dp),
+                textFontFamily = MyFonts.fontRegular,
+                textColor = MyColors.clr_313131_100,
+                textFontSize = 14.sp,
+                isLast = true,
+                isTypeNumeric = false,
+                enabled = true,
+                keyboardType = KeyboardType.Email
+            )
+
+
+            TextView(
+                text =  if(emailError) {
+                    if (email.text.isNotEmpty()) stringResource(R.string.kindly_enter_valid_email) else  stringResource(R.string.this_field_can_not_be_empty) }
+                else "",
+                modifier = Modifier
+                    .padding(horizontal = 20.dp)
+                    .height(18.dp),
+                fontSize = 10.sp,
+                fontFamily = MyFonts.fontRegular,
+                textColor = MyColors.clr_FA4949_100
+            )
+
+            Spacer(
+                modifier = Modifier
+                    .height(50.dp)
+            )
+
+
+        }
+
+    }
+
+
+
+
+    if (showGalleryOrImagePicker.value) {
+        CameraOrGallerySelector(
+            visible = showGalleryOrImagePicker,
+            onCamera = {
+                cameraPermission.launchPermissionRequestsAndAction()
+            },
+            onGallery = {
+                pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+            }
+        )
+    }
+
+
+}
