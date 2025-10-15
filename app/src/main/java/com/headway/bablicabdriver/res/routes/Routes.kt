@@ -6,10 +6,12 @@ sealed class Routes(val route: String) {
     data object LoginScreen : Routes(route = "LoginScreen")
     data object WebPageScreen : Routes(route = "WebPageScreen")
     data object OTPVerificationScreen : Routes(route = "OTPVerificationScreen")
-    data object RegisterScreen : Routes(route = "RegisterScreen")
+
     data object DashboardScreen : Routes(route = "DashboardScreen")
     data object OpenRidesScreen : Routes(route = "OpenRidesScreen")
-
+    data object RegistrationScreen : Routes(route = "RegistrationScreen")
+    data object ProfileScreen : Routes(route = "ProfileScreen")
+    data object RCBookDetailsScreen : Routes(route = "RCBookDetailsScreen")
 
     data object LocationsScreen : Routes(route = "LocationsScreen")
     data object LocationsMapScreen : Routes(route = "LocationsMapScreen")

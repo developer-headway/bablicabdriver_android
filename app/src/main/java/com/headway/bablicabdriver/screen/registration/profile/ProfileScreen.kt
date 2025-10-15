@@ -1,15 +1,18 @@
-package com.headway.bablicabdriver.screen.register
+package com.headway.bablicabdriver.screen.registration.profile
 
 import android.Manifest
+import android.app.DatePickerDialog
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,10 +23,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,6 +46,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
+import androidx.core.graphics.toColorInt
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -66,20 +72,22 @@ import com.headway.bablicabdriver.utils.permissionhandler.goToSettings
 import com.headway.bablicabdriver.utils.permissionhandler.rememberPermissionsState
 import com.headway.bablicabdriver.utils.shimmerEffect
 import com.headway.bablicabdriver.viewmodel.MainViewModel
+import java.util.Calendar
 import java.util.Objects
+import java.util.TimeZone
+import kotlin.collections.get
+import kotlin.text.indexOf
+
+
+
 
 @Composable
-fun RegisterScreen(
+fun ProfileScreen(
     navHostController: NavHostController,
     mainViewModel: MainViewModel,
 ) {
     val context = LocalContext.current
 
-    var selType by rememberSaveable {
-        mutableStateOf("Owner")
-    }
-
-    val mobileNum = navHostController.previousBackStackEntry?.savedStateHandle?.get<String>("mobile_number")
     val firstName = rememberTextFieldState()
     var firstNameError by rememberSaveable {
         mutableStateOf(false)
@@ -94,18 +102,57 @@ fun RegisterScreen(
     var emailError by rememberSaveable {
         mutableStateOf(false)
     }
+    val date = rememberSaveable {
+        mutableStateOf("")
+    }
+    var dateError by rememberSaveable {
+        mutableStateOf(false)
+    }
+    ///////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////
+    fun datePicker(selDate: MutableState<String>, onResult:() ->Unit = {}) {
+        var month = ""
+        var day = ""
+        val c = Calendar.getInstance()
+        val splitDate = selDate.value.split(" ")
+        val mYear = if (selDate.value.isEmpty()) c[Calendar.YEAR] else splitDate[2].toInt()
+        val mMonth = if (selDate.value.isEmpty()) c[Calendar.MONTH] else AppUtils.calendarList.indexOf(splitDate[1])
+        val mDay = if (selDate.value.isEmpty()) c[Calendar.DAY_OF_MONTH] else splitDate[0].toInt()
+
+        val datePickerDialog = DatePickerDialog(
+            context, R.style.DialogTheme,
+            { _, year, monthOfYear1, dayOfMonth ->
+                var monthOfYear = monthOfYear1
+                monthOfYear += 1
+                month = AppUtils.calendarList[monthOfYear - 1]
+                day = if (dayOfMonth < 10) {
+                    "0$dayOfMonth"
+                } else {
+                    dayOfMonth.toString()
+                }
+                selDate.value = "$day $month $year"
+                onResult()
+            }, mYear, mMonth, mDay
+        )
+        datePickerDialog.datePicker.maxDate = Calendar.getInstance(TimeZone.getDefault()).timeInMillis
+        datePickerDialog.show()
+        datePickerDialog.getButton(DatePickerDialog.BUTTON_NEGATIVE).setTextColor(android.graphics.Color.GRAY)
+        datePickerDialog.getButton(DatePickerDialog.BUTTON_POSITIVE).setTextColor("#FF2096F3".toColorInt())
+    }
 
     /////////////////////////////////////////////
     /////////////////////////////////////////////
 
+
+
+
+    ////////////////////////
+    ////////////////////////
 
     var cameraUri by remember {
         mutableStateOf<Uri> (Uri.EMPTY)
     }
 
-
-    ////////////////////////
-    ////////////////////////
     val showGalleryOrImagePicker = remember {
         mutableStateOf(false)
     }
@@ -221,7 +268,7 @@ fun RegisterScreen(
         },
         topBar = {
             TopNavigationBar(
-                title = "",
+                title = stringResource(R.string.profile),
                 onBackPress = {
                     navHostController.popBackStack()
                 }
@@ -247,7 +294,7 @@ fun RegisterScreen(
             )
 
             TextView(
-                text = stringResource(R.string.create_profile),
+                text = stringResource(R.string.profile),
                 textColor = MyColors.clr_132234_100,
                 fontSize = 18.sp,
                 fontFamily = MyFonts.fontSemiBold,
@@ -499,12 +546,80 @@ fun RegisterScreen(
                 textColor = MyColors.clr_FA4949_100
             )
 
+
+
+            Spacer(
+                modifier = Modifier
+                    .height(12.dp)
+            )
+
+            TextView(
+                text = stringResource(R.string.date_of_birth),
+                textColor = MyColors.clr_607080_100,
+                fontSize = 14.sp,
+                fontFamily = MyFonts.fontRegular,
+                modifier = Modifier
+                    .padding(horizontal = 20.dp)
+            )
+
+            Spacer(
+                modifier = Modifier
+                    .height(6.dp)
+            )
+
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = 20.dp)
+                    .fillMaxWidth()
+                    .height(44.dp)
+                    .border(
+                        width = 1.dp,
+                        color = MyColors.clr_E8E8E8_100,
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                    .clickable {
+                        datePicker(date) {
+                            dateError = false
+                        }
+                    }
+                    .padding(horizontal = 12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextView(
+                    text = date.value.ifEmpty { stringResource(R.string.date) },
+                    fontSize = 14.sp,
+                    textColor = MyColors.clr_313131_100,
+                    fontFamily = MyFonts.fontRegular,
+                    maxLines = 1,
+                    modifier = Modifier
+                        .weight(1f)
+                )
+
+                Image(
+                    painter = painterResource(R.drawable.ic_calendar1),
+                    contentDescription = stringResource(R.string.img_des),
+                    modifier = Modifier
+                        .size(20.dp),
+                    colorFilter = ColorFilter.tint(color = if (date.value.isEmpty()) MyColors.clr_707070_100 else MyColors.clr_243369_100)
+                )
+
+            }
+
+            TextView(
+                text =  if(dateError) { stringResource(R.string.this_field_can_not_be_empty) } else "",
+                modifier = Modifier
+                    .padding(horizontal = 20.dp)
+                    .height(18.dp),
+                fontSize = 10.sp,
+                fontFamily = MyFonts.fontRegular,
+                textColor = MyColors.clr_FA4949_100
+            )
+
+
             Spacer(
                 modifier = Modifier
                     .height(50.dp)
             )
-
-
         }
 
     }

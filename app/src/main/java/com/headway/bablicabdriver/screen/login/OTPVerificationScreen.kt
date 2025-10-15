@@ -148,7 +148,7 @@ fun OTPVerificationScreen(navHostController: NavHostController) {
 
                         if (response.data.isNewUser) {
                             sharedPreferenceManager.storeVerifyOtpData(response.data)
-                            navHostController.navigate(Routes.RegisterScreen.route) {
+                            navHostController.navigate(Routes.RegistrationScreen.route) {
                                 launchSingleTop = true
                                 popUpTo(Routes.OTPVerificationScreen.route) {
                                     inclusive = true

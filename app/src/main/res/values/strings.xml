@@ -52,6 +52,24 @@
     <string name="verify">Verify</string>
     <string name="resend_otp">Resend OTP</string>
 
+    <!--  Registration screen  -->
+    <string name="registration">Registration</string>
+    <string name="profile">Profile</string>
+    <string name="rc_book_details">RC Book Details</string>
+    <string name="driving_license_details">Driving License Details</string>
+    <string name="aadhar_details">Aadhar Details</string>
+    <string name="pan_details">PAN Details</string>
+    <string name="police_varification">Police Verification</string>
+
+
+    <!--  RC Book Details  -->
+    <string name="the_photo_and">The photo and all details must be clearly visible.</string>
+    <string name="only_document">Only documents that are less than  MB in size and in JPG, JPEG, PNG, or PDF format will be accepted.</string>
+    <string name="vehicle_number">Vehicle Number</string>
+    <string name="enter_number">Enter Number</string>
+    <string name="attach_front_side_photo">Attach Front Side Photo</string>
+    <string name="attach_back_side_photo">Attach Back Side Photo</string>
+    <string name="upload_photo">Upload Photo </string>
 
 
     <!--  Register screen  -->
@@ -63,6 +81,9 @@
     <string name="email">Email</string>
     <string name="enter_name">Enter Name</string>
     <string name="enter_email">Enter Email</string>
+    <string name="date_of_birth">Date Of Birth</string>
+    <string name="date">Date</string>
+
 
 
     <string name="owner">Owner</string>

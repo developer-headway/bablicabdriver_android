@@ -32,14 +32,17 @@ fun LaunchScreen(navHostController: NavHostController) {
 
     LaunchedEffect(true) {
         delay(1000)
-        val destination = Routes.DashboardScreen.route
-        if(!sharedPreferenceManager.getIsLogin()) {
-            if (sharedPreferenceManager.getShowIntro()) {
-                Routes.IntroScreen.route
-            } else {
-                Routes.LoginScreen.route
+        var destination = Routes.LoginScreen.route
+
+        if (!sharedPreferenceManager.getShowIntro()) {
+            Routes.IntroScreen.route
+        } else {
+            if(sharedPreferenceManager.getIsLogin()) {
+                destination = Routes.DashboardScreen.route
             }
         }
+
+
         navHostController.navigate(destination) {
             launchSingleTop = true
             popUpTo(Routes.LaunchScreen.route) {

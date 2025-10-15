@@ -132,13 +132,13 @@ fun HomeScreen(
             Manifest.permission.ACCESS_COARSE_LOCATION
         ),
         onGrantedAction = {
-            fusedLocationClient?.lastLocation?.addOnSuccessListener { location ->
-                currentLatLng = LatLng(location.latitude, location.longitude)
-                // Use currentLatLng for marker/camera
-                Log.d("msg","currentLatLng $currentLatLng")
-
-                cameraPositionState.position =  CameraPosition.fromLatLngZoom(currentLatLng ?: LatLng(23.2599, 77.4126), 15f) // Initial coordinates and zoom
-            }
+//            fusedLocationClient?.lastLocation?.addOnSuccessListener { location ->
+//                currentLatLng = LatLng(location.latitude, location.longitude)
+//                // Use currentLatLng for marker/camera
+//                Log.d("msg","currentLatLng $currentLatLng")
+//
+//                cameraPositionState.position =  CameraPosition.fromLatLngZoom(currentLatLng ?: LatLng(23.2599, 77.4126), 15f) // Initial coordinates and zoom
+//            }
         },
         onDeniedAction = {
             permissionDeniedDialog(context) {}

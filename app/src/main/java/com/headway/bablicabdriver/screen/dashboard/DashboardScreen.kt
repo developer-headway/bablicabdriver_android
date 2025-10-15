@@ -126,7 +126,7 @@ fun DashboardScreen(
 //                    1->  WalletScreen(navHostController, mainViewModel, errorStates)
 //                    2->  RewardsScreen(navHostController, mainViewModel, errorStates)
 //                    3->  SettingsScreen(navHostController, mainViewModel, errorStates)
-                    else -> HomeScreen(navHostController, mainViewModel, errorStates)
+                    else -> {}
                 }
             }
 

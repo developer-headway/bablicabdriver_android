@@ -16,7 +16,9 @@ import com.headway.bablicabdriver.screen.launch.LaunchScreen
 import com.headway.bablicabdriver.screen.login.LoginScreen
 import com.headway.bablicabdriver.screen.login.OTPVerificationScreen
 import com.headway.bablicabdriver.screen.login.WebScreen
-import com.headway.bablicabdriver.screen.register.RegisterScreen
+import com.headway.bablicabdriver.screen.registration.RegistrationScreen
+import com.headway.bablicabdriver.screen.registration.profile.ProfileScreen
+import com.headway.bablicabdriver.screen.registration.rcBookDetails.RCBookDetailsScreen
 import com.headway.bablicabdriver.utils.composable2
 import com.headway.bablicabdriver.utils.permissionhandler.rememberPermissionsState
 import com.headway.bablicabdriver.viewmodel.MainViewModel
@@ -98,11 +100,19 @@ fun NavigationGraph(
                     )
                 }
             )
+            composable2 (
+                route = Routes.RegistrationScreen.route,
+                content = {
+                    RegistrationScreen(
+                        navHostController = navHostController
+                    )
+                }
+            )
 
             composable2 (
-                route = Routes.RegisterScreen.route,
+                route = Routes.ProfileScreen.route,
                 content = {
-                    RegisterScreen(
+                    ProfileScreen(
                         navHostController = navHostController,
                         mainViewModel = mainViewModel
                     )
@@ -129,7 +139,14 @@ fun NavigationGraph(
                 }
             )
 
-
+            composable2 (
+                route = Routes.RCBookDetailsScreen.route,
+                content = {
+                    RCBookDetailsScreen(
+                        navHostController = navHostController
+                    )
+                }
+            )
 
 
         }
