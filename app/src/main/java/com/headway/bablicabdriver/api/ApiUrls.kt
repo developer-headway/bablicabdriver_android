@@ -17,7 +17,7 @@ const val LOGOUT = "logout"
 const val DELETE_ACCOUNT = "delete-account"
 const val REGISTRATION_DETAIL = "registration-detail"
 const val UPLOAD_DOCUMENT = "upload-documents"
-
+const val UPDATE_PROFILE = "update-profile"
 const val PRIVACY_POLICY = "privacy-policy"
 const val TERMS_CONDITION = "terms-condition"
 const val HELP_SUPPORT = "help-support"

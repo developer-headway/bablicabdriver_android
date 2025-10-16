@@ -97,7 +97,14 @@ fun RCBookDetailsScreen(
     }
 
     val type = navHostController.previousBackStackEntry?.savedStateHandle?.get("type")?:""
-
+    val title = when(type) {
+        "RC" -> R.string.rc_book_details
+        "DL" -> R.string.driving_license_details
+        "aadhar" -> R.string.aadhar_details
+        "pan" -> R.string.pan_details
+        "police_verification" -> R.string.police_varification
+        else -> R.string.rc_book_details
+    }
 
     ////////////////////////
     ////////////////////////
@@ -211,7 +218,19 @@ fun RCBookDetailsScreen(
             val request = UploadDocumentRequest(
                 RCbook_front_photo = frontImageUri,
                 RCbook_back_photo = backImageUri,
-                vehicle_number = vehicleNumber.text.trim().toString()
+
+                licence_front_photo = frontImageUri,
+                licence_back_photo = backImageUri,
+
+                aadhar_front_photo = frontImageUri,
+                aadhar_back_photo = backImageUri,
+
+                police_verification_photo = frontImageUri,
+
+                vehicle_number = vehicleNumber.text.trim().toString(),
+                dl_number = vehicleNumber.text.trim().toString(),
+                aadhar_number = vehicleNumber.text.trim().toString(),
+                pan_number = vehicleNumber.text.trim().toString()
             )
             uploadDocumentVm.callUploadDocumentApi(
                 application = activity?.application,
@@ -277,12 +296,9 @@ fun RCBookDetailsScreen(
                             errorStates.bottomToastText.value = if (frontImageError) "Select RC Front Side Photo" else "Select RC Back Side Photo"
                             AppUtils.showToastBottom(errorStates.showBottomToast)
                         }
-
                         if (!vehicleNumberError && !frontImageError && !backImageError) {
                             callUploadDocumentApi()
                         }
-
-
                     },
                     modifier = Modifier
                         .padding(horizontal = 20.dp)
@@ -295,14 +311,7 @@ fun RCBookDetailsScreen(
             }
         },
         topBar = {
-            val title = when(type) {
-                "RC" -> R.string.rc_book_details
-                "DL" -> R.string.driving_license_details
-                "aadhar" -> R.string.aadhar_details
-                "pan" -> R.string.pan_details
-                "police_verification" -> R.string.police_varification
-                else -> R.string.rc_book_details
-            }
+
 
             TopNavigationBar(
                 title = stringResource(title),
@@ -405,47 +414,60 @@ fun RCBookDetailsScreen(
                 )
 
 
-                TextView(
-                    text = stringResource(R.string.vehicle_number),
-                    textColor = MyColors.clr_607080_100,
-                    fontSize = 14.sp,
-                    fontFamily = MyFonts.fontRegular,
-                    modifier = Modifier
-                        .padding(horizontal = 20.dp)
-                )
+                when (type) {
+                    "DL", "aadhar", "RC", "pan" -> {
 
-                Spacer(
-                    modifier = Modifier
-                        .height(10.dp)
-                )
+                        val title = when(type) {
+                            "RC" -> R.string.vehicle_number
+                            "DL" -> R.string.driving_license_number
+                            "aadhar" -> R.string.aadhar_number
+                            "pan" -> R.string.pan_number
+                            else -> R.string.vehicle_number
+                        }
+                        TextView(
+                            text = stringResource(title),
+                            textColor = MyColors.clr_607080_100,
+                            fontSize = 14.sp,
+                            fontFamily = MyFonts.fontRegular,
+                            modifier = Modifier
+                                .padding(horizontal = 20.dp)
+                        )
+
+                        Spacer(
+                            modifier = Modifier
+                                .height(10.dp)
+                        )
 
 
-                FilledTextField(
-                    state = vehicleNumber,
-                    placeHolder = stringResource(R.string.enter_number),
-                    isTyping = {
-                        vehicleNumberError = false
-                    },
-                    borderColor = MyColors.clr_E8E8E8_100,
-                    modifier = Modifier
-                        .padding(horizontal = 20.dp),
-                    textFontFamily = MyFonts.fontMedium,
-                    textColor = MyColors.clr_5A5A5A_100,
-                    textFontSize = 14.sp,
-                    isLast = true,
-                    isTypeNumeric = false
-                )
+                        FilledTextField(
+                            state = vehicleNumber,
+                            placeHolder = stringResource(R.string.enter_number),
+                            isTyping = {
+                                vehicleNumberError = false
+                            },
+                            borderColor = MyColors.clr_E8E8E8_100,
+                            modifier = Modifier
+                                .padding(horizontal = 20.dp),
+                            textFontFamily = MyFonts.fontMedium,
+                            textColor = MyColors.clr_5A5A5A_100,
+                            textFontSize = 14.sp,
+                            isLast = true,
+                            isTypeNumeric = false
+                        )
 
-                TextView(
-                    text =  if(vehicleNumberError) { stringResource(R.string.this_field_can_not_be_empty) } else "",
-                    modifier = Modifier
-                        .padding(top = 3.dp)
-                        .padding(horizontal = 20.dp)
-                        .height(18.dp),
-                    fontSize = 10.sp,
-                    fontFamily = MyFonts.fontRegular,
-                    textColor = MyColors.clr_FA4949_100
-                )
+                        TextView(
+                            text =  if(vehicleNumberError) { stringResource(R.string.this_field_can_not_be_empty) } else "",
+                            modifier = Modifier
+                                .padding(top = 3.dp)
+                                .padding(horizontal = 20.dp)
+                                .height(18.dp),
+                            fontSize = 10.sp,
+                            fontFamily = MyFonts.fontRegular,
+                            textColor = MyColors.clr_FA4949_100
+                        )
+                    }
+                }
+
 
 
 

@@ -29,6 +29,24 @@ data class VerifyOtpData(
     val referred_by: String,
     val token: String,
     val user_id: String,
-    val user_type: String
+    val user_type: String,
+
+    val RCBook_completed_status: String,
+    val RCbook_back_photo: String,
+    val RCbook_front_photo: String,
+    val aadhar_back_photo: String,
+    val aadhar_completed_status: String,
+    val aadhar_front_photo: String,
+    val aadhar_number: String,
+    val dl_number: String,
+    val licence_back_photo: String,
+    val licence_completed_status: String,
+    val licence_front_photo: String,
+    val pan_completed_status: String,
+    val pan_number: String,
+    val pan_photo: String,
+    val police_verification_photo: String,
+    val police_verification_status: String,
+    val vehicle_number: String
 )
 

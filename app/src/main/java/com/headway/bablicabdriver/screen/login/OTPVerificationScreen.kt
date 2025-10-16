@@ -146,7 +146,19 @@ fun OTPVerificationScreen(navHostController: NavHostController) {
                         navHostController.currentBackStackEntry?.savedStateHandle?.set("mobile_number",mobileNum)
 
 
-                        if (response.data.isNewUser) {
+                        val data = response.data
+                        if (data.police_verification_status=="approved" &&
+                            data.RCBook_completed_status=="approved" &&
+                            data.licence_completed_status=="approved" &&
+                            data.aadhar_completed_status=="approved" &&
+                            data.pan_completed_status=="approved"
+                            ) {
+                            sharedPreferenceManager.setIsLogin(true)
+                            sharedPreferenceManager.storeVerifyOtpData(response.data)
+                            navHostController.navigate(Routes.DashboardScreen.route) {
+                                launchSingleTop = true
+                            }
+                        } else {
                             sharedPreferenceManager.storeVerifyOtpData(response.data)
                             navHostController.navigate(Routes.RegistrationScreen.route) {
                                 launchSingleTop = true
@@ -154,13 +166,8 @@ fun OTPVerificationScreen(navHostController: NavHostController) {
                                     inclusive = true
                                 }
                             }
-                        } else {
-                            sharedPreferenceManager.setIsLogin(true)
-                            sharedPreferenceManager.storeVerifyOtpData(response.data)
-                            navHostController.navigate(Routes.DashboardScreen.route) {
-                                launchSingleTop = true
-                            }
                         }
+
 
                     } else {
                         errorStates.bottomToastText.value = response?.message?:""

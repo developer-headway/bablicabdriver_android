@@ -158,10 +158,15 @@ fun RegistrationScreen(
                             shape = RoundedCornerShape(12.dp)
                         )
                         .clickable {
-
-                            navHostController.navigate(Routes.ProfileScreen.route) {
-                                launchSingleTop = true
+                            when(registrationDetailsData?.profile_completed_status){
+                                "not_submitted","rejected" -> {
+                                    navHostController.navigate(Routes.ProfileScreen.route) {
+                                        launchSingleTop = true
+                                    }
+                                }
+                                else -> {}
                             }
+
                         }
                         .padding(vertical = 8.dp, horizontal = 12.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -228,9 +233,16 @@ fun RegistrationScreen(
                             shape = RoundedCornerShape(12.dp)
                         )
                         .clickable {
-                            navHostController.currentBackStackEntry?.savedStateHandle?.set("type","RC")
-                            navHostController.navigate(Routes.RCBookDetailsScreen.route) {
-                                launchSingleTop = true
+                            when(registrationDetailsData?.RCBook_completed_status) {
+                                "not_submitted","rejected" -> {
+                                    if (registrationDetailsData?.profile_completed_status!="not_submitted") {
+                                        navHostController.currentBackStackEntry?.savedStateHandle?.set("type","RC")
+                                        navHostController.navigate(Routes.RCBookDetailsScreen.route) {
+                                            launchSingleTop = true
+                                        }
+                                    }
+                                }
+                                else -> {}
                             }
                         }
                         .padding(vertical = 8.dp, horizontal = 12.dp),
@@ -298,10 +310,20 @@ fun RegistrationScreen(
                             shape = RoundedCornerShape(12.dp)
                         )
                         .clickable {
-                            navHostController.currentBackStackEntry?.savedStateHandle?.set("type","DL")
-                            navHostController.navigate(Routes.RCBookDetailsScreen.route) {
-                                launchSingleTop = true
+
+                            when(registrationDetailsData?.licence_completed_status) {
+                                "not_submitted","rejected" -> {
+                                    if (registrationDetailsData?.profile_completed_status=="submitted" &&
+                                        registrationDetailsData?.RCBook_completed_status=="submitted") {
+                                        navHostController.currentBackStackEntry?.savedStateHandle?.set("type","DL")
+                                        navHostController.navigate(Routes.RCBookDetailsScreen.route) {
+                                            launchSingleTop = true
+                                        }
+                                    }
+                                }
+                                else -> {}
                             }
+
                         }
                         .padding(vertical = 8.dp, horizontal = 12.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -369,9 +391,18 @@ fun RegistrationScreen(
                             shape = RoundedCornerShape(12.dp)
                         )
                         .clickable {
-                            navHostController.currentBackStackEntry?.savedStateHandle?.set("type","aadhar")
-                            navHostController.navigate(Routes.RCBookDetailsScreen.route) {
-                                launchSingleTop = true
+                            when(registrationDetailsData?.aadhar_completed_status) {
+                                "not_submitted","rejected" -> {
+                                    if (registrationDetailsData?.profile_completed_status=="submitted" &&
+                                        registrationDetailsData?.RCBook_completed_status=="submitted" &&
+                                        registrationDetailsData?.licence_completed_status=="submitted" ) {
+                                        navHostController.currentBackStackEntry?.savedStateHandle?.set("type","aadhar")
+                                        navHostController.navigate(Routes.RCBookDetailsScreen.route) {
+                                            launchSingleTop = true
+                                        }
+                                    }
+                                }
+                                else -> {}
                             }
                         }
                         .padding(vertical = 8.dp, horizontal = 12.dp),
@@ -439,9 +470,21 @@ fun RegistrationScreen(
                             shape = RoundedCornerShape(12.dp)
                         )
                         .clickable {
-                            navHostController.currentBackStackEntry?.savedStateHandle?.set("type","pan")
-                            navHostController.navigate(Routes.RCBookDetailsScreen.route) {
-                                launchSingleTop = true
+
+
+                            when(registrationDetailsData?.pan_completed_status) {
+                                "not_submitted","rejected" -> {
+                                    if (registrationDetailsData?.profile_completed_status=="submitted" &&
+                                        registrationDetailsData?.RCBook_completed_status=="submitted" &&
+                                        registrationDetailsData?.licence_completed_status=="submitted" &&
+                                        registrationDetailsData?.aadhar_completed_status=="submitted") {
+                                        navHostController.currentBackStackEntry?.savedStateHandle?.set("type","pan")
+                                        navHostController.navigate(Routes.RCBookDetailsScreen.route) {
+                                            launchSingleTop = true
+                                        }
+                                    }
+                                }
+                                else -> {}
                             }
                         }
                         .padding(vertical = 8.dp, horizontal = 12.dp),
@@ -509,14 +552,28 @@ fun RegistrationScreen(
                             shape = RoundedCornerShape(12.dp)
                         )
                         .clickable {
-                            navHostController.currentBackStackEntry?.savedStateHandle?.set("type","pan")
-                            navHostController.navigate(Routes.RCBookDetailsScreen.route) {
-                                launchSingleTop = true
+
+
+                            when(registrationDetailsData?.police_verification_status) {
+                                "not_submitted","rejected" -> {
+                                    if (registrationDetailsData?.profile_completed_status=="submitted" &&
+                                        registrationDetailsData?.RCBook_completed_status=="submitted" &&
+                                        registrationDetailsData?.licence_completed_status=="submitted" &&
+                                        registrationDetailsData?.aadhar_completed_status=="submitted" &&
+                                        registrationDetailsData?.pan_completed_status=="submitted") {
+                                        navHostController.currentBackStackEntry?.savedStateHandle?.set("type","police_verification")
+                                        navHostController.navigate(Routes.RCBookDetailsScreen.route) {
+                                            launchSingleTop = true
+                                        }
+                                    }
+                                }
+                                else -> {}
                             }
+
                         }
                         .padding(vertical = 8.dp, horizontal = 12.dp),
                     verticalAlignment = Alignment.CenterVertically
-                ) {
+                )   {
                     Column{
 
                         TextView(

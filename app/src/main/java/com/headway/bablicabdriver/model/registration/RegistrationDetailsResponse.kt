@@ -1,5 +1,7 @@
 package com.headway.bablicabdriver.model.registration
 
+import android.net.Uri
+
 data class RegistrationDetailsResponse(
     val data: RegistrationDetailsData,
     val message: String,
@@ -26,4 +28,5 @@ data class RegistrationDetailsData(
     val police_verification_status: String,
     val profile_completed_status: String
 )
+
 

@@ -3,6 +3,7 @@ package com.headway.bablicabdriver.screen.registration.profile
 import android.Manifest
 import android.app.DatePickerDialog
 import android.net.Uri
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -29,7 +30,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -47,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import androidx.core.graphics.toColorInt
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -55,13 +59,19 @@ import com.canhub.cropper.CropImageContractOptions
 import com.canhub.cropper.CropImageOptions
 import com.canhub.cropper.CropImageView
 import com.headway.bablicabdriver.R
+import com.headway.bablicabdriver.api.ErrorsData
+import com.headway.bablicabdriver.api.NetWorkFail
+import com.headway.bablicabdriver.model.registration.profile.UpdateProfileRequest
+import com.headway.bablicabdriver.res.Loader
 import com.headway.bablicabdriver.res.components.bar.TopNavigationBar
 import com.headway.bablicabdriver.res.components.buttons.FilledButtonGradient
 import com.headway.bablicabdriver.res.components.textfields.FilledTextField
 import com.headway.bablicabdriver.res.components.textview.TextView
 import com.headway.bablicabdriver.res.components.dialog.CameraOrGallerySelector
+import com.headway.bablicabdriver.res.components.dialog.CommonErrorDialogs
 import com.headway.bablicabdriver.res.components.dialog.goToSettingsDialog
 import com.headway.bablicabdriver.res.components.dialog.permissionDeniedDialog
+import com.headway.bablicabdriver.res.preferenceManage.SharedPreferenceManager
 import com.headway.bablicabdriver.res.routes.Routes
 import com.headway.bablicabdriver.ui.theme.MyColors
 import com.headway.bablicabdriver.ui.theme.MyFonts
@@ -72,13 +82,13 @@ import com.headway.bablicabdriver.utils.permissionhandler.goToSettings
 import com.headway.bablicabdriver.utils.permissionhandler.rememberPermissionsState
 import com.headway.bablicabdriver.utils.shimmerEffect
 import com.headway.bablicabdriver.viewmodel.MainViewModel
+import com.headway.bablicabdriver.viewmodel.registration.profile.UpdateProfileVm
 import java.util.Calendar
 import java.util.Objects
 import java.util.TimeZone
 import kotlin.collections.get
 import kotlin.text.indexOf
-
-
+import kotlin.text.matches
 
 
 @Composable
@@ -87,7 +97,8 @@ fun ProfileScreen(
     mainViewModel: MainViewModel,
 ) {
     val context = LocalContext.current
-
+    val activity = LocalActivity.current
+    val sharedPreferenceManager = SharedPreferenceManager(context)
     val firstName = rememberTextFieldState()
     var firstNameError by rememberSaveable {
         mutableStateOf(false)
@@ -227,6 +238,59 @@ fun ProfileScreen(
     /////////////////////////////////////////////
     /////////////////////////////////////////////
 
+
+
+
+    /////////////////////////////////////////////
+    /////////////////////////////////////////////
+
+    val errorStates by remember {
+        mutableStateOf(ErrorsData())
+    }
+    var networkError by rememberSaveable {
+        mutableIntStateOf(NetWorkFail.NoError.ordinal)
+    }
+
+
+    val updateProfileVm : UpdateProfileVm = viewModel()
+    fun callUpdateProfileApi() {
+        if (AppUtils.isInternetAvailable(context)) {
+            val request = UpdateProfileRequest(
+                first_name = firstName.text.trim().toString(),
+                last_name = lastName.text.trim().toString(),
+                email = email.text.trim().toString(),
+                dob = date.value,
+                profile_photo = imageUri
+            )
+            updateProfileVm.callUpdateProfileApi(
+                application = activity?.application,
+                token = sharedPreferenceManager.getToken(),
+                request = request,
+                errorStates = errorStates,
+                onError = {
+                    errorStates.bottomToastText.value = it?:""
+                    AppUtils.showToastBottom(errorStates.showBottomToast)
+                },
+                onSuccess = {response->
+                    if (response?.status == true) {
+                        navHostController.previousBackStackEntry?.savedStateHandle?.set("refresh",true)
+                        navHostController.popBackStack()
+                    } else {
+                        errorStates.bottomToastText.value = response?.message?:""
+                        AppUtils.showToastBottom(errorStates.showBottomToast)
+                    }
+                }
+            )
+        } else {
+            errorStates.showInternetError.value = true
+            networkError = NetWorkFail.NetworkError.ordinal
+        }
+    }
+
+    ////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////
+
+
     Scaffold(
         modifier = Modifier
             .fillMaxSize(),
@@ -248,13 +312,14 @@ fun ProfileScreen(
                     onClick = {
                         firstNameError = firstName.text.isEmpty()
                         lastNameError = lastName.text.isEmpty()
+                        dateError = date.value.isEmpty()
                         if (email.text.isNotEmpty()) {
                             emailError = !AppUtils.emailRegex.matcher(email.text.toString().lowercase()).matches()
                         }
-                        navHostController.navigate(Routes.DashboardScreen.route) {
-                            launchSingleTop = true
-                        }
 
+                        if (!firstNameError && !lastNameError && !emailError && !dateError) {
+                            callUpdateProfileApi()
+                        }
                     },
                     modifier = Modifier
                         .padding(horizontal = 20.dp)
@@ -639,5 +704,22 @@ fun ProfileScreen(
         )
     }
 
+    CommonErrorDialogs(
+        showToast = false,
+        errorStates = errorStates,
+        onNoInternetRetry = {
+            if (networkError==NetWorkFail.NetworkError.ordinal) {
+                errorStates.showInternetError.value = false
+                networkError = NetWorkFail.NoError.ordinal
+                callUpdateProfileApi()
+            }
+        },
+    )
+
+
+
+    if (updateProfileVm._isLoading.collectAsState().value) {
+        Loader()
+    }
 
 }

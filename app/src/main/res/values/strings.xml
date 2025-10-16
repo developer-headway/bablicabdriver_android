@@ -66,6 +66,9 @@
     <string name="the_photo_and">The photo and all details must be clearly visible.</string>
     <string name="only_document">Only documents that are less than  MB in size and in JPG, JPEG, PNG, or PDF format will be accepted.</string>
     <string name="vehicle_number">Vehicle Number</string>
+    <string name="driving_license_number">Driving License Number</string>
+    <string name="aadhar_number">Aadhar Number</string>
+    <string name="pan_number">Pan Number</string>
     <string name="enter_number">Enter Number</string>
     <string name="attach_front_side_photo">Attach Front Side Photo</string>
     <string name="attach_back_side_photo">Attach Back Side Photo</string>

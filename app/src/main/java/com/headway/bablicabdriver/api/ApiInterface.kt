@@ -11,6 +11,8 @@ import com.headway.bablicabdriver.model.login.VerifyOtpRequest
 import com.headway.bablicabdriver.model.login.VerifyOtpResponse
 import com.headway.bablicabdriver.model.registration.RegistrationDetailsResponse
 import com.headway.bablicabdriver.model.registration.UploadDocumentResponse
+import com.headway.bablicabdriver.model.registration.profile.UpdateProfileRequest
+import com.headway.bablicabdriver.model.registration.profile.UpdateProfileResponse
 import okhttp3.MultipartBody
 import okhttp3.Request
 import okhttp3.RequestBody
@@ -109,6 +111,16 @@ interface ApiInterface {
         @Part police_verification_photo: MultipartBody.Part? = null,
     ): Response<UploadDocumentResponse>
 
+    @Multipart
+    @POST(UPDATE_PROFILE)
+    suspend fun callUpdateProfileApi(
+        @Header("Authorization") token: String,
+        @Part("first_name") first_name: RequestBody,
+        @Part("last_name") last_name: RequestBody,
+        @Part("email") email: RequestBody,
+        @Part("dob") dob: RequestBody,
+        @Part profile_photo: MultipartBody.Part?
+    ): Response<UpdateProfileResponse>
 
     /*
 
