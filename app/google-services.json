@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "791342419190",
+    "project_id": "headway-apps",
+    "storage_bucket": "headway-apps.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:791342419190:android:088972628568286a7630d7",
+        "android_client_info": {
+          "package_name": "com.headway.bablicabdriver"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4IYRg9V8vSi_1umiaHD1M0xfZswxii_I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:791342419190:android:c4228e4b87732d417630d7",
+        "android_client_info": {
+          "package_name": "com.headway.shreekashiparekhassociation"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4IYRg9V8vSi_1umiaHD1M0xfZswxii_I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:791342419190:android:5934a6d4bb4b70ce7630d7",
+        "android_client_info": {
+          "package_name": "com.headway.smartchokidar"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4IYRg9V8vSi_1umiaHD1M0xfZswxii_I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

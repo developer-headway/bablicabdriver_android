@@ -1,0 +1,195 @@
+<resources>
+    <string name="app_name">Babli Cab Driver</string>
+
+    <!--  reusable strings  -->
+    <string name="this_feature_requires_few_permissions_kindly_go_to_settings_and_grant_them">This feature requires few permissions. Kindly go to settings and grant them.</string>
+    <string name="go_to_settings">Go to settings</string>
+    <string name="cancel">Cancel</string>
+
+    <string name="this_field_can_not_be_empty">This field cannot be empty.</string>
+    <string name="kindly_enter_valid_email">Kindly enter valid email.</string>
+    <string name="kindly_enter_valid_mobile">Kindly enter valid mobile number.</string>
+    <string name="kindly_enter_valid_otp">Kindly enter valid verification code.</string>
+    <string name="service_provider_profile">Service provider profile image cannot be empty.</string>
+    <string name="retry">Retry</string>
+    <string name="this_feature_requires_few_permissions_kindly_grant_the_permissions_to_enjoy_app_s_feature_properly">This feature requires few permissions. Kindly grant the permissions to enjoy app\'s feature properly.</string>
+    <string name="ok">Ok</string>
+    <string name="alert">Alert !</string>
+    <string name="no_internet_connection">"No internet connection ! "</string>
+    <string name="no_recode_found">No Recodes Found</string>
+    <string name="img_des">image description</string>
+    <string name="kindly_select_given_filed">Kindly select given filed.</string>
+
+    <!--  Intro screen  -->
+    <string name="skip">Skip</string>
+    <string name="submit">Submit</string>
+    <string name="lets_start">Let\'s Start</string>
+    <string name="next">Next</string>
+    <string name="intro_title1">Making your drive best is our responsibility</string>
+    <string name="intro_des1">Lorem ipsum dolor sit amet, consectetur</string>
+    <string name="intro_title2">Get All Visitor Info</string>
+    <string name="intro_des2">Get complete visitor details instantly! Track check-ins, view visitor history, and manage access seamlessly with our smart visitor management app.</string>
+    <string name="intro_title3">Connect With Society Member</string>
+    <string name="intro_des3">Stay connected with society members effortlessly! Our app enables seamless communication, updates, and collaboration for a well-managed community.</string>
+
+    <!--  Login Screen  -->
+    <string name="enter_phone_number">Enter Phone Number</string>
+    <string name="get_verification_code">Get Verification Code</string>
+    <string name="well_text_a_code">We’ll text a code to verify your phone number</string>
+    <string name="login">Login</string>
+    <string name="welcome_to_the_app">Welcome back to the app</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="terms_conditions">Terms &amp; Conditions</string>
+
+    <string name="by_continuing">By continuing, you agree that you have read and accept our </string>
+    <string name="t_c">T&amp;Cs</string>
+
+    <!--  OTP Verification Screen  -->
+    <string name="otp_verification">OTP Verification</string>
+    <string name="enter_the_verification">Enter The Verification Code We Just Sent on\nYour Phone Number.</string>
+    <string name="resend_otp_in">Resend OTP in</string>
+    <string name="verify">Verify</string>
+    <string name="resend_otp">Resend OTP</string>
+
+    <!--  Registration screen  -->
+    <string name="registration">Registration</string>
+    <string name="profile">Profile</string>
+    <string name="rc_book_details">RC Book Details</string>
+    <string name="driving_license_details">Driving License Details</string>
+    <string name="aadhar_details">Aadhar Details</string>
+    <string name="pan_details">PAN Details</string>
+    <string name="police_varification">Police Verification</string>
+
+    <string name="rc_book">RC Book</string>
+    <string name="driving_license">Driving License</string>
+    <string name="aadhar_card">Aadhar Card</string>
+    <string name="pan_card">Pan Card</string>
+    <!--  RC Book Details  -->
+    <string name="the_photo_and">The photo and all details must be clearly visible.</string>
+    <string name="only_document">Only documents that are less than  MB in size and in JPG, JPEG, PNG, or PDF format will be accepted.</string>
+    <string name="vehicle_number">Vehicle Number</string>
+    <string name="driving_license_number">Driving License Number</string>
+    <string name="aadhar_number">Aadhar Number</string>
+    <string name="pan_number">Pan Number</string>
+    <string name="enter_number">Enter Number</string>
+    <string name="attach_front_side_photo">Attach Front Side Photo</string>
+    <string name="attach_back_side_photo">Attach Back Side Photo</string>
+    <string name="upload_photo">Upload Photo </string>
+
+    <string name="front_side_photo">Front Side Photo</string>
+    <string name="back_side_photo">Back Side Photo</string>
+
+    <!--  Register screen  -->
+    <string name="create_profile">Create Profile</string>
+    <string name="upload_profile_photo">Upload Profile Photo</string>
+    <string name="name">Name</string>
+    <string name="first_name">First Name</string>
+    <string name="last_name">Last Name</string>
+    <string name="email">Email</string>
+    <string name="enter_name">Enter Name</string>
+    <string name="enter_email">Enter Email</string>
+    <string name="date_of_birth">Date Of Birth</string>
+    <string name="date">Date</string>
+    <string name="owner">Owner</string>
+    <string name="tenant">Tenant</string>
+
+    <!--  waiting screen  -->
+    <string name="back">Back</string>
+    <string name="your_profile_will">Your profile will be reviewed and approved within 48 hours</string>
+
+    <!--  Dashboard screen  -->
+    <string name="home">Home</string>
+    <string name="my_ride">My Ride</string>
+    <string name="wallet">Wallet</string>
+    <string name="rewards">Rewards</string>
+    <string name="setting">Setting</string>
+    <string name="cancel_ride">Cancel Ride</string>
+    <string name="skip_ride">Skip Ride</string>
+    <string name="accept_ride">Accept Ride</string>
+
+    <!--  Home Screen  -->
+    <string name="pickup">Pickup</string>
+    <string name="pickup_address">Pickup Address</string>
+    <string name="arrived_at_pickup">Arrived At Pickup</string>
+    <string name="user_details">User Details</string>
+    <string name="start_ride">Start Ride</string>
+    <string name="enter_otp">Enter OTP</string>
+    <string name="destination">Destination</string>
+    <string name="destination_address">Destination Address</string>
+    <string name="complete_ride">Complete Ride</string>
+    <string name="please_enter_the_otp">Please enter the OTP provided by the rider. The rider can find this OTP on their ride details page.</string>
+
+    <!--  Notification Screen  -->
+    <string name="notification">Notification</string>
+
+    <!-- My Ride Screen -->
+    <string name="filter">Filter</string>
+    <string name="complete">Complete</string>
+    <string name="view_ride_details">View Ride Details</string>
+
+    <!--  Ride Details  -->
+    <string name="ride_details">Ride Details</string>
+    <string name="date_time">Date &amp; Time</string>
+    <string name="ride_type">Ride Type</string>
+    <string name="ride_status">Ride Status</string>
+    <string name="payment_type">Payment Type</string>
+    <string name="total_distance">Total Distance </string>
+    <string name="total_duration">Total Duration</string>
+    <string name="total_esti">Total Estimation</string>
+    <string name="your_payment">Your Payment</string>
+
+
+    <!--  Wallet Screen  -->
+    <string name="your_wallet">Your Wallet</string>
+    <string name="claim_your">Claim Your Rewards Points</string>
+    <string name="available_balance">My Wallet Balance</string>
+    <string name="withdraw">Withdraw</string>
+    <string name="enter_amount">Enter Amount</string>
+    <string name="please_enter_amount">Pleas enter amount value for withdraw</string>
+    <string name="add_money">Add Money</string>
+    <string name="transactions">Transactions</string>
+    <string name="see_all">See All</string>
+
+
+    <!--  Settings Screen  -->
+    <string name="document_info">Document Info</string>
+    <string name="bank_details">Bank Details</string>
+    <string name="safety">Safety</string>
+    <string name="help">Help</string>
+    <string name="about">About</string>
+    <string name="sign_out">Sign out</string>
+    <string name="delete_account">Delete Account</string>
+
+    <!--  Payment Screen  -->
+    <string name="collect_cash">Collect Cash</string>
+
+    <!--  Payment Successful Screen  -->
+    <string name="your_payment_is_successful">Your payment is successful</string>
+    <string name="your_account_is">Your account is ready to use. You will be redirected to the Home Page in a few seconds.</string>
+
+    <!--  Bank Details Screen  -->
+    <string name="bank_name">Bank Name</string>
+    <string name="update">Update</string>
+    <string name="account_holder_name">Account Holder Name</string>
+    <string name="account_number">Account Number</string>
+    <string name="ifsc_code">IFSC Code</string>
+
+    <!--  Photo dialog  -->
+    <string name="select_camera_gallery">Select Camera or Gallery</string>
+    <string name="camera">Camera</string>
+    <string name="gallery">Gallery</string>
+
+
+    <!--  Logout Alert Dialog  -->
+    <string name="delete_account_alert">Delete Account Alert</string>
+    <string name="yes_delete_account">Yes, Delete Account</string>
+    <string name="logout_alert">Logout Alert</string>
+    <string name="logout_alert_des">Are you sure you want to logout?</string>
+    <string name="delete_account_alert_des">Are you sure you want to delete account?</string>
+    <string name="no_stay_here">No, Stay here</string>
+    <string name="yes_logout">Yes, Logout</string>
+    <string name="select_an_option">Select an option</string>
+
+
+</resources>
