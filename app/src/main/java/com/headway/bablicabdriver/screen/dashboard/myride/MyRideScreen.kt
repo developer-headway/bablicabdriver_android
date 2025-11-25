@@ -216,8 +216,6 @@ fun MyRideScreen(
                         fontSize = 12.sp
                     )
 
-
-
                 }
             }
 

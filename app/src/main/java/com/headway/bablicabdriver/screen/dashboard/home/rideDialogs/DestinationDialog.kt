@@ -119,11 +119,11 @@ fun DestinationDialog(
                 fontFamily = MyFonts.fontRegular,
                 fontSize = 14.sp,
                 textColor = MyColors.clr_black_100,
-            )
-            Spacer(
                 modifier = Modifier
                     .weight(1f)
             )
+
+
             Box(
                 modifier = Modifier
                     .width(80.dp)

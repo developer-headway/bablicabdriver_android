@@ -19,7 +19,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import com.headway.bablicabdriver.res.components.bar.ShowSnackBar
-import com.headway.bablicabdriver.res.location.GPSLocationClient
 import com.headway.bablicabdriver.res.location.LocationUpdatesCallBack
 import com.headway.bablicabdriver.screen.navgraph.NavigationGraph
 import com.headway.bablicabdriver.ui.theme.BabliCabDriverTheme
