@@ -120,6 +120,26 @@
     <string name="complete_ride">Complete Ride</string>
     <string name="please_enter_the_otp">Please enter the OTP provided by the rider. The rider can find this OTP on their ride details page.</string>
 
+
+
+    <!--  Shuttle Components  -->
+    <string name="available_for_ride">Available for Ride ?</string>
+    <string name="shuttle">Shuttle</string>
+    <string name="change">Change</string>
+    <string name="current_shuttle_customers">Current Shuttle Customers</string>
+    <string name="finish">Finish</string>
+    <string name="close">Close</string>
+
+    <!--  ChooseServiceDialog dialog  -->
+    <string name="choose_service_for_today">Choose a service for today</string>
+    <string name="you_can_change_anytime">You can change this anytime from current ride.</string>
+    <string name="one_way">One Way</string>
+    <string name="single_point_to_point">Single point - to - point ride.</string>
+    <string name="set">Set</string>
+    <string name="shared_ride_fixed_route">Shared ride on fixed route (set up on next screen)</string>
+
+
+
     <!--  Notification Screen  -->
     <string name="notification">Notification</string>
 

@@ -11,7 +11,9 @@ import android.util.Log
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,10 +25,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -75,6 +82,7 @@ import com.headway.bablicabdriver.model.dashboard.home.StartRideRequest
 import com.headway.bablicabdriver.model.dashboard.home.UpdateDriverLocationRequest
 import com.headway.bablicabdriver.res.Loader
 import com.headway.bablicabdriver.res.components.buttons.CustomSwitchButton1
+import com.headway.bablicabdriver.res.components.buttons.FilledButtonGradient
 import com.headway.bablicabdriver.res.components.dialog.CommonErrorDialogs
 import com.headway.bablicabdriver.res.components.dialog.goToSettingsDialog
 import com.headway.bablicabdriver.res.components.dialog.permissionDeniedDialog
@@ -83,6 +91,7 @@ import com.headway.bablicabdriver.res.components.toast.ToastExpandHorizontal
 import com.headway.bablicabdriver.res.location.GPSLocationClient
 import com.headway.bablicabdriver.res.preferenceManage.SharedPreferenceManager
 import com.headway.bablicabdriver.res.routes.Routes
+import com.headway.bablicabdriver.screen.dashboard.home.chooseservicedialog.ChooseServiceDialog
 import com.headway.bablicabdriver.screen.dashboard.home.openRides.RideRequestsDialog
 import com.headway.bablicabdriver.screen.dashboard.home.rideDialogs.DestinationDialog
 import com.headway.bablicabdriver.screen.dashboard.home.rideDialogs.PickupDialog
@@ -124,6 +133,7 @@ fun HomeScreen(
     var isRefreshing by remember {
         mutableStateOf(false)
     }
+    var showServiceDialog by remember { mutableStateOf(false) }
 
     var currentLocation = remember {
         mutableStateOf<Location?>(null)
@@ -671,9 +681,6 @@ fun HomeScreen(
                                 value = check,
                                 onCheckedChange = {checked ->
                                     check = checked
-//                                navHostController.navigate(Routes.OpenRidesScreen.route) {
-//                                    launchSingleTop = true
-//                                }
                                     callSetOnlineStatusApi()
                                 }
                             )
@@ -713,6 +720,16 @@ fun HomeScreen(
 
                         }
 
+                        AvailableForRideBox(
+                            isAvailable = check,
+                            onChangeClick = {checked->
+                                check = checked
+                                callSetOnlineStatusApi()
+                            },
+                            onAvailabilityChange = {
+                                showServiceDialog = true
+                            }
+                        )
 
                         Box(
                             modifier = Modifier
@@ -876,6 +893,23 @@ fun HomeScreen(
             },
         )
 
+
+        if (showServiceDialog) {
+            ChooseServiceDialog(
+                onDismiss = { showServiceDialog = false },
+                onOneWaySelected = {
+                    showServiceDialog = false
+//                    onChangeClick()
+                },
+                onShuttleSelected = {
+                    showServiceDialog = false
+//                    onChangeClick()
+                }
+            )
+        }
+
+
+
         if (homePageVm._isLoading.collectAsState().value
             || setOnlineStatusVm._isLoading.collectAsState().value
             || acceptRideVm._isLoading.collectAsState().value) {
@@ -905,18 +939,300 @@ fun HomeScreen(
             }
         }
 
-
-
     }
 
 
-
-
-
-
-
-
 }
+
+
+@Composable
+fun AvailableForRideBox(
+    isAvailable: Boolean = true,
+    onAvailabilityChange: (Boolean) -> Unit = {},
+    currentRoute: String = "Incom Tax circle → Swastik Char Ra...",
+    onChangeClick: (Boolean) -> Unit = {}
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .background(
+                color = MyColors.clr_white_100,
+                shape = RoundedCornerShape(16.dp)
+            )
+            .border(
+                width = 2.dp,
+                color = MyColors.clr_00BCF1_100,
+                shape = RoundedCornerShape(16.dp)
+            )
+            .padding(16.dp)
+    ) {
+        // Available for Ride header
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            TextView(
+                text = stringResource(R.string.available_for_ride),
+                textColor = MyColors.clr_132234_100,
+                fontFamily = MyFonts.fontSemiBold,
+                fontSize = 16.sp
+            )
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Switch(
+                    checked = isAvailable,
+                    onCheckedChange = onAvailabilityChange,
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = MyColors.clr_white_100,
+                        checkedTrackColor = MyColors.clr_4CAF50_100,
+                        uncheckedThumbColor = MyColors.clr_white_100,
+                        uncheckedTrackColor = MyColors.clr_DCDCDC_100
+                    )
+                )
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Icon(
+                    painter = painterResource(R.drawable.ic_help_outline),
+                    contentDescription = stringResource(R.string.img_des),
+                    modifier = Modifier.size(24.dp),
+                    tint = MyColors.clr_132234_100
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Shuttle route info
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    color = MyColors.clr_00BCF1_100,
+                    shape = RoundedCornerShape(12.dp)
+                )
+                .padding(12.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    TextView(
+                        text = stringResource(R.string.shuttle),
+                        textColor = MyColors.clr_white_100,
+                        fontFamily = MyFonts.fontSemiBold,
+                        fontSize = 14.sp
+                    )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        TextView(
+                            text = currentRoute,
+                            textColor = MyColors.clr_white_100,
+                            fontFamily = MyFonts.fontRegular,
+                            fontSize = 12.sp,
+                            maxLines = 1
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Box(
+                    modifier = Modifier
+                        .background(
+                            color = MyColors.clr_white_100,
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                ) {
+                    TextView(
+                        text = stringResource(R.string.change),
+                        textColor = MyColors.clr_00BCF1_100,
+                        fontFamily = MyFonts.fontSemiBold,
+                        fontSize = 12.sp
+                    )
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+fun CurrentShuttleCustomersDialog(
+    onDismiss: () -> Unit,
+    trips: List<ShuttleTrip> = listOf(
+        ShuttleTrip(
+            tripCode = "#747347",
+            passengers = 1,
+            fromLocation = "Incom Tax circle",
+            toLocation = "Swastik Char Rasta"
+        ),
+        ShuttleTrip(
+            tripCode = "#747347",
+            passengers = 1,
+            fromLocation = "Incom Tax circle",
+            toLocation = "Swastik Char Rasta"
+        ),
+        ShuttleTrip(
+            tripCode = "#747347",
+            passengers = 1,
+            fromLocation = "Incom Tax circle",
+            toLocation = "Swastik Char Rasta"
+        )
+    )
+) {
+    Dialog(onDismissRequest = onDismiss) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(16.dp))
+                .background(MyColors.clr_white_100)
+                .padding(20.dp)
+        ) {
+            // Title
+            TextView(
+                text = stringResource(R.string.current_shuttle_customers),
+                textColor = MyColors.clr_132234_100,
+                fontFamily = MyFonts.fontBold,
+                fontSize = 18.sp
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Trip list
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f, fill = false),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(trips) { trip ->
+                    ShuttleTripCard(trip = trip)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Close button
+            FilledButtonGradient(
+                text = stringResource(R.string.close),
+                onClick = onDismiss
+            )
+        }
+    }
+}
+
+data class ShuttleTrip(
+    val tripCode: String,
+    val passengers: Int,
+    val fromLocation: String,
+    val toLocation: String
+)
+@Composable
+fun ShuttleTripCard(trip: ShuttleTrip) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(
+                width = 2.dp,
+                color = MyColors.clr_00BCF1_100,
+                shape = RoundedCornerShape(12.dp)
+            )
+            .padding(16.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                TextView(
+                    text = "Trip Code: ${trip.tripCode}",
+                    textColor = MyColors.clr_132234_100,
+                    fontFamily = MyFonts.fontSemiBold,
+                    fontSize = 14.sp
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                TextView(
+                    text = "No. Of Passengers - ${trip.passengers}",
+                    textColor = MyColors.clr_132234_100,
+                    fontFamily = MyFonts.fontRegular,
+                    fontSize = 14.sp
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    TextView(
+                        text = trip.fromLocation,
+                        textColor = MyColors.clr_00BCF1_100,
+                        fontFamily = MyFonts.fontRegular,
+                        fontSize = 12.sp
+                    )
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Icon(
+                        painter = painterResource(R.drawable.ic_next_arrow),
+                        contentDescription = stringResource(R.string.img_des),
+                        modifier = Modifier.size(16.dp),
+                        tint = MyColors.clr_00BCF1_100
+                    )
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    TextView(
+                        text = trip.toLocation,
+                        textColor = MyColors.clr_00BCF1_100,
+                        fontFamily = MyFonts.fontRegular,
+                        fontSize = 12.sp
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Box(
+                modifier = Modifier
+                    .background(
+                        color = MyColors.clr_00BCF1_100,
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                    .padding(horizontal = 20.dp, vertical = 10.dp)
+            ) {
+                TextView(
+                    text = stringResource(R.string.finish),
+                    textColor = MyColors.clr_white_100,
+                    fontFamily = MyFonts.fontSemiBold,
+                    fontSize = 14.sp
+                )
+            }
+        }
+    }
+}
+
+
+
+
 
 
 
