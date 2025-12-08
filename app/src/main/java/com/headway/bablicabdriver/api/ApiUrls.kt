@@ -2,7 +2,7 @@ package com.headway.bablicabdriver.api
 
 
 
-const val BASE_URL = "http://192.168.1.13:2025/api/mobile/driver/"
+const val BASE_URL = "http://192.168.1.31:2025/api/mobile/driver/"
 const val GOOGLE_APIS_BASE_URL = "https://maps.googleapis.com/"
 const val GOOGLE_ROUTES_BASE_URL = "https://routes.googleapis.com/"
 

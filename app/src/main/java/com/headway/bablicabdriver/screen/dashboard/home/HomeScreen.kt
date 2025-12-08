@@ -644,7 +644,7 @@ fun HomeScreen(
                         }
 
 
-                        Row(
+                      /*  Row(
                             modifier = Modifier
                                 .padding(top = 20.dp)
                                 .fillMaxWidth()
@@ -718,16 +718,21 @@ fun HomeScreen(
                             }
 
 
-                        }
+                        }*/
 
                         AvailableForRideBox(
-                            isAvailable = check,
-                            onChangeClick = {checked->
-                                check = checked
-                                callSetOnlineStatusApi()
-                            },
-                            onAvailabilityChange = {
+                            check = check,
+                            onChangeClick = {
                                 showServiceDialog = true
+
+                            },
+                            onAvailabilityChange = {checked->
+                                if (!checked) {
+                                    check = false
+                                    callSetOnlineStatusApi()
+                                } else {
+                                    showServiceDialog = true
+                                }
                             }
                         )
 
@@ -900,10 +905,15 @@ fun HomeScreen(
                 onOneWaySelected = {
                     showServiceDialog = false
 //                    onChangeClick()
+                    check = true
+                    callSetOnlineStatusApi()
                 },
                 onShuttleSelected = {
                     showServiceDialog = false
 //                    onChangeClick()
+                    navHostController.navigate(Routes.SetRouteScreen.route) {
+                        launchSingleTop = true
+                    }
                 }
             )
         }
@@ -947,29 +957,33 @@ fun HomeScreen(
 
 @Composable
 fun AvailableForRideBox(
-    isAvailable: Boolean = true,
+    check: Boolean = true,
     onAvailabilityChange: (Boolean) -> Unit = {},
     currentRoute: String = "Incom Tax circle → Swastik Char Ra...",
-    onChangeClick: (Boolean) -> Unit = {}
+    onChangeClick: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier
+            .padding(top = 20.dp)
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
+            .clip( shape = RoundedCornerShape(16.dp))
             .background(
                 color = MyColors.clr_white_100,
                 shape = RoundedCornerShape(16.dp)
             )
             .border(
-                width = 2.dp,
+                width = 1.dp,
                 color = MyColors.clr_00BCF1_100,
                 shape = RoundedCornerShape(16.dp)
             )
-            .padding(16.dp)
+
     ) {
         // Available for Ride header
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -983,15 +997,25 @@ fun AvailableForRideBox(
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Switch(
-                    checked = isAvailable,
-                    onCheckedChange = onAvailabilityChange,
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = MyColors.clr_white_100,
-                        checkedTrackColor = MyColors.clr_4CAF50_100,
-                        uncheckedThumbColor = MyColors.clr_white_100,
-                        uncheckedTrackColor = MyColors.clr_DCDCDC_100
-                    )
+
+//                Switch(
+//                    checked = check,
+//                    onCheckedChange = {
+//                        onAvailabilityChange(it)
+//                    },
+//                    colors = SwitchDefaults.colors(
+//                        checkedThumbColor = MyColors.clr_white_100,
+//                        checkedTrackColor = MyColors.clr_4CAF50_100,
+//                        uncheckedThumbColor = MyColors.clr_white_100,
+//                        uncheckedTrackColor = MyColors.clr_DCDCDC_100
+//                    )
+//                )
+
+                CustomSwitchButton1(
+                    value = check,
+                    onCheckedChange = { checked ->
+                        onAvailabilityChange(checked)
+                    }
                 )
 
                 Spacer(modifier = Modifier.width(8.dp))
@@ -1005,67 +1029,72 @@ fun AvailableForRideBox(
             }
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        if (check) {
+            Box(
+                modifier = Modifier
 
-        // Shuttle route info
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    color = MyColors.clr_00BCF1_100,
-                    shape = RoundedCornerShape(12.dp)
-                )
-                .padding(12.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    TextView(
-                        text = stringResource(R.string.shuttle),
-                        textColor = MyColors.clr_white_100,
-                        fontFamily = MyFonts.fontSemiBold,
-                        fontSize = 14.sp
+                    .fillMaxWidth()
+                    .background(
+                        color = MyColors.clr_00BCF1_100,
+//                        shape = RoundedCornerShape(12.dp)
                     )
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
+                    .padding(12.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(
+                        modifier = Modifier.weight(1f)
                     ) {
                         TextView(
-                            text = currentRoute,
+                            text = stringResource(R.string.shuttle),
                             textColor = MyColors.clr_white_100,
-                            fontFamily = MyFonts.fontRegular,
-                            fontSize = 12.sp,
-                            maxLines = 1
+                            fontFamily = MyFonts.fontSemiBold,
+                            fontSize = 14.sp
+                        )
+
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            TextView(
+                                text = currentRoute,
+                                textColor = MyColors.clr_white_100,
+                                fontFamily = MyFonts.fontRegular,
+                                fontSize = 12.sp,
+                                maxLines = 1
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Box(
+                        modifier = Modifier
+                            .background(
+                                color = MyColors.clr_white_100,
+                                shape = RoundedCornerShape(8.dp)
+                            )
+                            .clickable {
+                                onChangeClick()
+                            }
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                    ) {
+                        TextView(
+                            text = stringResource(R.string.change),
+                            textColor = MyColors.clr_00BCF1_100,
+                            fontFamily = MyFonts.fontSemiBold,
+                            fontSize = 12.sp
                         )
                     }
                 }
-
-                Spacer(modifier = Modifier.width(8.dp))
-
-                Box(
-                    modifier = Modifier
-                        .background(
-                            color = MyColors.clr_white_100,
-                            shape = RoundedCornerShape(8.dp)
-                        )
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
-                ) {
-                    TextView(
-                        text = stringResource(R.string.change),
-                        textColor = MyColors.clr_00BCF1_100,
-                        fontFamily = MyFonts.fontSemiBold,
-                        fontSize = 12.sp
-                    )
-                }
             }
         }
+
+
     }
 }
 
@@ -1135,12 +1164,7 @@ fun CurrentShuttleCustomersDialog(
     }
 }
 
-data class ShuttleTrip(
-    val tripCode: String,
-    val passengers: Int,
-    val fromLocation: String,
-    val toLocation: String
-)
+
 @Composable
 fun ShuttleTripCard(trip: ShuttleTrip) {
     Box(
@@ -1230,6 +1254,12 @@ fun ShuttleTripCard(trip: ShuttleTrip) {
     }
 }
 
+data class ShuttleTrip(
+    val tripCode: String,
+    val passengers: Int,
+    val fromLocation: String,
+    val toLocation: String
+)
 
 
 

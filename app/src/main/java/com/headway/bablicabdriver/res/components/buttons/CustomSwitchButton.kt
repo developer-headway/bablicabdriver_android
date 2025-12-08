@@ -53,7 +53,7 @@ fun CustomSwitchButton1(
             .width(buttonWidth)
             .height(buttonHeight)
             .clip(CircleShape)
-            .background(if (value) MyColors.clr_00BCF1_100 else MyColors.clr_E8E8E8_100)
+            .background(if (value) MyColors.clr_4CAF50_100 else MyColors.clr_E8E8E8_100)
             .clickable(
                 interactionSource = interactionSource,
                 indication = null

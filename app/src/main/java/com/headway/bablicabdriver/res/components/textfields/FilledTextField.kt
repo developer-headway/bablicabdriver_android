@@ -60,7 +60,8 @@ fun FilledTextField(
     enabled: Boolean = true,
     maxTextCount: Int = Int.MAX_VALUE,
     keyboardType: KeyboardType = KeyboardType.Text,
-    radius: Dp = 8.dp
+    radius: Dp = 8.dp,
+    horizontalPadding: Dp = 12.dp
 ) {
     val focusManager = LocalFocusManager.current
     val interactionSource = remember { MutableInteractionSource() }
@@ -90,7 +91,7 @@ fun FilledTextField(
                     )
                 }
             )
-            .padding(horizontal = 12.dp)
+            .padding(horizontal = horizontalPadding)
     ) {
 
 

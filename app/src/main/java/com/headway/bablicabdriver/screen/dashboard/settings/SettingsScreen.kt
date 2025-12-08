@@ -374,8 +374,11 @@ fun SettingsScreen(
                                                 launchSingleTop = true
                                             }
                                         }
-
-
+                                        else -> {
+                                            navHostController.navigate(Routes.MyVehicleScreen.route) {
+                                                launchSingleTop = true
+                                            }
+                                        }
                                     }
                                 }
                         ) {

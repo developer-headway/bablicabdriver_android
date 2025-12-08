@@ -129,7 +129,10 @@
     <string name="current_shuttle_customers">Current Shuttle Customers</string>
     <string name="finish">Finish</string>
     <string name="close">Close</string>
-
+    <string name="set_route">Set Route</string>
+    <string name="search_by_route_name">Search By Route Name</string>
+    <string name="set_this_root">Set This Root</string>
+    <string name="my_vehicle">My Vehicle</string>
     <!--  ChooseServiceDialog dialog  -->
     <string name="choose_service_for_today">Choose a service for today</string>
     <string name="you_can_change_anytime">You can change this anytime from current ride.</string>

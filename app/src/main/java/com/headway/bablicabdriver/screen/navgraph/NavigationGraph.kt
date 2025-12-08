@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.headway.bablicabdriver.res.routes.Routes
 import com.headway.bablicabdriver.screen.dashboard.DashboardScreen
+import com.headway.bablicabdriver.screen.dashboard.home.SetRouteScreen
 import com.headway.bablicabdriver.screen.dashboard.home.completeRide.PaymentScreen
 import com.headway.bablicabdriver.screen.dashboard.home.completeRide.PaymentSuccessScreen
 import com.headway.bablicabdriver.screen.dashboard.myride.ridedetails.MyRideDetailsScreen
@@ -17,6 +18,7 @@ import com.headway.bablicabdriver.screen.dashboard.notification.NotificationList
 import com.headway.bablicabdriver.screen.dashboard.settings.bankdetails.BankDetailsScreen
 import com.headway.bablicabdriver.screen.dashboard.settings.documentinfo.DocumentDetailsScreen
 import com.headway.bablicabdriver.screen.dashboard.settings.documentinfo.DocumentInfoScreen
+import com.headway.bablicabdriver.screen.dashboard.settings.myvehicle.MyVehicleScreen
 import com.headway.bablicabdriver.screen.intro.IntroScreen
 import com.headway.bablicabdriver.screen.launch.LaunchScreen
 import com.headway.bablicabdriver.screen.login.LoginScreen
@@ -225,6 +227,25 @@ fun NavigationGraph(
                 }
             )
 
+
+
+            composable2 (
+                route = Routes.SetRouteScreen.route,
+                content = {
+                    SetRouteScreen(
+                        navHostController = navHostController,
+                    )
+                }
+            )
+
+            composable2 (
+                route = Routes.MyVehicleScreen.route,
+                content = {
+                    MyVehicleScreen(
+                        navHostController = navHostController,
+                    )
+                }
+            )
 
 
 

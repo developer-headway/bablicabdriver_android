@@ -20,4 +20,6 @@ sealed class Routes(val route: String) {
     data object PaymentScreen : Routes(route = "PaymentScreen")
     data object PaymentSuccessScreen : Routes(route = "PaymentSuccessScreen")
     data object NotificationListScreen : Routes(route = "NotificationListScreen")
+    data object SetRouteScreen : Routes(route = "SetRouteScreen")
+    data object MyVehicleScreen : Routes(route = "MyVehicleScreen")
 }
