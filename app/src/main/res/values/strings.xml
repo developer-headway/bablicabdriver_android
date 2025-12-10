@@ -133,6 +133,16 @@
     <string name="search_by_route_name">Search By Route Name</string>
     <string name="set_this_root">Set This Root</string>
     <string name="my_vehicle">My Vehicle</string>
+
+    <string name="vehicle_details">Vehicle Details</string>
+    <string name="vehicle_no">Vehicle No</string>
+    <string name="babli_vehicle_code">Babli Vehicle Code</string>
+    <string name="rc_book_image">RC Book Image</string>
+    <string name="front_side">Front Side</string>
+    <string name="back_side">Back Side</string>
+    <string name="assigned_driver">Assigned Driver</string>
+
+
     <!--  ChooseServiceDialog dialog  -->
     <string name="choose_service_for_today">Choose a service for today</string>
     <string name="you_can_change_anytime">You can change this anytime from current ride.</string>

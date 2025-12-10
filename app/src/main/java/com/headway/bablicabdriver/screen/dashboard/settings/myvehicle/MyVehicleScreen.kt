@@ -1,4 +1,5 @@
 package com.headway.bablicabdriver.screen.dashboard.settings.myvehicle
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -35,6 +36,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.headway.bablicabdriver.R
 import com.headway.bablicabdriver.res.components.textview.TextView
+import com.headway.bablicabdriver.res.routes.Routes
 import com.headway.bablicabdriver.ui.theme.MyColors
 import com.headway.bablicabdriver.ui.theme.MyFonts
 import dev.materii.pullrefresh.PullRefreshIndicator
@@ -123,14 +125,70 @@ fun MyVehicleScreen(
                     .pullRefresh(refreshState),
                 verticalArrangement = Arrangement.spacedBy(0.dp)
             ) {
-                items(vehicles) { vehicle ->
-                    VehicleItem(
-                        vehicle = vehicle,
-                        onClick = {
-                            onVehicleSelected(vehicle)
-                            navHostController.popBackStack()
+                items(vehicles) { item ->
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    onVehicleSelected(item)
+                                    navHostController.navigate(
+                                        Routes.VehicleDetailsScreen.createRoute(item.id)
+                                    ) {
+                                        launchSingleTop = true
+                                    }
+                                }
+                                .background(
+                                    color = MyColors.clr_white_100,
+                                    shape = RoundedCornerShape(0.dp)
+                                )
+                                .padding(vertical = 12.dp)
+                                .padding(horizontal = 16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(
+                                modifier = Modifier
+                            ) {
+                                TextView(
+                                    text = item.vehicleNumber,
+                                    textColor = MyColors.clr_132234_100,
+                                    fontFamily = MyFonts.fontRegular,
+                                    fontSize = 16.sp
+                                )
+                                Spacer(
+                                    modifier = Modifier
+                                        .height(2.dp)
+                                )
+                                TextView(
+                                    text = "Shift: 10:00 AM - 02:00 PM",
+                                    textColor = MyColors.clr_132234_100,
+                                    fontFamily = MyFonts.fontRegular,
+                                    fontSize = 12.sp
+                                )
+                            }
+
+
+                            Icon(
+                                painter = painterResource(R.drawable.ic_next_arrow),
+                                contentDescription = stringResource(R.string.img_des),
+                                modifier = Modifier.size(20.dp),
+                                tint = MyColors.clr_132234_100
+                            )
                         }
-                    )
+                        HorizontalDivider(
+                            color = MyColors.clr_00BCF1_20,
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp)
+                        )
+                    }
+
+
                 }
             }
 
@@ -142,66 +200,7 @@ fun MyVehicleScreen(
     }
 }
 
-@Composable
-fun VehicleItem(
-    vehicle: Vehicle,
-    onClick: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
 
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { onClick() }
-                .background(
-                    color = MyColors.clr_white_100,
-                    shape = RoundedCornerShape(0.dp)
-                )
-                .padding(vertical = 12.dp)
-                .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(
-                modifier = Modifier
-            ) {
-                TextView(
-                    text = vehicle.vehicleNumber,
-                    textColor = MyColors.clr_132234_100,
-                    fontFamily = MyFonts.fontRegular,
-                    fontSize = 16.sp
-                )
-                Spacer(
-                    modifier = Modifier
-                        .height(2.dp)
-                )
-                TextView(
-                    text = "Shift: 10:00 AM - 02:00 PM",
-                    textColor = MyColors.clr_132234_100,
-                    fontFamily = MyFonts.fontRegular,
-                    fontSize = 12.sp
-                )
-            }
-
-
-            Icon(
-                painter = painterResource(R.drawable.ic_next_arrow),
-                contentDescription = stringResource(R.string.img_des),
-                modifier = Modifier.size(20.dp),
-                tint = MyColors.clr_132234_100
-            )
-        }
-        HorizontalDivider(
-            color = MyColors.clr_00BCF1_20,
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-        )
-    }
-
-}
 
 data class Vehicle(
     val id: String,

@@ -22,4 +22,8 @@ sealed class Routes(val route: String) {
     data object NotificationListScreen : Routes(route = "NotificationListScreen")
     data object SetRouteScreen : Routes(route = "SetRouteScreen")
     data object MyVehicleScreen : Routes(route = "MyVehicleScreen")
+
+    data object VehicleDetailsScreen : Routes(route = "VehicleDetailsScreen/{vehicleId}") {
+        fun createRoute(vehicleId: String) = "VehicleDetailsScreen/$vehicleId"
+    }
 }
