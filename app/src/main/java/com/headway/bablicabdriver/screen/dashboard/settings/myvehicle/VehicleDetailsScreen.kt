@@ -59,6 +59,8 @@ fun VehicleDetailsScreen(
     var isRefreshing by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
+    //scop
+
     // Sample data - replace with actual API data based on vehicleId
     val vehicleDetails = remember {
         VehicleDetails(
