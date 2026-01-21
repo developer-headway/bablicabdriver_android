@@ -115,7 +115,7 @@ fun DestinationDialog(
             verticalAlignment = Alignment.CenterVertically
         ) {
             TextView(
-                text = currentRide?.pickup_address?:"",
+                text = currentRide?.destination_address?:"",
                 fontFamily = MyFonts.fontRegular,
                 fontSize = 14.sp,
                 textColor = MyColors.clr_black_100,
@@ -143,7 +143,7 @@ fun DestinationDialog(
                 contentAlignment = Alignment.Center
             ) {
                 TextView(
-                    text = "Go To\nPickup",
+                    text = "Go To\nDrop",
                     fontFamily = MyFonts.fontRegular,
                     fontSize = 14.sp,
                     textColor = MyColors.clr_00BCF1_100,

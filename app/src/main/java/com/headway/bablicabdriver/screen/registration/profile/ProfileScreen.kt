@@ -1,4 +1,4 @@
-    package com.headway.bablicabdriver.screen.registration.profile
+package com.headway.bablicabdriver.screen.registration.profile
 
 import android.Manifest
 import android.app.DatePickerDialog
@@ -67,14 +67,13 @@ import com.headway.bablicabdriver.model.registration.profile.UpdateProfileReques
 import com.headway.bablicabdriver.res.Loader
 import com.headway.bablicabdriver.res.components.bar.TopNavigationBar
 import com.headway.bablicabdriver.res.components.buttons.FilledButtonGradient
-import com.headway.bablicabdriver.res.components.textfields.FilledTextField
-import com.headway.bablicabdriver.res.components.textview.TextView
 import com.headway.bablicabdriver.res.components.dialog.CameraOrGallerySelector
 import com.headway.bablicabdriver.res.components.dialog.CommonErrorDialogs
 import com.headway.bablicabdriver.res.components.dialog.goToSettingsDialog
 import com.headway.bablicabdriver.res.components.dialog.permissionDeniedDialog
+import com.headway.bablicabdriver.res.components.textfields.FilledTextField
+import com.headway.bablicabdriver.res.components.textview.TextView
 import com.headway.bablicabdriver.res.preferenceManage.SharedPreferenceManager
-import com.headway.bablicabdriver.res.routes.Routes
 import com.headway.bablicabdriver.ui.theme.MyColors
 import com.headway.bablicabdriver.ui.theme.MyFonts
 import com.headway.bablicabdriver.utils.AppUtils
@@ -86,15 +85,10 @@ import com.headway.bablicabdriver.utils.shimmerEffect
 import com.headway.bablicabdriver.viewmodel.MainViewModel
 import com.headway.bablicabdriver.viewmodel.registration.profile.UpdateProfileVm
 import com.headway.bablicabdriver.viewmodel.settings.ProfileVm
-import dev.materii.pullrefresh.rememberPullRefreshState
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.util.Calendar
 import java.util.Objects
 import java.util.TimeZone
-import kotlin.collections.get
-import kotlin.text.indexOf
-import kotlin.text.matches
+import kotlin.math.min
 
 @Composable
 fun ProfileScreen(
@@ -104,7 +98,8 @@ fun ProfileScreen(
     val context = LocalContext.current
     val activity = LocalActivity.current
     val sharedPreferenceManager = SharedPreferenceManager(context)
-    val isEdit = navHostController.previousBackStackEntry?.savedStateHandle?.get("is_edit")?:false
+    val isEdit = navHostController.previousBackStackEntry?.savedStateHandle?.get("is_edit") ?: false
+
 
 
     val firstName = rememberTextFieldState()
@@ -127,15 +122,19 @@ fun ProfileScreen(
     var dateError by rememberSaveable {
         mutableStateOf(false)
     }
+
     ///////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////
-    fun datePicker(selDate: MutableState<String>, onResult:() ->Unit = {}) {
+    fun datePicker(selDate: MutableState<String>, onResult: () -> Unit = {}) {
         var month = ""
         var day = ""
         val c = Calendar.getInstance()
         val splitDate = selDate.value.split(" ")
         val mYear = if (selDate.value.isEmpty()) c[Calendar.YEAR] else splitDate[2].toInt()
-        val mMonth = if (selDate.value.isEmpty()) c[Calendar.MONTH] else AppUtils.calendarList.indexOf(splitDate[1])
+        val mMonth =
+            if (selDate.value.isEmpty()) c[Calendar.MONTH] else AppUtils.calendarList.indexOf(
+                splitDate[1]
+            )
         val mDay = if (selDate.value.isEmpty()) c[Calendar.DAY_OF_MONTH] else splitDate[0].toInt()
 
         val datePickerDialog = DatePickerDialog(
@@ -153,17 +152,20 @@ fun ProfileScreen(
                 onResult()
             }, mYear, mMonth, mDay
         )
-        datePickerDialog.datePicker.maxDate = Calendar.getInstance(TimeZone.getDefault()).timeInMillis
+        datePickerDialog.datePicker.maxDate =
+            Calendar.getInstance(TimeZone.getDefault()).timeInMillis
         datePickerDialog.show()
-        datePickerDialog.getButton(DatePickerDialog.BUTTON_NEGATIVE).setTextColor(android.graphics.Color.GRAY)
-        datePickerDialog.getButton(DatePickerDialog.BUTTON_POSITIVE).setTextColor("#FF2096F3".toColorInt())
+        datePickerDialog.getButton(DatePickerDialog.BUTTON_NEGATIVE)
+            .setTextColor(android.graphics.Color.GRAY)
+        datePickerDialog.getButton(DatePickerDialog.BUTTON_POSITIVE)
+            .setTextColor("#FF2096F3".toColorInt())
     }
 
     /////////////////////////////////////////////
     /////////////////////////////////////////////
 
     var cameraUri by remember {
-        mutableStateOf<Uri> (Uri.EMPTY)
+        mutableStateOf<Uri>(Uri.EMPTY)
     }
 
     val showGalleryOrImagePicker = remember {
@@ -175,14 +177,15 @@ fun ProfileScreen(
 
 
     val cropImage = rememberLauncherForActivityResult(CropImageContract()) { result ->
-        if (result.uriContent != null){
+        if (result.uriContent != null) {
             result.uriContent?.let { uri ->
                 showGalleryOrImagePicker.value = false
                 imageUri = uri
             }
         }
     }
-    fun handleUriInput(uri: Uri?){
+
+    fun handleUriInput(uri: Uri?) {
         cropImage.launch(
             CropImageContractOptions(
                 uri = uri,
@@ -210,9 +213,10 @@ fun ProfileScreen(
             }
         }
     )
-    val cameraPermission = rememberPermissionsState(permissions = listOf(
-        Manifest.permission.CAMERA
-    ),
+    val cameraPermission = rememberPermissionsState(
+        permissions = listOf(
+            Manifest.permission.CAMERA
+        ),
         onGrantedAction = {
             val file = context.createImageFile()
             cameraUri = FileProvider.getUriForFile(
@@ -250,7 +254,7 @@ fun ProfileScreen(
     val errorStates by remember {
         mutableStateOf(ErrorsData())
     }
-    val profileVm : ProfileVm = viewModel()
+    val profileVm: ProfileVm = viewModel()
     val profileData by profileVm.profileData.collectAsState()
 
     var profileImageUrl by rememberSaveable {
@@ -266,16 +270,16 @@ fun ProfileScreen(
                 token = token,
                 errorStates = errorStates,
                 onError = {
-                    errorStates.bottomToastText.value = it?:""
+                    errorStates.bottomToastText.value = it ?: ""
                     AppUtils.showToastBottom(errorStates.showBottomToast)
                 },
-                onSuccess = {response->
+                onSuccess = { response ->
                     if (response?.status == true) {
 
                         val data = response.data
 
                         sharedPreferenceManager.storeProfileData(data)
-                        Log.d("msg","anca-dxsacsadkjcjsadc-dsajcndsaickm")
+                        Log.d("msg", "anca-dxsacsadkjcjsadc-dsajcndsaickm")
                         profileImageUrl = data.profile_photo
                         firstName.edit {
                             replace(0, length, data.first_name)
@@ -286,9 +290,10 @@ fun ProfileScreen(
                         email.edit {
                             replace(0, length, data.email)
                         }
-                        date.value = AppUtils.convertDateFormat(data.dob,"yyyy-MM-dd","dd MMM yyyy")?:""
+                        date.value =
+                            AppUtils.convertDateFormat(data.dob, "yyyy-MM-dd", "dd MMM yyyy") ?: ""
                     } else {
-                        errorStates.bottomToastText.value = response?.message?:""
+                        errorStates.bottomToastText.value = response?.message ?: ""
                         AppUtils.showToastBottom(errorStates.showBottomToast)
                     }
 
@@ -325,7 +330,7 @@ fun ProfileScreen(
     }
 
 
-    val updateProfileVm : UpdateProfileVm = viewModel()
+    val updateProfileVm: UpdateProfileVm = viewModel()
     fun callUpdateProfileApi() {
         if (AppUtils.isInternetAvailable(context)) {
 
@@ -334,7 +339,7 @@ fun ProfileScreen(
                 first_name = firstName.text.trim().toString(),
                 last_name = lastName.text.trim().toString(),
                 email = email.text.trim().toString(),
-                dob = dob?:"",
+                dob = dob ?: "",
                 profile_photo = imageUri
             )
             updateProfileVm.callUpdateProfileApi(
@@ -343,18 +348,21 @@ fun ProfileScreen(
                 request = request,
                 errorStates = errorStates,
                 onError = {
-                    errorStates.bottomToastText.value = it?:""
+                    errorStates.bottomToastText.value = it ?: ""
                     AppUtils.showToastBottom(errorStates.showBottomToast)
                 },
-                onSuccess = {response->
+                onSuccess = { response ->
                     if (response?.status == true) {
                         mainViewModel.snackBarText.value = response.message
                         mainViewModel.showSnackBar.value = true
-                        navHostController.previousBackStackEntry?.savedStateHandle?.set("refresh",true)
+                        navHostController.previousBackStackEntry?.savedStateHandle?.set(
+                            "refresh",
+                            true
+                        )
                         navHostController.popBackStack()
                         sharedPreferenceManager.storeProfileData(response.data)
                     } else {
-                        errorStates.bottomToastText.value = response?.message?:""
+                        errorStates.bottomToastText.value = response?.message ?: ""
                         AppUtils.showToastBottom(errorStates.showBottomToast)
                     }
                 }
@@ -385,14 +393,16 @@ fun ProfileScreen(
             ) {
 
                 FilledButtonGradient(
-                    text = stringResource(if (isEdit)R.string.submit else R.string.next),
+                    text = stringResource(if (isEdit) R.string.submit else R.string.next),
                     textColor = MyColors.clr_white_100,
                     onClick = {
                         firstNameError = firstName.text.isEmpty()
                         lastNameError = lastName.text.isEmpty()
                         dateError = date.value.isEmpty()
                         if (email.text.isNotEmpty()) {
-                            emailError = !AppUtils.emailRegex.matcher(email.text.toString().lowercase()).matches()
+                            emailError =
+                                !AppUtils.emailRegex.matcher(email.text.toString().lowercase())
+                                    .matches()
                         }
 
                         if (!firstNameError && !lastNameError && !emailError && !dateError) {
@@ -427,8 +437,6 @@ fun ProfileScreen(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
         ) {
-
-
 
 
             Spacer(
@@ -484,7 +492,7 @@ fun ProfileScreen(
                     contentAlignment = Alignment.Center
                 ) {
 
-                    if(imageUri == Uri.EMPTY && !isEdit) {
+                    if (imageUri == Uri.EMPTY && !isEdit) {
                         Box(
                             modifier = Modifier
                                 .size(96.dp)
@@ -505,15 +513,14 @@ fun ProfileScreen(
                                 )
                             )
                         }
-                    }
-                    else {
+                    } else {
                         var imgLoading by remember {
                             mutableStateOf(true)
                         }
                         AsyncImage(
                             model = ImageRequest
                                 .Builder(context)
-                                .data(if (imageUri!=Uri.EMPTY) imageUri else profileData?.profile_photo)
+                                .data(if (imageUri != Uri.EMPTY) imageUri else profileData?.profile_photo)
                                 .crossfade(true)
                                 .build(),
                             contentDescription = "",
@@ -574,7 +581,9 @@ fun ProfileScreen(
             )
 
             TextView(
-                text =  if(firstNameError) { stringResource(R.string.this_field_can_not_be_empty) } else "",
+                text = if (firstNameError) {
+                    stringResource(R.string.this_field_can_not_be_empty)
+                } else "",
                 modifier = Modifier
                     .padding(top = 3.dp)
                     .padding(horizontal = 20.dp)
@@ -623,7 +632,9 @@ fun ProfileScreen(
             )
 
             TextView(
-                text =  if(lastNameError) { stringResource(R.string.this_field_can_not_be_empty) } else "",
+                text = if (lastNameError) {
+                    stringResource(R.string.this_field_can_not_be_empty)
+                } else "",
                 modifier = Modifier
                     .padding(top = 3.dp)
                     .padding(horizontal = 20.dp)
@@ -676,9 +687,11 @@ fun ProfileScreen(
 
 
             TextView(
-                text =  if(emailError) {
-                    if (email.text.isNotEmpty()) stringResource(R.string.kindly_enter_valid_email) else  stringResource(R.string.this_field_can_not_be_empty) }
-                else "",
+                text = if (emailError) {
+                    if (email.text.isNotEmpty()) stringResource(R.string.kindly_enter_valid_email) else stringResource(
+                        R.string.this_field_can_not_be_empty
+                    )
+                } else "",
                 modifier = Modifier
                     .padding(horizontal = 20.dp)
                     .height(18.dp),
@@ -747,7 +760,9 @@ fun ProfileScreen(
             }
 
             TextView(
-                text =  if(dateError) { stringResource(R.string.this_field_can_not_be_empty) } else "",
+                text = if (dateError) {
+                    stringResource(R.string.this_field_can_not_be_empty)
+                } else "",
                 modifier = Modifier
                     .padding(horizontal = 20.dp)
                     .height(18.dp),
@@ -784,19 +799,16 @@ fun ProfileScreen(
         showToast = false,
         errorStates = errorStates,
         onNoInternetRetry = {
-            if (networkError==NetWorkFail.NetworkError.ordinal) {
+            if (networkError == NetWorkFail.NetworkError.ordinal) {
                 errorStates.showInternetError.value = false
                 networkError = NetWorkFail.NoError.ordinal
                 callUpdateProfileApi()
             }
-
-            if (profileNetworkError==NetWorkFail.NetworkError.ordinal) {
+            if (profileNetworkError == NetWorkFail.NetworkError.ordinal) {
                 errorStates.showInternetError.value = false
                 profileNetworkError = NetWorkFail.NoError.ordinal
                 callProfileApi()
             }
-
-
         },
     )
 
@@ -806,3 +818,4 @@ fun ProfileScreen(
     }
 
 }
+

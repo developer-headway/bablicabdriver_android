@@ -2,6 +2,7 @@ package com.headway.bablicabdriver
 
 import android.location.Location
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -24,6 +25,8 @@ import com.headway.bablicabdriver.screen.navgraph.NavigationGraph
 import com.headway.bablicabdriver.ui.theme.BabliCabDriverTheme
 import com.headway.bablicabdriver.utils.KeyBoardManager
 import com.headway.bablicabdriver.viewmodel.MainViewModel
+
+
 
 class MainActivity : ComponentActivity(), LocationUpdatesCallBack {
 
@@ -60,7 +63,6 @@ class MainActivity : ComponentActivity(), LocationUpdatesCallBack {
 
                 Scaffold(
                     modifier = Modifier
-                        .fillMaxSize()
                         .fillMaxSize()
                         .pointerInput(Unit) {
                             detectTapGestures {
