@@ -71,6 +71,11 @@ class SharedPreferenceManager(private val context: Context){
     fun getEmail(): String{
         return sharedPreferenceManager.getString("email", "") ?: ""
     }
+    fun getUserId(): String{
+        return sharedPreferenceManager.getString("user_id", "") ?: ""
+    }
+
+
     fun getMobile(): String{
         return sharedPreferenceManager.getString("phone_number", "") ?: ""
     }

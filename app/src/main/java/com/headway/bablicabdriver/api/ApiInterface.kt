@@ -13,6 +13,8 @@ import com.headway.bablicabdriver.model.dashboard.home.RidePaymentRequest
 import com.headway.bablicabdriver.model.dashboard.home.RidePaymentResponse
 import com.headway.bablicabdriver.model.dashboard.home.SetOnlineStatusRequest
 import com.headway.bablicabdriver.model.dashboard.home.SetOnlineStatusResponse
+import com.headway.bablicabdriver.model.dashboard.home.SetShuttleRouteRequest
+import com.headway.bablicabdriver.model.dashboard.home.SetShuttleRouteResponse
 import com.headway.bablicabdriver.model.dashboard.home.StartRideRequest
 import com.headway.bablicabdriver.model.dashboard.home.StartRideResponse
 import com.headway.bablicabdriver.model.dashboard.home.UpdateDriverLocationRequest
@@ -35,6 +37,7 @@ import com.headway.bablicabdriver.model.registration.RegistrationDetailsResponse
 import com.headway.bablicabdriver.model.registration.UploadDocumentResponse
 import com.headway.bablicabdriver.model.registration.profile.ProfileResponse
 import com.headway.bablicabdriver.model.registration.profile.UpdateProfileResponse
+import com.headway.bablicabdriver.model.dashboard.home.ShuttleRouteResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
@@ -227,6 +230,17 @@ interface ApiInterface {
         @Body request: WithdrawMoneyRequest
     ): Response<WithdrawMoneyResponse>
 
+
+    @POST(ROUTE_LIST)
+    suspend fun callShuttleRouteApi(
+        @Header("Authorization") token: String
+    ): Response<ShuttleRouteResponse>
+
+    @POST(SET_RIDE_TYPE)
+    suspend fun callSetShuttleRouteApi(
+        @Header("Authorization") token: String,
+        @Body request: SetShuttleRouteRequest
+    ): Response<SetShuttleRouteResponse>
 
 
 

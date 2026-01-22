@@ -7,3 +7,5 @@ data class WithdrawMoneyResponse(
 data class WithdrawMoneyRequest(
     val amount: String,
 )
+
+

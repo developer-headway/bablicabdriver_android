@@ -1,11 +1,13 @@
 package com.headway.bablicabdriver.viewmodel.dashboard.home
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.headway.bablicabdriver.api.ErrorsData
 import com.headway.bablicabdriver.api.RetrofitApiClient
 import com.headway.bablicabdriver.api.makeApiCall
 import com.headway.bablicabdriver.model.dashboard.home.CurrentRide
+import com.headway.bablicabdriver.model.dashboard.home.HomePageData
 import com.headway.bablicabdriver.model.dashboard.home.HomePageResponse
 import com.headway.bablicabdriver.model.dashboard.home.RideRequests
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,9 +21,17 @@ class HomePageVm : ViewModel(){
     private val _currentRide = MutableStateFlow<CurrentRide?>(null)
     val currentRide : MutableStateFlow<CurrentRide?> = _currentRide
 
+    private val _homePageData = MutableStateFlow<HomePageData?>(null)
+    val homePageData : MutableStateFlow<HomePageData?> = _homePageData
+
+
+
 
     private val _rideRequestList = MutableStateFlow<List<RideRequests?>?>(emptyList())
     val rideRequestList : MutableStateFlow<List<RideRequests?>?> = _rideRequestList
+
+
+
     fun updateRideRequestList(data: RideRequests) {
         _rideRequestList.value = _rideRequestList.value?.plus(data)
     }
@@ -48,7 +58,9 @@ class HomePageVm : ViewModel(){
                 },
                 errorStates = errorStates,
                 onSuccess = {
+                    Log.d("msg",it.toString())
                     if (it?.status==true) {
+                        _homePageData.value = it.data
                         _currentRide.value = it.data.Current_ride
                         rideRequestList.value = it.data.Ride_requests
                     }

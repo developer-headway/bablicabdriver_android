@@ -5,8 +5,6 @@ data class CompleteRideRequest(
     val ride_id: String
 )
 
-
-
 data class CompleteRideResponse(
     val data: CompleteRideData,
     val message: String,
@@ -25,8 +23,8 @@ data class CompleteRideData(
     val ride_id: String,
     val ride_status: String,
     val ride_type: String,
-    val total_price: Int,
-    val trip_distance: Int
+    val total_price: Double,
+    val trip_distance: Double
 )
 
 

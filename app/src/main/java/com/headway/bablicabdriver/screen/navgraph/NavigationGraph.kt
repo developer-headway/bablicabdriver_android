@@ -8,6 +8,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import com.google.android.gms.maps.MapsInitializer
 import com.headway.bablicabdriver.res.routes.Routes
 import com.headway.bablicabdriver.screen.dashboard.DashboardScreen
 import com.headway.bablicabdriver.screen.dashboard.home.SetRouteScreen
@@ -59,6 +60,8 @@ fun NavigationGraph(
         }
     }
 
+    //map initialize
+    MapsInitializer.initialize(context)
 
     Box {
 

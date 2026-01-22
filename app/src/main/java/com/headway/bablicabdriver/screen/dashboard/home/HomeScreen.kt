@@ -74,14 +74,15 @@ import com.headway.bablicabdriver.api.NetWorkFail
 import com.headway.bablicabdriver.model.dashboard.home.AcceptRideRequest
 import com.headway.bablicabdriver.model.dashboard.home.ArrivedPickupRequest
 import com.headway.bablicabdriver.model.dashboard.home.CompleteRideRequest
+import com.headway.bablicabdriver.model.dashboard.home.CurrentShuttleRidePassenger
 import com.headway.bablicabdriver.model.dashboard.home.RideRequests
 import com.headway.bablicabdriver.model.dashboard.home.SetOnlineStatusRequest
 import com.headway.bablicabdriver.model.dashboard.home.StartRideRequest
 import com.headway.bablicabdriver.model.dashboard.home.UpdateDriverLocationRequest
 import com.headway.bablicabdriver.res.Loader
 import com.headway.bablicabdriver.res.components.buttons.CustomSwitchButton1
-import com.headway.bablicabdriver.res.components.buttons.FilledButtonGradient
 import com.headway.bablicabdriver.res.components.dialog.CommonErrorDialogs
+import com.headway.bablicabdriver.res.components.dialog.FinishRideDialog
 import com.headway.bablicabdriver.res.components.dialog.goToSettingsDialog
 import com.headway.bablicabdriver.res.components.dialog.permissionDeniedDialog
 import com.headway.bablicabdriver.res.components.textview.TextView
@@ -91,6 +92,7 @@ import com.headway.bablicabdriver.res.preferenceManage.SharedPreferenceManager
 import com.headway.bablicabdriver.res.routes.Routes
 import com.headway.bablicabdriver.screen.dashboard.home.chooseservicedialog.ChooseServiceDialog
 import com.headway.bablicabdriver.screen.dashboard.home.openRides.RideRequestsDialog
+import com.headway.bablicabdriver.screen.dashboard.home.rideDialogs.CurrentShuttleCustomersDialog
 import com.headway.bablicabdriver.screen.dashboard.home.rideDialogs.DestinationDialog
 import com.headway.bablicabdriver.screen.dashboard.home.rideDialogs.PickupDialog
 import com.headway.bablicabdriver.screen.dashboard.home.rideDialogs.StartRideDialog
@@ -140,6 +142,11 @@ fun HomeScreen(
     val showRideDialog = rememberSaveable {
         mutableStateOf(false)
     }
+    var finishRideDialog by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+
     var check by rememberSaveable {
         mutableStateOf(false)
     }
@@ -155,6 +162,7 @@ fun HomeScreen(
     val homePageVm : HomePageVm = viewModel()
     val currentRide by homePageVm.currentRide.collectAsState()
     val rideRequestList by homePageVm.rideRequestList.collectAsState()
+    val homePageData by homePageVm.homePageData.collectAsState()
 
     fun callHomePageApi() {
         if (AppUtils.isInternetAvailable(context)) {
@@ -397,13 +405,18 @@ fun HomeScreen(
         mutableIntStateOf(NetWorkFail.NoError.ordinal)
     }
     val completeRideVm : CompleteRideVm = viewModel()
+
+    var selRideId by rememberSaveable {
+        mutableStateOf("")
+    }
     fun callCompleteRideApi() {
         if (AppUtils.isInternetAvailable(context)) {
             val token = sharedPreferenceManager.getToken()
             Log.d("msg","latitude: ${currentLocation.value?.latitude}")
             Log.d("msg","longitude: ${currentLocation.value?.longitude}")
             val request = CompleteRideRequest (
-                ride_id = currentRide?.ride_id?:""
+//                ride_id = currentRide?.ride_id?:""
+                ride_id = selRideId
             )
             completeRideVm.callCompleteRideApi(
                 token = token,
@@ -413,8 +426,6 @@ fun HomeScreen(
                     isRefreshing = false
                     errorStates.bottomToastText.value = it?:""
                     AppUtils.showToastBottom(errorStates.showBottomToast)
-
-
                 },
                 onSuccess = {response->
                     isRefreshing = false
@@ -485,9 +496,9 @@ fun HomeScreen(
             isRefreshing = true
             delay(300)
             callHomePageApi()
-
         }
     })
+
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
     val cameraPositionState = rememberCameraPositionState {}
     val coroutineScope = rememberCoroutineScope()
@@ -518,7 +529,6 @@ fun HomeScreen(
                         )
                     }
                     callUpdateDriverLocationApi()
-
                 }
             }
         },
@@ -535,15 +545,17 @@ fun HomeScreen(
         }
     )
 
-
     var isFirstTime by rememberSaveable {
         mutableStateOf(true)
     }
+
     LaunchedEffect(true) {
-        // Initialize Maps SDK first
-        MapsInitializer.initialize(context)
-        if (isFirstTime) {
+        Log.d("msg","isFirstTime: $isFirstTime")
+        val isRefresh = navHostController.currentBackStackEntry?.savedStateHandle?.get<Boolean?>("refresh")?:false
+        if (isFirstTime || isRefresh) {
+            navHostController.currentBackStackEntry?.savedStateHandle?.set("refresh",false)
             isFirstTime = false
+
             callLocationPermission()
             callHomePageApi()
         }
@@ -559,7 +571,6 @@ fun HomeScreen(
                 rideRequests?.let {
                     homePageVm.updateRideRequestList(rideRequests)
                 }
-
             }
         }
         val intentFilter = IntentFilter("com.notification.ride_request")
@@ -618,8 +629,6 @@ fun HomeScreen(
                                 .fillMaxSize()
                         ) {
 
-
-
                             // Map setup
                             GoogleMap(
                                 modifier = Modifier.fillMaxSize(),
@@ -636,94 +645,15 @@ fun HomeScreen(
                                     rotationGesturesEnabled = true,
                                     tiltGesturesEnabled = false
                                 )
-                            ) {
-
-                            }
+                            )
 
                         }
 
-
-                      /*  Row(
-                            modifier = Modifier
-                                .padding(top = 20.dp)
-                                .fillMaxWidth()
-                                .height(52.dp)
-                                .neu(
-                                    lightShadowColor = MyColors.clr_7E7E7E_13,
-                                    darkShadowColor = MyColors.clr_7E7E7E_13,
-                                    shape = Flat(RoundedCorner(12.dp))
-                                )
-                                .background(
-                                    color = MyColors.clr_white_100,
-                                    shape = RoundedCornerShape(12.dp)
-                                )
-                                .padding(horizontal = 16.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-
-                            TextView(
-                                text = "Available for Ride ?",
-                                textColor = MyColors.clr_132234_100,
-                                fontFamily = MyFonts.fontSemiBold,
-                                fontSize = 14.sp,
-                                maxLines = 1,
-                                modifier = Modifier
-                            )
-                            Spacer(
-                                modifier = Modifier
-                                    .width(10.dp)
-                            )
-
-
-
-                            CustomSwitchButton1(
-                                value = check,
-                                onCheckedChange = {checked ->
-                                    check = checked
-                                    callSetOnlineStatusApi()
-                                }
-                            )
-
-                            Spacer(
-                                modifier = Modifier
-                                    .weight(1f)
-                            )
-
-                            Box(
-                                modifier = Modifier
-                                    .clickable {
-                                        navHostController.navigate(Routes.NotificationListScreen.route) {
-                                            launchSingleTop = true
-                                        }
-                                    }
-                            ) {
-                                Image(
-                                    painter = painterResource(R.drawable.ic_notification),
-                                    contentDescription = stringResource(R.string.img_des),
-                                    modifier = Modifier
-                                        .size(16.dp)
-                                )
-
-                                Box(
-                                    modifier = Modifier
-                                        .size(8.dp)
-                                        .background(
-                                            color = MyColors.clr_00BCF1_100,
-                                            shape = CircleShape
-                                        )
-                                        .clip(shape = CircleShape)
-                                        .align(Alignment.TopEnd)
-                                )
-                            }
-
-
-                        }*/
 
                         AvailableForRideBox(
                             check = check,
                             onChangeClick = {
                                 showServiceDialog = true
-
                             },
                             onAvailabilityChange = {checked->
                                 if (!checked) {
@@ -732,7 +662,8 @@ fun HomeScreen(
                                 } else {
                                     showServiceDialog = true
                                 }
-                            }
+                            },
+                            homePageVm = homePageVm
                         )
 
                         Box(
@@ -820,12 +751,33 @@ fun HomeScreen(
                                             enabled = false
                                         ) {},
                                     onCompleteRideClick = {
+                                        selRideId = currentRide?.ride_id?:""
                                         callCompleteRideApi()
                                     },
                                     currentRide = currentRide
                                 )
                             }
                         }
+
+                        if(!homePageData?.Current_shuttle_ride_passengers.isNullOrEmpty()) {
+                            Log.d("msg","homePageData: ${homePageData?.Current_shuttle_ride_passengers}")
+                            CurrentShuttleCustomersDialog(
+                                modifier = Modifier
+                                    .align(Alignment.BottomCenter)
+                                    .clickable(
+                                        interactionSource = null,
+                                        enabled = false
+                                    ) {
+
+                                    },
+                                list = homePageData?.Current_shuttle_ride_passengers,
+                                finishRideDialog = {
+                                    selRideId = it?:""
+                                    finishRideDialog = true
+                                }
+                            )
+                        }
+
                     }
 
                 }
@@ -948,6 +900,25 @@ fun HomeScreen(
             }
         }
 
+
+        // Show dialog when state is true
+        if (finishRideDialog) {
+            FinishRideDialog (
+                onDismiss = { finishRideDialog = false },
+                onCancelRide = {
+                    // Handle cancel ride action
+                    finishRideDialog = false
+                    callCompleteRideApi()
+                },
+                onGoBack = {
+                    // Handle go back action
+                    finishRideDialog = false
+                }
+            )
+        }
+
+
+
     }
 
 
@@ -958,9 +929,10 @@ fun HomeScreen(
 fun AvailableForRideBox(
     check: Boolean = true,
     onAvailabilityChange: (Boolean) -> Unit = {},
-    currentRoute: String = "Incom Tax circle → Swastik Char Ra...",
+    homePageVm: HomePageVm,
     onChangeClick: () -> Unit = {}
 ) {
+    val homePageData by homePageVm.homePageData.collectAsState()
     Column(
         modifier = Modifier
             .padding(top = 20.dp)
@@ -983,7 +955,6 @@ fun AvailableForRideBox(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             TextView(
@@ -992,40 +963,28 @@ fun AvailableForRideBox(
                 fontFamily = MyFonts.fontSemiBold,
                 fontSize = 16.sp
             )
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically
+            Spacer(modifier = Modifier.width(12.dp))
+            Box(
+                modifier = Modifier
+                    .weight(1f)
             ) {
-
-//                Switch(
-//                    checked = check,
-//                    onCheckedChange = {
-//                        onAvailabilityChange(it)
-//                    },
-//                    colors = SwitchDefaults.colors(
-//                        checkedThumbColor = MyColors.clr_white_100,
-//                        checkedTrackColor = MyColors.clr_4CAF50_100,
-//                        uncheckedThumbColor = MyColors.clr_white_100,
-//                        uncheckedTrackColor = MyColors.clr_DCDCDC_100
-//                    )
-//                )
-
                 CustomSwitchButton1(
                     value = check,
                     onCheckedChange = { checked ->
                         onAvailabilityChange(checked)
                     }
                 )
-
-                Spacer(modifier = Modifier.width(8.dp))
-
-                Icon(
-                    painter = painterResource(R.drawable.ic_help_outline),
-                    contentDescription = stringResource(R.string.img_des),
-                    modifier = Modifier.size(24.dp),
-                    tint = MyColors.clr_132234_100
-                )
             }
+
+
+            Spacer(modifier = Modifier.width(8.dp))
+            Icon(
+                painter = painterResource(R.drawable.ic_notification),
+                contentDescription = stringResource(R.string.img_des),
+                modifier = Modifier
+                    .size(18.dp),
+                tint = MyColors.clr_132234_100,
+            )
         }
 
         if (check) {
@@ -1034,8 +993,7 @@ fun AvailableForRideBox(
 
                     .fillMaxWidth()
                     .background(
-                        color = MyColors.clr_00BCF1_100,
-//                        shape = RoundedCornerShape(12.dp)
+                        color = MyColors.clr_00BCF1_100
                     )
                     .padding(12.dp)
             ) {
@@ -1048,25 +1006,27 @@ fun AvailableForRideBox(
                         modifier = Modifier.weight(1f)
                     ) {
                         TextView(
-                            text = stringResource(R.string.shuttle),
+                            text = stringResource(if (homePageData?.current_ride_type?.ride_type=="one_way")R.string.one_way else R.string.shuttle),
                             textColor = MyColors.clr_white_100,
                             fontFamily = MyFonts.fontSemiBold,
                             fontSize = 14.sp
                         )
 
-                        Spacer(modifier = Modifier.height(4.dp))
-
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            TextView(
-                                text = currentRoute,
-                                textColor = MyColors.clr_white_100,
-                                fontFamily = MyFonts.fontRegular,
-                                fontSize = 12.sp,
-                                maxLines = 1
-                            )
+                        if (homePageData?.current_ride_type?.ride_type=="shuttle") {
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                TextView(
+                                    text = "${homePageData?.current_ride_type?.shuttle_route_start_selected_address} → ${homePageData?.current_ride_type?.shuttle_route_end_selected_address}",
+                                    textColor = MyColors.clr_white_100,
+                                    fontFamily = MyFonts.fontRegular,
+                                    fontSize = 12.sp,
+                                    maxLines = 1
+                                )
+                            }
                         }
+
                     }
 
                     Spacer(modifier = Modifier.width(8.dp))
@@ -1098,167 +1058,11 @@ fun AvailableForRideBox(
 }
 
 
-@Composable
-fun CurrentShuttleCustomersDialog(
-    onDismiss: () -> Unit,
-    trips: List<ShuttleTrip> = listOf(
-        ShuttleTrip(
-            tripCode = "#747347",
-            passengers = 1,
-            fromLocation = "Incom Tax circle",
-            toLocation = "Swastik Char Rasta"
-        ),
-        ShuttleTrip(
-            tripCode = "#747347",
-            passengers = 1,
-            fromLocation = "Incom Tax circle",
-            toLocation = "Swastik Char Rasta"
-        ),
-        ShuttleTrip(
-            tripCode = "#747347",
-            passengers = 1,
-            fromLocation = "Incom Tax circle",
-            toLocation = "Swastik Char Rasta"
-        )
-    )
-) {
-    Dialog(onDismissRequest = onDismiss) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(16.dp))
-                .background(MyColors.clr_white_100)
-                .padding(20.dp)
-        ) {
-            // Title
-            TextView(
-                text = stringResource(R.string.current_shuttle_customers),
-                textColor = MyColors.clr_132234_100,
-                fontFamily = MyFonts.fontBold,
-                fontSize = 18.sp
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Trip list
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f, fill = false),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(trips) { trip ->
-                    ShuttleTripCard(trip = trip)
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Close button
-            FilledButtonGradient(
-                text = stringResource(R.string.close),
-                onClick = onDismiss
-            )
-        }
-    }
-}
 
 
-@Composable
-fun ShuttleTripCard(trip: ShuttleTrip) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(
-                width = 2.dp,
-                color = MyColors.clr_00BCF1_100,
-                shape = RoundedCornerShape(12.dp)
-            )
-            .padding(16.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                TextView(
-                    text = "Trip Code: ${trip.tripCode}",
-                    textColor = MyColors.clr_132234_100,
-                    fontFamily = MyFonts.fontSemiBold,
-                    fontSize = 14.sp
-                )
 
-                Spacer(modifier = Modifier.height(4.dp))
 
-                TextView(
-                    text = "No. Of Passengers - ${trip.passengers}",
-                    textColor = MyColors.clr_132234_100,
-                    fontFamily = MyFonts.fontRegular,
-                    fontSize = 14.sp
-                )
 
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    TextView(
-                        text = trip.fromLocation,
-                        textColor = MyColors.clr_00BCF1_100,
-                        fontFamily = MyFonts.fontRegular,
-                        fontSize = 12.sp
-                    )
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Icon(
-                        painter = painterResource(R.drawable.ic_next_arrow),
-                        contentDescription = stringResource(R.string.img_des),
-                        modifier = Modifier.size(16.dp),
-                        tint = MyColors.clr_00BCF1_100
-                    )
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    TextView(
-                        text = trip.toLocation,
-                        textColor = MyColors.clr_00BCF1_100,
-                        fontFamily = MyFonts.fontRegular,
-                        fontSize = 12.sp
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-            Box(
-                modifier = Modifier
-                    .background(
-                        color = MyColors.clr_00BCF1_100,
-                        shape = RoundedCornerShape(8.dp)
-                    )
-                    .padding(horizontal = 20.dp, vertical = 10.dp)
-            ) {
-                TextView(
-                    text = stringResource(R.string.finish),
-                    textColor = MyColors.clr_white_100,
-                    fontFamily = MyFonts.fontSemiBold,
-                    fontSize = 14.sp
-                )
-            }
-        }
-    }
-}
-
-data class ShuttleTrip(
-    val tripCode: String,
-    val passengers: Int,
-    val fromLocation: String,
-    val toLocation: String
-)
 
 
 
