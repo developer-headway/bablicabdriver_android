@@ -38,6 +38,9 @@ import com.headway.bablicabdriver.model.registration.UploadDocumentResponse
 import com.headway.bablicabdriver.model.registration.profile.ProfileResponse
 import com.headway.bablicabdriver.model.registration.profile.UpdateProfileResponse
 import com.headway.bablicabdriver.model.dashboard.home.ShuttleRouteResponse
+import com.headway.bablicabdriver.model.dashboard.settings.myvehicles.MyVehiclesResponse
+import com.headway.bablicabdriver.model.dashboard.settings.myvehicles.VehicleDetailRequest
+import com.headway.bablicabdriver.model.dashboard.settings.myvehicles.VehicleDetailResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
@@ -241,6 +244,17 @@ interface ApiInterface {
         @Header("Authorization") token: String,
         @Body request: SetShuttleRouteRequest
     ): Response<SetShuttleRouteResponse>
+
+    @POST(MY_VEHICLES)
+    suspend fun callMyVehiclesApi(
+        @Header("Authorization") token: String
+    ): Response<MyVehiclesResponse>
+
+    @POST(VEHICLE_DETAILS)
+    suspend fun callVehicleDetailsApi(
+        @Header("Authorization") token: String,
+        @Body request: VehicleDetailRequest
+    ): Response<VehicleDetailResponse>
 
 
 

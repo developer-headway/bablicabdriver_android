@@ -112,4 +112,7 @@ dependencies {
     implementation("com.google.firebase:firebase-messaging")
 
 
+    //qr generator
+    implementation("com.lightspark:compose-qr-code:1.0.1")
+
 }

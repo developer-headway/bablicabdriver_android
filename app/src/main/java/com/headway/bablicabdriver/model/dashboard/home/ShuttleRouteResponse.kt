@@ -15,3 +15,4 @@ data class ShuttleRouteData(
     val route_name: String,
     val route_start_point: String
 )
+

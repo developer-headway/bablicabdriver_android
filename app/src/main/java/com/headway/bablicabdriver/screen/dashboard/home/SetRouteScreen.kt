@@ -368,7 +368,7 @@ fun SetRouteScreen(
     }
 
 
-    if (shuttleRouteVm._isLoading.collectAsState().value) {
+    if (shuttleRouteVm._isLoading.collectAsState().value || setShuttleRouteVm._isLoading.collectAsState().value) {
         Loader()
     }
 

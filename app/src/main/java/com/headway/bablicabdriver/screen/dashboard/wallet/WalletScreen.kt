@@ -107,7 +107,7 @@ fun WalletScreen(
     }
 
     var walletAmount by rememberSaveable {
-        mutableStateOf(0)
+        mutableStateOf(0.0)
     }
 
 

@@ -36,6 +36,8 @@ const val UPDATE_BANK_DETAILS = "update-bank-detail"
 const val WITHDRAW_MONEY = "withdraw-money"
 const val ROUTE_LIST = "shuttle-instance/route-list"
 const val SET_RIDE_TYPE = "shuttle-instance/set-ride-type"
+const val MY_VEHICLES = "owner/my-vehicles"
+const val VEHICLE_DETAILS = "owner/vehicle-detail"
 
 
 

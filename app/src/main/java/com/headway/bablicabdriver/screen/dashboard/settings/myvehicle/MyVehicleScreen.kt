@@ -22,23 +22,39 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.headway.bablicabdriver.R
+import com.headway.bablicabdriver.api.ErrorsData
+import com.headway.bablicabdriver.api.NetWorkFail
+import com.headway.bablicabdriver.model.dashboard.myride.RideHistoryRequest
+import com.headway.bablicabdriver.res.Loader
+import com.headway.bablicabdriver.res.components.bar.TopNavigationBar
+import com.headway.bablicabdriver.res.components.dialog.CommonErrorDialogs
 import com.headway.bablicabdriver.res.components.textview.TextView
+import com.headway.bablicabdriver.res.preferenceManage.SharedPreferenceManager
 import com.headway.bablicabdriver.res.routes.Routes
 import com.headway.bablicabdriver.ui.theme.MyColors
 import com.headway.bablicabdriver.ui.theme.MyFonts
+import com.headway.bablicabdriver.utils.AppUtils
+import com.headway.bablicabdriver.viewmodel.dashboard.myride.RideHistoryVm
+import com.headway.bablicabdriver.viewmodel.dashboard.settings.myvehicles.MyVehiclesVm
 import dev.materii.pullrefresh.PullRefreshIndicator
 import dev.materii.pullrefresh.pullRefresh
 import dev.materii.pullrefresh.rememberPullRefreshState
@@ -48,70 +64,84 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyVehicleScreen(
-    navHostController: NavHostController,
-    onVehicleSelected: (Vehicle) -> Unit = {}
+    navHostController: NavHostController
 ) {
-    var isRefreshing by remember { mutableStateOf(false) }
+    val context = LocalContext.current
     val scope = rememberCoroutineScope()
-
-    // Sample data - replace with actual API data
-    val vehicles = remember {
-        listOf(
-            Vehicle(
-                id = "1",
-                vehicleNumber = "GJ 01 XYZ 01234"
-            ),
-            Vehicle(
-                id = "2",
-                vehicleNumber = "GJ 01 XYZ 01234"
-            )
-        )
+    val sharedPreferenceManager = SharedPreferenceManager(context)
+    var isRefreshing by remember {
+        mutableStateOf(false)
     }
 
-    val refreshState = rememberPullRefreshState(
-        refreshing = isRefreshing,
-        onRefresh = {
-            scope.launch {
-                isRefreshing = true
-                delay(1500)
-                // Call API to refresh vehicles here
-                isRefreshing = false
-            }
+    ////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////
+    var networkError by rememberSaveable {
+        mutableIntStateOf(NetWorkFail.NoError.ordinal)
+    }
+    val errorStates by remember {
+        mutableStateOf(ErrorsData())
+    }
+
+    val myVehiclesVm : MyVehiclesVm = viewModel()
+    val myVehicleList by myVehiclesVm.myVehicleList.collectAsState()
+
+    //api call
+    fun callMyVehiclesApi() {
+        if (AppUtils.isInternetAvailable(context)) {
+            myVehiclesVm.callMyVehiclesApi(
+                token = sharedPreferenceManager.getToken(),
+                errorStates = errorStates,
+                onError = {
+                    isRefreshing = false
+                    errorStates.bottomToastText.value = it?:""
+                    AppUtils.showToastBottom(errorStates.showBottomToast)
+                },
+                onSuccess = {response->
+                    isRefreshing = false
+                    if (response?.status == false) {
+                        errorStates.bottomToastText.value = response.message
+                        AppUtils.showToastBottom(errorStates.showBottomToast)
+                    }
+                }
+            )
+        } else {
+            errorStates.showInternetError.value = true
+            networkError = NetWorkFail.NetworkError.ordinal
         }
-    )
+    }
+
+    ////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////
+    var isFirstTime by rememberSaveable {
+        mutableStateOf(true)
+    }
+    LaunchedEffect(true) {
+        if (isFirstTime) {
+            isFirstTime = false
+            callMyVehiclesApi()
+        }
+    }
+
+    val refreshState = rememberPullRefreshState(refreshing = isRefreshing, onRefresh = {
+        scope.launch {
+            isRefreshing = true
+            delay(300)
+            callMyVehiclesApi()
+        }
+    })
+
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = MyColors.clr_white_100,
         contentWindowInsets = WindowInsets(0.dp),
         topBar = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MyColors.clr_white_100)
-                    .padding(horizontal = 16.dp, vertical = 16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_back),
-                    contentDescription = stringResource(R.string.img_des),
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clickable {
-                            navHostController.popBackStack()
-                        },
-                    tint = MyColors.clr_132234_100
-                )
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                TextView(
-                    text = stringResource(R.string.my_vehicle),
-                    textColor = MyColors.clr_132234_100,
-                    fontFamily = MyFonts.fontBold,
-                    fontSize = 20.sp
-                )
-            }
+            TopNavigationBar(
+                title = stringResource(R.string.my_vehicle),
+                onBackPress = {
+                    navHostController.popBackStack()
+                }
+            )
         }
     ) { innerPadding ->
         Box(
@@ -125,7 +155,7 @@ fun MyVehicleScreen(
                     .pullRefresh(refreshState),
                 verticalArrangement = Arrangement.spacedBy(0.dp)
             ) {
-                items(vehicles) { item ->
+                items(myVehicleList?:emptyList()) { item ->
 
                     Column(
                         modifier = Modifier
@@ -136,9 +166,9 @@ fun MyVehicleScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
-                                    onVehicleSelected(item)
+//                                    onVehicleSelected(item)
                                     navHostController.navigate(
-                                        Routes.VehicleDetailsScreen.createRoute(item.id)
+                                        Routes.VehicleDetailsScreen.createRoute(item?.vehicle_id?:"")
                                     ) {
                                         launchSingleTop = true
                                     }
@@ -156,10 +186,10 @@ fun MyVehicleScreen(
                                 modifier = Modifier
                             ) {
                                 TextView(
-                                    text = item.vehicleNumber,
+                                    text = item?.vehicle_number?:"",
                                     textColor = MyColors.clr_132234_100,
                                     fontFamily = MyFonts.fontRegular,
-                                    fontSize = 16.sp
+                                    fontSize = 14.sp
                                 )
                                 Spacer(
                                     modifier = Modifier
@@ -182,7 +212,7 @@ fun MyVehicleScreen(
                             )
                         }
                         HorizontalDivider(
-                            color = MyColors.clr_00BCF1_20,
+                            color = MyColors.clr_7E7E7E_25,
                             modifier = Modifier
                                 .padding(horizontal = 16.dp)
                         )
@@ -198,11 +228,26 @@ fun MyVehicleScreen(
             )
         }
     }
+
+
+    if (myVehiclesVm._isLoading.collectAsState().value) {
+        Loader()
+    }
+
+    CommonErrorDialogs(
+        showToast = false,
+        errorStates = errorStates,
+        onNoInternetRetry = {
+            if (networkError== NetWorkFail.NetworkError.ordinal) {
+                errorStates.showInternetError.value = false
+                networkError = NetWorkFail.NoError.ordinal
+                callMyVehiclesApi()
+            }
+        }
+    )
+
 }
 
 
 
-data class Vehicle(
-    val id: String,
-    val vehicleNumber: String
-)
+

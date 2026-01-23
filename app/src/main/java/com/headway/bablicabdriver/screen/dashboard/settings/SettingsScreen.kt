@@ -72,7 +72,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.collections.forEachIndexed
 import kotlin.collections.lastIndex
-import kotlin.text.isNotEmpty
 
 @Composable
 fun SettingsScreen(
@@ -117,7 +116,7 @@ fun SettingsScreen(
 
         if (AppUtils.isInternetAvailable(context)) {
 
-            val uniqueId =  Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
+            val uniqueId = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
             val request = DeviceUIdRequest(
                 device_uid = uniqueId
             )
@@ -182,7 +181,8 @@ fun SettingsScreen(
     })
 
     val menu1Item = listOf(
-        Pair(R.drawable.ic_my_rides, R.string.document_info),
+        Pair(R.drawable.ic_my_rides, R.string.my_vehicle_details),
+        Pair(R.drawable.ic_doc, R.string.document_info),
         Pair(R.drawable.ic_bank, R.string.bank_details),
         Pair(R.drawable.ic_safety, R.string.safety),
     )
@@ -363,22 +363,22 @@ fun SettingsScreen(
                                 .fillMaxWidth()
                                 .clickable {
                                     when (item.second) {
+                                        R.string.my_vehicle_details -> {
+                                            navHostController.navigate(Routes.MyVehicleScreen.route) {
+                                                launchSingleTop = true
+                                            }
+                                        }
                                         R.string.document_info -> {
                                             navHostController.navigate(Routes.DocumentInfoScreen.route) {
                                                 launchSingleTop = true
                                             }
                                         }
-
                                         R.string.bank_details -> {
                                             navHostController.navigate(Routes.BankDetailsScreen.route) {
                                                 launchSingleTop = true
                                             }
                                         }
-                                        else -> {
-                                            navHostController.navigate(Routes.MyVehicleScreen.route) {
-                                                launchSingleTop = true
-                                            }
-                                        }
+
                                     }
                                 }
                         ) {
@@ -388,7 +388,7 @@ fun SettingsScreen(
                             )
                             Row(
                                 modifier = Modifier
-                                    .padding(horizontal = 12.dp)
+                                    .padding(start = 20.dp, end = 12.dp)
                                     .fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
@@ -433,7 +433,7 @@ fun SettingsScreen(
                                 HorizontalDivider(
                                     color = MyColors.clr_D3DDE7_100,
                                     modifier = Modifier
-                                        .padding(start = 46.dp)
+                                        .padding(start = 52.dp)
                                 )
                             }
 
@@ -480,7 +480,7 @@ fun SettingsScreen(
                             )
                             Row(
                                 modifier = Modifier
-                                    .padding(horizontal = 12.dp)
+                                    .padding(start = 20.dp, end = 12.dp)
                                     .fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
@@ -525,7 +525,7 @@ fun SettingsScreen(
                                 HorizontalDivider(
                                     color = MyColors.clr_D3DDE7_100,
                                     modifier = Modifier
-                                        .padding(start = 46.dp)
+                                        .padding(start = 52.dp)
                                 )
                             }
 
@@ -542,26 +542,27 @@ fun SettingsScreen(
                     modifier = Modifier
                         .padding(horizontal = 12.dp)
                         .fillMaxWidth()
-                        .height(56.dp)
                         .neu(
                             shape = Flat(RoundedCorner(16.dp)),
                             lightShadowColor = MyColors.clr_7E7E7E_13,
                             darkShadowColor = MyColors.clr_7E7E7E_13,
                             shadowElevation = 2.dp
                         )
+                        .clip( shape = RoundedCornerShape(16.dp))
                         .background(
                             color = MyColors.clr_white_100,
                             shape = RoundedCornerShape(16.dp)
-                        )
-                        .clickable {
-                            showConfirmLogoutDialog.value = true
-                        },
+                        ),
                     verticalArrangement = Arrangement.Center
                 ) {
                     Row(
                         modifier = Modifier
-                            .padding(horizontal = 12.dp)
-                            .fillMaxWidth(),
+                            .height(48.dp)
+                            .fillMaxWidth()
+                            .clickable {
+                                showConfirmLogoutDialog.value = true
+                            }
+                            .padding(horizontal = 20.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Image(
@@ -585,37 +586,20 @@ fun SettingsScreen(
 
                     }
 
-                }
 
-
-                Spacer(
-                    modifier = Modifier
-                        .height(12.dp)
-                )
-                Column (
-                    modifier = Modifier
-                        .padding(horizontal = 12.dp)
-                        .fillMaxWidth()
-                        .height(56.dp)
-                        .neu(
-                            shape = Flat(RoundedCorner(16.dp)),
-                            lightShadowColor = MyColors.clr_7E7E7E_13,
-                            darkShadowColor = MyColors.clr_7E7E7E_13,
-                            shadowElevation = 2.dp
-                        )
-                        .background(
-                            color = MyColors.clr_white_100,
-                            shape = RoundedCornerShape(16.dp)
-                        )
-                        .clickable {
-                            showDeleteAccountDialog.value = true
-                        },
-                    verticalArrangement = Arrangement.Center
-                ) {
+                    HorizontalDivider(
+                        color = MyColors.clr_D3DDE7_100,
+                        modifier = Modifier
+                            .padding(start = 52.dp)
+                    )
                     Row(
                         modifier = Modifier
-                            .padding(horizontal = 12.dp)
-                            .fillMaxWidth(),
+                            .height(48.dp)
+                            .fillMaxWidth()
+                            .clickable {
+                                showDeleteAccountDialog.value = true
+                            }
+                            .padding(horizontal = 20.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Image(
@@ -640,6 +624,8 @@ fun SettingsScreen(
                     }
 
                 }
+
+
 
                 Spacer(
                     modifier = Modifier

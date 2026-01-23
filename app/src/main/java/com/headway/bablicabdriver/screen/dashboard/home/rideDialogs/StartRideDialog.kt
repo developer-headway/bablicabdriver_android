@@ -5,8 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -23,25 +23,19 @@ import com.gandiva.neumorphic.neu
 import com.gandiva.neumorphic.shape.Flat
 import com.gandiva.neumorphic.shape.RoundedCorner
 import com.headway.bablicabdriver.R
-import com.headway.bablicabdriver.res.components.buttons.FilledButton
+import com.headway.bablicabdriver.model.dashboard.home.CurrentRide
 import com.headway.bablicabdriver.res.components.buttons.FilledButtonGradient
 import com.headway.bablicabdriver.res.components.textfields.OtpInputField
 import com.headway.bablicabdriver.res.components.textview.TextView
 import com.headway.bablicabdriver.ui.theme.MyColors
 import com.headway.bablicabdriver.ui.theme.MyFonts
+import com.lightspark.composeqr.QrCodeView
 
 @Composable
 fun StartRideDialog(
     modifier: Modifier = Modifier,
-    onStartRideClick: (String?) -> Unit = {}
+    vehicleIdealNumber: String?
 ) {
-    val context = LocalContext.current
-    val otp = rememberSaveable {
-        mutableStateOf("")
-    }
-    var otpError by rememberSaveable {
-        mutableStateOf(false)
-    }
 
     Column(
         modifier = modifier
@@ -58,15 +52,14 @@ fun StartRideDialog(
                 color = MyColors.clr_white_100,
                 shape = RoundedCornerShape(10.dp)
             )
-//            .align(Alignment.BottomCenter)
     ) {
         Spacer(
             modifier = Modifier
-                .height(10.dp)
+                .height(20.dp)
         )
 
         TextView(
-            text = stringResource(R.string.start_ride),
+            text = stringResource(R.string.qr_code),
             fontFamily = MyFonts.fontBold,
             fontSize = 16.sp,
             textColor = MyColors.clr_black_100,
@@ -75,45 +68,28 @@ fun StartRideDialog(
         )
         Spacer(
             modifier = Modifier
-                .height(10.dp)
-        )
-
-        Spacer(
-            modifier = Modifier
-                .height(12.dp)
+                .height(20.dp)
         )
 
         TextView(
-            text = stringResource(R.string.enter_otp),
-            fontFamily = MyFonts.fontBold,
-            fontSize = 16.sp,
+            text = stringResource(R.string.qr_code_start_ride),
+            fontFamily = MyFonts.fontSemiBold,
+            fontSize = 14.sp,
             textColor = MyColors.clr_black_100,
             modifier = Modifier
-                .padding(horizontal = 16.dp)
+                .padding(start = 16.dp)
         )
         Spacer(
             modifier = Modifier
-                .height(12.dp)
+                .height(6.dp)
         )
-
         TextView(
-            text = stringResource(R.string.please_enter_the_otp),
+            text = stringResource(R.string.share_this_qr),
             fontFamily = MyFonts.fontRegular,
-            fontSize = 12.sp,
-            textColor = MyColors.clr_black_100,
+            fontSize = 10.sp,
+            textColor = MyColors.clr_364B63_100,
             modifier = Modifier
-                .padding(horizontal = 16.dp)
-        )
-        Spacer(
-            modifier = Modifier
-                .height(20.dp)
-        )
-
-        OtpInputField(
-            otp,
-            isTyping = {
-                otpError = false
-            }
+                .padding(start = 16.dp)
         )
 
         Spacer(
@@ -121,19 +97,17 @@ fun StartRideDialog(
                 .height(20.dp)
         )
 
-        FilledButtonGradient (
+
+        QrCodeView(
+            data = vehicleIdealNumber?:"",
             modifier = Modifier
-                .padding(horizontal = 30.dp)
-                .align(Alignment.CenterHorizontally),
-            backgroundColor = MyColors.clr_08875D_100,
-            text = stringResource(R.string.start_ride),
-            onClick = {
-                onStartRideClick(otp.value)
-            }
+                .size(100.dp)
+                .align(alignment = Alignment.CenterHorizontally)
         )
+
         Spacer(
             modifier = Modifier
-                .height(30.dp)
+                .height(40.dp)
         )
     }
 }

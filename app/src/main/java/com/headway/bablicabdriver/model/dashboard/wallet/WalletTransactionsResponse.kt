@@ -14,7 +14,7 @@ data class WalletTransactionsResponse(
 
 data class WalletTransactionsData(
     val pagination: Pagination?,
-    val total_wallet_balance: Int,
+    val total_wallet_balance: Double,
     val transactions: List<Transaction?>?
 )
 

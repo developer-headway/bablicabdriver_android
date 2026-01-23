@@ -107,6 +107,10 @@
     <string name="cancel_ride">Cancel Ride</string>
     <string name="skip_ride">Skip Ride</string>
     <string name="accept_ride">Accept Ride</string>
+    <string name="qr_code">QR Code</string>
+    <string name="qr_code_start_ride">QR Code For Start Ride</string>
+    <string name="share_this_qr">Share this QR Code for customer to start ride</string>
+
 
     <!--  Home Screen  -->
     <string name="pickup">Pickup</string>
@@ -186,6 +190,7 @@
 
 
     <!--  Settings Screen  -->
+    <string name="my_vehicle_details">My Vehicle Details</string>
     <string name="document_info">Document Info</string>
     <string name="bank_details">Bank Details</string>
     <string name="safety">Safety</string>

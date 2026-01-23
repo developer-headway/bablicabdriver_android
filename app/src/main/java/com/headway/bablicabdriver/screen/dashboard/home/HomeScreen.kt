@@ -77,6 +77,7 @@ import com.headway.bablicabdriver.model.dashboard.home.CompleteRideRequest
 import com.headway.bablicabdriver.model.dashboard.home.CurrentShuttleRidePassenger
 import com.headway.bablicabdriver.model.dashboard.home.RideRequests
 import com.headway.bablicabdriver.model.dashboard.home.SetOnlineStatusRequest
+import com.headway.bablicabdriver.model.dashboard.home.SetShuttleRouteRequest
 import com.headway.bablicabdriver.model.dashboard.home.StartRideRequest
 import com.headway.bablicabdriver.model.dashboard.home.UpdateDriverLocationRequest
 import com.headway.bablicabdriver.res.Loader
@@ -110,6 +111,7 @@ import com.headway.bablicabdriver.viewmodel.dashboard.home.CancelRideVm
 import com.headway.bablicabdriver.viewmodel.dashboard.home.CompleteRideVm
 import com.headway.bablicabdriver.viewmodel.dashboard.home.HomePageVm
 import com.headway.bablicabdriver.viewmodel.dashboard.home.SetOnlineStatusVm
+import com.headway.bablicabdriver.viewmodel.dashboard.home.SetShuttleRouteVm
 import com.headway.bablicabdriver.viewmodel.dashboard.home.StartRideVm
 import com.headway.bablicabdriver.viewmodel.dashboard.home.UpdateDriverLocationVm
 import dev.materii.pullrefresh.PullRefreshIndicator
@@ -139,9 +141,6 @@ fun HomeScreen(
         mutableStateOf<Location?>(null)
     }
 
-    val showRideDialog = rememberSaveable {
-        mutableStateOf(false)
-    }
     var finishRideDialog by rememberSaveable {
         mutableStateOf(false)
     }
@@ -415,7 +414,6 @@ fun HomeScreen(
             Log.d("msg","latitude: ${currentLocation.value?.latitude}")
             Log.d("msg","longitude: ${currentLocation.value?.longitude}")
             val request = CompleteRideRequest (
-//                ride_id = currentRide?.ride_id?:""
                 ride_id = selRideId
             )
             completeRideVm.callCompleteRideApi(
@@ -430,12 +428,14 @@ fun HomeScreen(
                 onSuccess = {response->
                     isRefreshing = false
                     if (response?.status == true) {
-                        callHomePageApi()
 
-                        navHostController.currentBackStackEntry?.savedStateHandle?.set("price",currentRide?.total_price.toString())
-                        navHostController.currentBackStackEntry?.savedStateHandle?.set("ride_id",currentRide?.ride_id)
-                        navHostController.navigate(Routes.PaymentScreen.route) {
-                            launchSingleTop = true
+                        callHomePageApi()
+                        if (currentRide?.ride_type == "one_way") {
+                            navHostController.currentBackStackEntry?.savedStateHandle?.set("price",currentRide?.total_price.toString())
+                            navHostController.currentBackStackEntry?.savedStateHandle?.set("ride_id",currentRide?.ride_id)
+                            navHostController.navigate(Routes.PaymentSuccessScreen.route) {
+                                launchSingleTop = true
+                            }
                         }
                     } else {
                         errorStates.bottomToastText.value = response?.message?:""
@@ -490,6 +490,52 @@ fun HomeScreen(
     }
     ////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////
+
+    var setShuttleNetworkError by rememberSaveable {
+        mutableIntStateOf(NetWorkFail.NoError.ordinal)
+    }
+
+    val setShuttleRouteVm : SetShuttleRouteVm = viewModel()
+
+    fun callSetShuttleRouteApi() {
+        if (AppUtils.isInternetAvailable(context)) {
+            val token = sharedPreferenceManager.getToken()
+            val userId = sharedPreferenceManager.getUserId()
+            val request = SetShuttleRouteRequest(
+                user_id = userId,
+                ride_type = "one_way",
+                route_id = ""
+            )
+            setShuttleRouteVm.callSetShuttleRouteApi(
+                token = token,
+                request = request,
+                errorStates = errorStates,
+                onError = {
+                    isRefreshing = false
+                    errorStates.bottomToastText.value = it?:""
+                    AppUtils.showToastBottom(errorStates.showBottomToast)
+                },
+                onSuccess = {response->
+                    isRefreshing = false
+                    if (response?.status == false) {
+                        errorStates.bottomToastText.value = response?.message?:""
+                        AppUtils.showToastBottom(errorStates.showBottomToast)
+                    } else {
+                        callHomePageApi()
+                    }
+                }
+            )
+        } else {
+            errorStates.showInternetError.value = true
+            setShuttleNetworkError = NetWorkFail.NetworkError.ordinal
+        }
+    }
+    ////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////
+
+
 
     val refreshState = rememberPullRefreshState(refreshing = isRefreshing, onRefresh = {
         scope.launch {
@@ -736,10 +782,7 @@ fun HomeScreen(
                                             interactionSource = null,
                                             enabled = false
                                         ) {},
-                                    onStartRideClick = {it->
-                                        otp = it?:""
-                                        callStartRideApi()
-                                    }
+                                    vehicleIdealNumber = homePageData?.vehicle_ideal_number
                                 )
                             }
                             "started" -> {
@@ -845,6 +888,11 @@ fun HomeScreen(
                     cancelRideNetworkError = NetWorkFail.NoError.ordinal
                     callCancelRideApi()
                 }
+                if (setShuttleNetworkError== NetWorkFail.NetworkError.ordinal) {
+                    errorStates.showInternetError.value = false
+                    setShuttleNetworkError = NetWorkFail.NoError.ordinal
+                    callSetShuttleRouteApi()
+                }
 
             },
         )
@@ -855,9 +903,8 @@ fun HomeScreen(
                 onDismiss = { showServiceDialog = false },
                 onOneWaySelected = {
                     showServiceDialog = false
-//                    onChangeClick()
-                    check = true
-                    callSetOnlineStatusApi()
+                    //set route type one way
+                    callSetShuttleRouteApi()
                 },
                 onShuttleSelected = {
                     showServiceDialog = false
@@ -873,7 +920,8 @@ fun HomeScreen(
 
         if (homePageVm._isLoading.collectAsState().value
             || setOnlineStatusVm._isLoading.collectAsState().value
-            || acceptRideVm._isLoading.collectAsState().value) {
+            || acceptRideVm._isLoading.collectAsState().value
+            || setShuttleRouteVm._isLoading.collectAsState().value) {
             Loader()
         }
 
