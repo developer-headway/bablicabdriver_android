@@ -302,7 +302,7 @@ fun SettingsScreen(
                             text = name,
                             textColor = MyColors.clr_132234_100,
                             fontFamily = MyFonts.fontRegular,
-                            fontSize = 18.sp,
+                            fontSize = 16.sp,
                             modifier = Modifier
                         )
                         Spacer(
@@ -440,8 +440,6 @@ fun SettingsScreen(
 
                         }
                     }
-
-
                 }
 
                 Spacer(

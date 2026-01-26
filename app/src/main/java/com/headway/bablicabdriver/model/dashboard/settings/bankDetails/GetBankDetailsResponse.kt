@@ -5,6 +5,7 @@ data class UpdateBankDetailsRequest(
     val account_holder_name: String,
     val account_no: String,
     val ifsc_code: String,
+    val upi_id: String,
 )
 
 data class BankDetailsResponse(
@@ -17,6 +18,7 @@ data class BankDetailsData(
     val account_holder_name: String,
     val account_no: String,
     val bank_name: String,
-    val ifsc_code: String
+    val ifsc_code: String,
+    val upi_id: String
 )
 

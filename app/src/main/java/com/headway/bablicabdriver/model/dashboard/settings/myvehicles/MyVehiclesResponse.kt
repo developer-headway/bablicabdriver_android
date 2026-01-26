@@ -41,3 +41,4 @@ data class AssignedDriverForThisVehicle(
     val vehicle_owner_number: String,
     val vehicle_owner_photo: String
 )
+

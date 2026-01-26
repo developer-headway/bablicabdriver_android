@@ -58,6 +58,7 @@ import com.headway.bablicabdriver.res.components.bar.TopNavigationBar
 import com.headway.bablicabdriver.res.components.dialog.CommonErrorDialogs
 import com.headway.bablicabdriver.res.components.textview.TextView
 import com.headway.bablicabdriver.res.preferenceManage.SharedPreferenceManager
+import com.headway.bablicabdriver.res.routes.Routes
 import com.headway.bablicabdriver.ui.theme.MyColors
 import com.headway.bablicabdriver.ui.theme.MyFonts
 import com.headway.bablicabdriver.utils.AppUtils
@@ -168,9 +169,6 @@ fun VehicleDetailsScreen(
                     .padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                item {
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
 
                 // Vehicle Number Section
                 item {
@@ -216,8 +214,6 @@ fun VehicleDetailsScreen(
                                 )
 
                                 Spacer(modifier = Modifier.height(8.dp))
-
-
 
                                 var imgLoading by remember {
                                     mutableStateOf(true)
@@ -338,7 +334,11 @@ fun VehicleDetailsScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable {
-
+                                        navHostController.navigate(
+                                            Routes.DriverDetailsScreen.createRoute(driver?.driver_id?:"")
+                                        ) {
+                                            launchSingleTop = true
+                                        }
                                     }
                                     .neu(
                                         lightShadowColor = MyColors.clr_7E7E7E_13,
@@ -350,7 +350,7 @@ fun VehicleDetailsScreen(
                                         color = MyColors.clr_white_100,
                                         shape = RoundedCornerShape(12.dp)
                                     )
-                                    .padding(16.dp),
+                                    .padding(vertical = 14.dp, horizontal = 16.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
@@ -376,7 +376,7 @@ fun VehicleDetailsScreen(
                                             .build(),
                                         contentDescription = stringResource(R.string.img_des),
                                         modifier = Modifier
-                                            .size(48.dp)
+                                            .size(40.dp)
                                             .clip(CircleShape)
                                             .clip(shape = RoundedCornerShape(12.dp))
                                             .shimmerEffect(imgLoading),
@@ -402,7 +402,7 @@ fun VehicleDetailsScreen(
                                             text = driver?.driver_name?:"",
                                             textColor = MyColors.clr_132234_100,
                                             fontFamily = MyFonts.fontSemiBold,
-                                            fontSize = 16.sp
+                                            fontSize = 14.sp
                                         )
 
                                         Spacer(modifier = Modifier.height(4.dp))
@@ -411,7 +411,7 @@ fun VehicleDetailsScreen(
                                             text = "Shift: ${driver?.driver_shift?:""}",
                                             textColor = MyColors.clr_364B63_100,
                                             fontFamily = MyFonts.fontMedium,
-                                            fontSize = 14.sp
+                                            fontSize = 12.sp
                                         )
                                     }
 
@@ -428,7 +428,7 @@ fun VehicleDetailsScreen(
                                 Icon(
                                     painter = painterResource(R.drawable.ic_arrow_right),
                                     contentDescription = stringResource(R.string.img_des),
-                                    modifier = Modifier.size(20.dp),
+                                    modifier = Modifier.size(18.dp),
                                     tint = MyColors.clr_132234_100
                                 )
                             }
@@ -485,8 +485,9 @@ fun VehicleInfoSection(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(
-                    color = MyColors.clr_F5F5F5_100,
+                .border(
+                    width = 1.dp,
+                    color = MyColors.clr_7E7E7E_25,
                     shape = RoundedCornerShape(8.dp)
                 )
                 .padding(16.dp)

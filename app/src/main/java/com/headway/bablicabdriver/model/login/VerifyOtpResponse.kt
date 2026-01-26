@@ -55,6 +55,8 @@ data class VerifyOtpData(
     val licence_completed_status: String,
     val pan_completed_status: String,
     val police_verification_status: String,
-    val profile_completed_status: String
-)
+    val profile_completed_status: String,
 
+    val gender: String,
+    val is_owner_driver: Boolean
+)

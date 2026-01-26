@@ -273,16 +273,19 @@ fun MyRideScreen(
                                     modifier = Modifier
                                         .size(20.dp),
                                     contentDescription = stringResource(R.string.img_des),
-                                    painter = painterResource(R.drawable.ic_one_way),
-                                    colorFilter = ColorFilter.tint(MyColors.clr_364B63_100)
+                                    painter = painterResource(R.drawable.ic_auto)
                                 )
                                 Spacer(
                                     modifier = Modifier
                                         .width(6.dp)
                                 )
                                 Text(
-                                    text = item?.ride_type?:"",
-                                    fontSize = 16.sp,
+                                    text = when(item?.ride_type?.lowercase()) {
+                                        "one_way"->"One Way"
+                                        "schedule"->"Schedule"
+                                        else -> "Shuttle"
+                                    },
+                                    fontSize = 14.sp,
                                     fontFamily = MyFonts.fontSemiBold,
                                     color = MyColors.clr_364B63_100
                                 )
@@ -293,7 +296,7 @@ fun MyRideScreen(
                                 )
                                 Text(
                                     text = "₹ ${item?.total_price?:0}",
-                                    fontSize = 16.sp,
+                                    fontSize = 14.sp,
                                     fontFamily = MyFonts.fontSemiBold,
                                     color = MyColors.clr_08875D_100
                                 )
@@ -326,10 +329,11 @@ fun MyRideScreen(
                                 TextView(
                                     text = item?.pickup_address?:"",
                                     textColor = MyColors.clr_132234_100,
-                                    fontFamily = MyFonts.fontRegular,
-                                    fontSize = 14.sp,
+                                    fontFamily = MyFonts.fontMedium,
+                                    fontSize = 12.sp,
+                                    lineHeight = 15.sp,
                                     modifier = Modifier,
-                                    maxLines = 2
+                                    maxLines = 3
                                 )
 
                             }
@@ -365,10 +369,11 @@ fun MyRideScreen(
                                 TextView(
                                     text = item?.destination_address?:"",
                                     textColor = MyColors.clr_132234_100,
-                                    fontFamily = MyFonts.fontRegular,
-                                    fontSize = 14.sp,
+                                    fontFamily = MyFonts.fontMedium,
+                                    fontSize = 12.sp,
+                                    lineHeight = 15.sp,
                                     modifier = Modifier,
-                                    maxLines = 2
+                                    maxLines = 3
                                 )
 
                             }
@@ -394,8 +399,8 @@ fun MyRideScreen(
                                 )
                                 Text(
                                     text = "${item?.trip_distance?:0.0} km",
-                                    fontSize = 14.sp,
-                                    fontFamily = MyFonts.fontSemiBold,
+                                    fontSize = 12.sp,
+                                    fontFamily = MyFonts.fontMedium,
                                     color = MyColors.clr_364B63_100
                                 )
                                 Spacer(
@@ -404,8 +409,8 @@ fun MyRideScreen(
                                 )
                                 Text(
                                     text = "${item?.ride_date?:""} ${item?.ride_time?:""}",
-                                    fontSize = 14.sp,
-                                    fontFamily = MyFonts.fontSemiBold,
+                                    fontSize = 12.sp,
+                                    fontFamily = MyFonts.fontMedium,
                                     color = MyColors.clr_364B63_100
                                 )
 
@@ -435,8 +440,8 @@ fun MyRideScreen(
                                 )
                                 Text(
                                     text = item?.ride_status?:"",
-                                    fontSize = 14.sp,
-                                    fontFamily = MyFonts.fontSemiBold,
+                                    fontSize = 12.sp,
+                                    fontFamily = MyFonts.fontMedium,
                                     color = MyColors.clr_08875D_100
                                 )
                                 Spacer(
@@ -455,8 +460,8 @@ fun MyRideScreen(
                                 ) {
                                     Text(
                                         text = stringResource(R.string.view_ride_details),
-                                        fontSize = 14.sp,
-                                        fontFamily = MyFonts.fontSemiBold,
+                                        fontSize = 12.sp,
+                                        fontFamily = MyFonts.fontMedium,
                                         color = MyColors.clr_00BCF1_100
                                     )
                                     Spacer(

@@ -2,8 +2,6 @@ package com.headway.bablicabdriver.screen.dashboard.myride.ridedetails
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,7 +16,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
@@ -52,7 +49,6 @@ import com.headway.bablicabdriver.res.components.textview.TextView
 import com.headway.bablicabdriver.res.preferenceManage.SharedPreferenceManager
 import com.headway.bablicabdriver.ui.theme.MyColors
 import com.headway.bablicabdriver.ui.theme.MyFonts
-import com.headway.bablicabdriver.utils.AppUtils.makePhoneCall
 import com.headway.bablicabdriver.utils.shimmerEffect
 import dev.materii.pullrefresh.PullRefreshIndicator
 import dev.materii.pullrefresh.pullRefresh
@@ -147,8 +143,9 @@ fun MyRideDetailsScreen(
                     TextView(
                         text = rideData?.pickup_address?:"",
                         textColor = MyColors.clr_132234_100,
-                        fontFamily = MyFonts.fontRegular,
-                        fontSize = 14.sp,
+                        fontFamily = MyFonts.fontMedium,
+                        fontSize = 12.sp,
+                        lineHeight = 15.sp,
                         modifier = Modifier,
                         maxLines = 2
                     )
@@ -177,7 +174,6 @@ fun MyRideDetailsScreen(
                         contentDescription = stringResource(R.string.img_des),
                         modifier = Modifier
                             .size(20.dp)
-//                                        .align(Alignment.Top)
                     )
                     Spacer(
                         modifier = Modifier
@@ -187,8 +183,9 @@ fun MyRideDetailsScreen(
                     TextView(
                         text = rideData?.destination_address?:"",
                         textColor = MyColors.clr_132234_100,
-                        fontFamily = MyFonts.fontRegular,
-                        fontSize = 14.sp,
+                        fontFamily = MyFonts.fontMedium,
+                        fontSize = 12.sp,
+                        lineHeight = 15.sp,
                         modifier = Modifier,
                         maxLines = 2
                     )
@@ -259,7 +256,11 @@ fun MyRideDetailsScreen(
                     )
 
                     TextView(
-                        text = rideData?.ride_type?:"",
+                        text = when(rideData?.ride_type?.lowercase()) {
+                            "one_way"->"One Way"
+                            "schedule"->"Schedule"
+                            else -> "Shuttle"
+                        },
                         textColor = MyColors.clr_282F39_100,
                         fontSize = 14.sp,
                         fontFamily = MyFonts.fontRegular

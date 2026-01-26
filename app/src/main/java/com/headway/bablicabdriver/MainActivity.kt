@@ -27,20 +27,12 @@ import com.headway.bablicabdriver.utils.KeyBoardManager
 import com.headway.bablicabdriver.viewmodel.MainViewModel
 
 
-
 class MainActivity : ComponentActivity(), LocationUpdatesCallBack {
-
-//    private lateinit var gpsLocationClient: GPSLocationClient
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val mainViewModel = MainViewModel()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
-//        gpsLocationClient = GPSLocationClient()
-//        gpsLocationClient.setLocationUpdatesCallBack(this)
-//        gpsLocationClient.getLocationUpdates(context = this, mainViewModel = mainViewModel)
 
         setContent {
             BabliCabDriverTheme {

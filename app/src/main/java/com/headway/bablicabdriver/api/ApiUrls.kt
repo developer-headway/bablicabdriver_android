@@ -6,7 +6,9 @@ const val BASE_URL = "http://192.168.1.25:2025/api/mobile/driver/"
 const val GOOGLE_APIS_BASE_URL = "https://maps.googleapis.com/"
 const val GOOGLE_ROUTES_BASE_URL = "https://routes.googleapis.com/"
 
+const val GOOGLE_API_KEY = "AIzaSyDcU6D_1PZxvoQ-s3VFIjHfySAx1jMVqQ8"
 
+const val COMPUTE_ROUTE = "directions/v2:computeRoutes"
 const val SEND_OTP = "send-otp"
 const val VERIFY_OTP = "verify-otp"
 const val LOGOUT = "logout"
@@ -38,6 +40,7 @@ const val ROUTE_LIST = "shuttle-instance/route-list"
 const val SET_RIDE_TYPE = "shuttle-instance/set-ride-type"
 const val MY_VEHICLES = "owner/my-vehicles"
 const val VEHICLE_DETAILS = "owner/vehicle-detail"
+const val DRIVER_DETAILS = "owner/driver-detail"
 
 
 

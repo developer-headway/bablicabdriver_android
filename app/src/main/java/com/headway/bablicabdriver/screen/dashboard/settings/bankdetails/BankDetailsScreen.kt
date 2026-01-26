@@ -3,6 +3,7 @@ package com.headway.bablicabdriver.screen.dashboard.settings.bankdetails
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -60,6 +62,12 @@ fun BankDetailsScreen(
     val sharedPreferenceManager = SharedPreferenceManager(context)
 
     val scope = rememberCoroutineScope()
+
+    val upiId = rememberTextFieldState()
+    var upiIdError by rememberSaveable {
+        mutableStateOf(false)
+    }
+
     val bankName = rememberTextFieldState()
     var bankNameError by rememberSaveable {
         mutableStateOf(false)
@@ -118,6 +126,10 @@ fun BankDetailsScreen(
                         ifscCode.edit {
                             replace(0,length,data.ifsc_code)
                         }
+                        upiId.edit {
+                            replace(0,length,data.upi_id)
+                        }
+
                     } else {
                         errorStates.bottomToastText.value = response?.message?:""
                         AppUtils.showToastBottom(errorStates.showBottomToast)
@@ -147,6 +159,7 @@ fun BankDetailsScreen(
                 account_holder_name = accountHolderName.text.trim().toString(),
                 account_no = accountNumber.text.trim().toString(),
                 ifsc_code = ifscCode.text.trim().toString(),
+                upi_id = upiId.text.trim().toString(),
             )
             val token = sharedPreferenceManager.getToken()
             updateBankDetailsVm.callUpdateBankDetailsApi(
@@ -159,7 +172,6 @@ fun BankDetailsScreen(
                 },
                 onSuccess = {response->
                     if (response?.status == true) {
-                        val data = response.data
                         mainViewModel.snackBarText.value = response.message
                         mainViewModel.showSnackBar.value = true
                         navHostController.popBackStack()
@@ -248,6 +260,79 @@ fun BankDetailsScreen(
                     .verticalScroll(rememberScrollState())
             ) {
 
+
+                Spacer(
+                    modifier = Modifier
+                        .height(20.dp)
+                )
+                TextView(
+                    text = stringResource(R.string.upi_id),
+                    textColor = MyColors.clr_607080_100,
+                    fontSize = 14.sp,
+                    fontFamily = MyFonts.fontRegular,
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp)
+                )
+
+                Spacer(
+                    modifier = Modifier
+                        .height(10.dp)
+                )
+
+
+                FilledTextField(
+                    state = upiId,
+                    placeHolder = "",
+                    isTyping = {
+                        upiIdError = false
+                    },
+                    borderColor = MyColors.clr_E8E8E8_100,
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp),
+                    textFontFamily = MyFonts.fontMedium,
+                    textColor = MyColors.clr_5A5A5A_100,
+                    textFontSize = 14.sp,
+                    isLast = false,
+                    isTypeNumeric = false
+                )
+
+                TextView(
+                    text =  if(upiIdError) { stringResource(R.string.this_field_can_not_be_empty) } else "",
+                    modifier = Modifier
+                        .padding(top = 3.dp)
+                        .padding(horizontal = 20.dp)
+                        .height(18.dp),
+                    fontSize = 10.sp,
+                    fontFamily = MyFonts.fontRegular,
+                    textColor = MyColors.clr_FA4949_100
+                )
+
+                Row(
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp)
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    HorizontalDivider(
+                        color = MyColors.clr_00BCF1_100,
+                        modifier = Modifier
+                            .weight(1f)
+                    )
+                    TextView(
+                        text = "OR",
+                        textColor = MyColors.clr_black_100,
+                        fontFamily = MyFonts.fontRegular,
+                        fontSize = 14.sp,
+                        modifier = Modifier
+                            .padding(horizontal = 10.dp)
+                    )
+                    HorizontalDivider(
+                        color = MyColors.clr_00BCF1_100,
+                        modifier = Modifier
+                            .weight(1f)
+                    )
+
+                }
                 Spacer(
                     modifier = Modifier
                         .height(20.dp)

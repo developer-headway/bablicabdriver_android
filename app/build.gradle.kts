@@ -101,8 +101,8 @@ dependencies {
     implementation(libs.maps.compose)
 
     //location providers
-    implementation("com.google.android.gms:play-services-location:21.3.0")
-    implementation("com.google.maps.android:maps-utils-ktx:5.2.0")
+    implementation(libs.play.services.location)
+    implementation(libs.maps.utils.ktx)
 
 
     // Import the Firebase BoM
@@ -113,6 +113,14 @@ dependencies {
 
 
     //qr generator
-    implementation("com.lightspark:compose-qr-code:1.0.1")
+    implementation(libs.compose.qr.code)
+
+
+    //viewmodel life cycle
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.10.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0")
+    // Lifecycle components
+//    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+//    implementation(libs.androidx.lifecycle.viewmodel.compose)
 
 }

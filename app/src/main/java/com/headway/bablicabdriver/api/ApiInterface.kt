@@ -8,6 +8,8 @@ import com.headway.bablicabdriver.model.dashboard.home.ArrivedPickupRequest
 import com.headway.bablicabdriver.model.dashboard.home.ArrivedPickupResponse
 import com.headway.bablicabdriver.model.dashboard.home.CompleteRideRequest
 import com.headway.bablicabdriver.model.dashboard.home.CompleteRideResponse
+import com.headway.bablicabdriver.model.dashboard.home.ComputeRoutesRequest
+import com.headway.bablicabdriver.model.dashboard.home.ComputeRoutesResponse
 import com.headway.bablicabdriver.model.dashboard.home.HomePageResponse
 import com.headway.bablicabdriver.model.dashboard.home.RidePaymentRequest
 import com.headway.bablicabdriver.model.dashboard.home.RidePaymentResponse
@@ -38,6 +40,8 @@ import com.headway.bablicabdriver.model.registration.UploadDocumentResponse
 import com.headway.bablicabdriver.model.registration.profile.ProfileResponse
 import com.headway.bablicabdriver.model.registration.profile.UpdateProfileResponse
 import com.headway.bablicabdriver.model.dashboard.home.ShuttleRouteResponse
+import com.headway.bablicabdriver.model.dashboard.settings.myvehicles.DriverDetailsRequest
+import com.headway.bablicabdriver.model.dashboard.settings.myvehicles.DriverDetailsResponse
 import com.headway.bablicabdriver.model.dashboard.settings.myvehicles.MyVehiclesResponse
 import com.headway.bablicabdriver.model.dashboard.settings.myvehicles.VehicleDetailRequest
 import com.headway.bablicabdriver.model.dashboard.settings.myvehicles.VehicleDetailResponse
@@ -256,7 +260,20 @@ interface ApiInterface {
         @Body request: VehicleDetailRequest
     ): Response<VehicleDetailResponse>
 
+    @POST(DRIVER_DETAILS)
+    suspend fun callDriverDetailsApi(
+        @Header("Authorization") token: String,
+        @Body request: DriverDetailsRequest
+    ): Response<DriverDetailsResponse>
 
+
+
+    @POST(COMPUTE_ROUTE)
+    suspend fun callComputeRoutesApi(
+        @Header("X-Goog-FieldMask") fieldMask: String = " routes.duration,routes.distanceMeters,routes.polyline.encodedPolyline,routes.routeToken",
+        @Header("X-Goog-Api-Key") token: String,
+        @Body request: ComputeRoutesRequest
+    ): Response<ComputeRoutesResponse>
 
 }
 

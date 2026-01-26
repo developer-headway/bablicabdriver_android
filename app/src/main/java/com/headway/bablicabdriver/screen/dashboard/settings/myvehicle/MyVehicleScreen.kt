@@ -166,7 +166,6 @@ fun MyVehicleScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
-//                                    onVehicleSelected(item)
                                     navHostController.navigate(
                                         Routes.VehicleDetailsScreen.createRoute(item?.vehicle_id?:"")
                                     ) {

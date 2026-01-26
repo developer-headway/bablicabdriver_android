@@ -26,4 +26,10 @@ sealed class Routes(val route: String) {
     data object VehicleDetailsScreen : Routes(route = "VehicleDetailsScreen/{vehicleId}") {
         fun createRoute(vehicleId: String) = "VehicleDetailsScreen/$vehicleId"
     }
+
+    data object DriverDetailsScreen : Routes(route = "DriverDetailsScreen/{driverId}") {
+        fun createRoute(driverId: String) = "DriverDetailsScreen/$driverId"
+    }
+
+
 }

@@ -30,7 +30,7 @@ data class RideData(
     val ride_time: String,
     val ride_type: String,
     val star_rating: Float,
-    val total_price: Int,
+    val total_price: Double,
     val trip_distance: Double
 ): Serializable
 

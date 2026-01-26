@@ -19,6 +19,7 @@ import com.headway.bablicabdriver.screen.dashboard.notification.NotificationList
 import com.headway.bablicabdriver.screen.dashboard.settings.bankdetails.BankDetailsScreen
 import com.headway.bablicabdriver.screen.dashboard.settings.documentinfo.DocumentDetailsScreen
 import com.headway.bablicabdriver.screen.dashboard.settings.documentinfo.DocumentInfoScreen
+import com.headway.bablicabdriver.screen.dashboard.settings.myvehicle.DriverDetailsScreen
 import com.headway.bablicabdriver.screen.dashboard.settings.myvehicle.MyVehicleScreen
 import com.headway.bablicabdriver.screen.dashboard.settings.myvehicle.VehicleDetailsScreen
 import com.headway.bablicabdriver.screen.intro.IntroScreen
@@ -261,6 +262,19 @@ fun NavigationGraph(
                     )
                 }
             )
+
+            composable2 (
+                route = Routes.DriverDetailsScreen.route,
+                content = { backStackEntry ->
+                    val driverId = backStackEntry.arguments?.getString("driverId")
+                    DriverDetailsScreen(
+                        navHostController = navHostController,
+                        driverId = driverId
+                    )
+                }
+            )
+
+
 
 
 

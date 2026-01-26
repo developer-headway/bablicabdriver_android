@@ -46,6 +46,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -62,11 +63,19 @@ import com.gandiva.neumorphic.shape.RoundedCorner
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.MapsInitializer
+import com.google.android.gms.maps.model.ButtCap
+import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
+import com.google.maps.android.PolyUtil
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.MarkerState.Companion.invoke
+import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.headway.bablicabdriver.R
 import com.headway.bablicabdriver.api.ErrorsData
@@ -74,7 +83,10 @@ import com.headway.bablicabdriver.api.NetWorkFail
 import com.headway.bablicabdriver.model.dashboard.home.AcceptRideRequest
 import com.headway.bablicabdriver.model.dashboard.home.ArrivedPickupRequest
 import com.headway.bablicabdriver.model.dashboard.home.CompleteRideRequest
+import com.headway.bablicabdriver.model.dashboard.home.ComputeRoutesRequest
 import com.headway.bablicabdriver.model.dashboard.home.CurrentShuttleRidePassenger
+import com.headway.bablicabdriver.model.dashboard.home.Destination
+import com.headway.bablicabdriver.model.dashboard.home.Origin
 import com.headway.bablicabdriver.model.dashboard.home.RideRequests
 import com.headway.bablicabdriver.model.dashboard.home.SetOnlineStatusRequest
 import com.headway.bablicabdriver.model.dashboard.home.SetShuttleRouteRequest
@@ -109,6 +121,7 @@ import com.headway.bablicabdriver.viewmodel.dashboard.home.AcceptRideVm
 import com.headway.bablicabdriver.viewmodel.dashboard.home.ArrivedPickupVm
 import com.headway.bablicabdriver.viewmodel.dashboard.home.CancelRideVm
 import com.headway.bablicabdriver.viewmodel.dashboard.home.CompleteRideVm
+import com.headway.bablicabdriver.viewmodel.dashboard.home.ComputeRouteVm
 import com.headway.bablicabdriver.viewmodel.dashboard.home.HomePageVm
 import com.headway.bablicabdriver.viewmodel.dashboard.home.SetOnlineStatusVm
 import com.headway.bablicabdriver.viewmodel.dashboard.home.SetShuttleRouteVm
@@ -149,19 +162,115 @@ fun HomeScreen(
     var check by rememberSaveable {
         mutableStateOf(false)
     }
+
+
+    ////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////
+    val homePageVm : HomePageVm = viewModel()
+    val currentRide by homePageVm.currentRide.collectAsState()
+    val rideRequestList by homePageVm.rideRequestList.collectAsState()
+    val homePageData by homePageVm.homePageData.collectAsState()
+
+
+
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(LatLng(23.2599, 77.4126), 15f)
+    }
+
+
+
     ////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////
     val errorStates by remember {
         mutableStateOf(ErrorsData())
     }
+    var computeRouteNetworkError by rememberSaveable {
+        mutableIntStateOf(NetWorkFail.NoError.ordinal)
+    }
+    val computeRouteVm : ComputeRouteVm = viewModel()
+    val routeData by computeRouteVm.routeData.collectAsState()
+
+    fun callComputeRoutesApi() {
+        if (AppUtils.isInternetAvailable(context)) {
+
+            val origin = if (currentRide?.ride_status == "started") {
+                Origin(
+                    location = com.headway.bablicabdriver.model.dashboard.home.Location(
+                        latLng = com.headway.bablicabdriver.model.dashboard.home.LatLng(
+                            latitude = currentRide?.pickup_Latitude ?: 0.0,
+                            longitude = currentRide?.pickup_Longitude ?: 0.0,
+                        )
+                    )
+                )
+            } else {
+                Origin(
+                    location = com.headway.bablicabdriver.model.dashboard.home.Location(
+                        latLng = com.headway.bablicabdriver.model.dashboard.home.LatLng(
+                            latitude = currentLocation.value?.latitude ?: 0.0,
+                            longitude = currentLocation.value?.longitude ?: 0.0,
+                        )
+                    )
+                )
+            }
+
+
+            val destination =
+                if (currentRide?.ride_status == "started") {
+                    Destination(
+                        location = com.headway.bablicabdriver.model.dashboard.home.Location(
+                            latLng = com.headway.bablicabdriver.model.dashboard.home.LatLng(
+                                latitude = currentRide?.destination_Latitude ?: 0.0,
+                                longitude = currentRide?.destination_Longitude ?: 0.0,
+                            )
+                        )
+                    )
+                } else {
+                    Destination(
+                        location = com.headway.bablicabdriver.model.dashboard.home.Location(
+                            latLng = com.headway.bablicabdriver.model.dashboard.home.LatLng(
+                                latitude = currentRide?.pickup_Latitude ?: 0.0,
+                                longitude = currentRide?.pickup_Longitude ?: 0.0,
+                            )
+                        )
+                    )
+                }
+
+            val request = ComputeRoutesRequest(
+                origin = origin,
+                destination = destination
+            )
+
+
+
+            Log.d("msg","request: $request")
+            computeRouteVm.callComputeRoutesApi(
+                request = request,
+                errorStates = errorStates,
+                onError = {
+                    errorStates.bottomToastText.value = it?:""
+                    AppUtils.showToastBottom(errorStates.showBottomToast)
+                },
+                onSuccess = {response->
+
+                }
+            )
+        } else {
+            errorStates.showInternetError.value = true
+            computeRouteNetworkError = NetWorkFail.NetworkError.ordinal
+        }
+    }
+
+    //////////////////////////////////////////////
+    //////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////
+
     var networkError by rememberSaveable {
         mutableIntStateOf(NetWorkFail.NoError.ordinal)
     }
 
-    val homePageVm : HomePageVm = viewModel()
-    val currentRide by homePageVm.currentRide.collectAsState()
-    val rideRequestList by homePageVm.rideRequestList.collectAsState()
-    val homePageData by homePageVm.homePageData.collectAsState()
+
 
     fun callHomePageApi() {
         if (AppUtils.isInternetAvailable(context)) {
@@ -179,6 +288,33 @@ fun HomeScreen(
                     if (response?.status == true) {
                         val data = response.data
                         check = data.is_online
+
+
+                        scope.launch {
+                            delay(500)
+
+                            val pickupLocation = LatLng(
+                                currentRide?.pickup_Latitude?:0.0,
+                                currentRide?.pickup_Longitude?:0.0
+                            )
+                            val dropLocation = LatLng(
+                                currentRide?.destination_Latitude?:0.0,
+                                currentRide?.destination_Longitude?:0.0
+                            )
+
+                            scope.launch {
+                                val bounds = LatLngBounds.Builder()
+                                    .include(pickupLocation)
+                                    .include(dropLocation)
+                                    .build()
+                                cameraPositionState.animate(
+                                    update = CameraUpdateFactory.newLatLngBounds(bounds, 100)
+                                )
+                            }
+
+
+                            callComputeRoutesApi()
+                        }
 
                     } else {
                         errorStates.bottomToastText.value = response?.message?:""
@@ -532,8 +668,6 @@ fun HomeScreen(
             setShuttleNetworkError = NetWorkFail.NetworkError.ordinal
         }
     }
-    ////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////
 
 
 
@@ -546,7 +680,7 @@ fun HomeScreen(
     })
 
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
-    val cameraPositionState = rememberCameraPositionState {}
+//    val cameraPositionState = rememberCameraPositionState {}
     val coroutineScope = rememberCoroutineScope()
     var locationPermissions : MultiplePermissionsState? = null
 
@@ -691,7 +825,62 @@ fun HomeScreen(
                                     rotationGesturesEnabled = true,
                                     tiltGesturesEnabled = false
                                 )
-                            )
+                            ) {
+                                // Add markers, circles, polylines, etc. here
+
+                                if (routeData!=null) {
+                                    val path: List<LatLng> = PolyUtil.decode(routeData?.polyline?.encodedPolyline?:"")
+                                    Polyline(
+                                        points = path,
+                                        color = Color.Blue, // Example color
+                                        width = 10f,        // Example width
+                                        clickable = true,
+                                        onClick = { polyline ->
+                                            // Handle polyline click event
+                                        },
+                                        endCap = ButtCap()
+                                    )
+                                }
+
+
+                                val pickupLatLng = if (currentRide?.ride_status=="started") {
+                                    LatLng(
+                                        currentRide?.pickup_Latitude?:0.0,
+                                        currentRide?.pickup_Longitude?:0.0
+                                    )
+                                } else {
+                                    LatLng(
+                                        currentLocation.value?.latitude?:0.0,
+                                        currentLocation.value?.longitude?:0.0
+                                    )
+                                }
+
+
+                                Marker(
+                                    state = MarkerState(position = pickupLatLng),
+                                    title = "Vehicle",
+                                    snippet = "Location: ${pickupLatLng.latitude}, ${pickupLatLng.longitude}",
+                                    draggable = true,
+                                )
+
+                                val dropLatLng = if (currentRide?.ride_status=="started") {
+                                    LatLng(
+                                        currentRide?.destination_Latitude?:0.0,
+                                        currentRide?.destination_Longitude?:0.0
+                                    )
+                                } else {
+                                    LatLng(
+                                        currentRide?.pickup_Latitude?:0.0,
+                                        currentRide?.pickup_Longitude?:0.0
+                                    )
+                                }
+                                Marker(
+                                    state = MarkerState(position = dropLatLng),
+                                    title = "Vehicle",
+                                    snippet = "Location: ${dropLatLng.latitude}, ${dropLatLng.longitude}",
+                                    draggable = true,
+                                )
+                            }
 
                         }
 
@@ -728,7 +917,7 @@ fun HomeScreen(
                                     shape = CircleShape
                                 )
                                 .clickable {
-                                    if (locationPermissions.allPermissionsGranted) {
+                                    if (locationPermissions?.allPermissionsGranted == true) {
                                         coroutineScope.launch {
                                             cameraPositionState.animate(
                                                 update = CameraUpdateFactory.newLatLngZoom(
@@ -744,7 +933,7 @@ fun HomeScreen(
                                             )
                                         }
                                     } else {
-                                        locationPermissions.launchPermissionRequestsAndAction()
+                                        locationPermissions?.launchPermissionRequestsAndAction()
                                     }
 
                                 },
@@ -893,6 +1082,14 @@ fun HomeScreen(
                     setShuttleNetworkError = NetWorkFail.NoError.ordinal
                     callSetShuttleRouteApi()
                 }
+
+                if (computeRouteNetworkError== NetWorkFail.NetworkError.ordinal) {
+                    errorStates.showInternetError.value = false
+                    computeRouteNetworkError = NetWorkFail.NoError.ordinal
+                    callComputeRoutesApi()
+                }
+
+
 
             },
         )

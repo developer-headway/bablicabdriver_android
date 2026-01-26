@@ -82,8 +82,6 @@ fun OTPVerificationScreen(navHostController: NavHostController) {
         mutableStateOf("")
     }
 
-
-
     var otpTime by rememberSaveable {
         mutableStateOf(60)
     }

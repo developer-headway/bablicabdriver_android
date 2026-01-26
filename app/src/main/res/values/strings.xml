@@ -39,6 +39,7 @@
     <string name="login">Login</string>
     <string name="welcome_to_the_app">Welcome back to the app</string>
     <string name="phone_number">Phone Number</string>
+    <string name="phone">Phone</string>
     <string name="privacy_policy">Privacy Policy</string>
     <string name="terms_conditions">Terms &amp; Conditions</string>
 
@@ -138,13 +139,20 @@
     <string name="set_this_root">Set This Root</string>
     <string name="my_vehicle">My Vehicle</string>
 
+
     <string name="vehicle_details">Vehicle Details</string>
-    <string name="vehicle_no">Vehicle No</string>
+    <string name="vehicle_no">Vehicle Number</string>
     <string name="babli_vehicle_code">Babli Vehicle Code</string>
     <string name="rc_book_image">RC Book Image</string>
-    <string name="front_side">Front Side</string>
-    <string name="back_side">Back Side</string>
+    <string name="front_side">Front Side Photo</string>
+    <string name="back_side">Back Side Photo</string>
     <string name="assigned_driver">Assigned Driver</string>
+
+    <!--  Driver Details Screen  -->
+    <string name="driver_details">Driver Details</string>
+    <string name="total_ride">Total Ride</string>
+    <string name="total_earning">Total Earning</string>
+    <string name="driving_licence_number">Driving Licence Number</string>
 
 
     <!--  ChooseServiceDialog dialog  -->
@@ -207,6 +215,7 @@
     <string name="your_account_is">Your account is ready to use. You will be redirected to the Home Page in a few seconds.</string>
 
     <!--  Bank Details Screen  -->
+    <string name="upi_id">UPI ID</string>
     <string name="bank_name">Bank Name</string>
     <string name="update">Update</string>
     <string name="account_holder_name">Account Holder Name</string>
