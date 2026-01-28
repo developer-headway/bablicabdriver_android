@@ -8,7 +8,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
-import com.google.android.gms.maps.MapsInitializer
 import com.headway.bablicabdriver.res.routes.Routes
 import com.headway.bablicabdriver.screen.dashboard.DashboardScreen
 import com.headway.bablicabdriver.screen.dashboard.home.SetRouteScreen
@@ -16,12 +15,15 @@ import com.headway.bablicabdriver.screen.dashboard.home.completeRide.PaymentScre
 import com.headway.bablicabdriver.screen.dashboard.home.completeRide.PaymentSuccessScreen
 import com.headway.bablicabdriver.screen.dashboard.myride.ridedetails.MyRideDetailsScreen
 import com.headway.bablicabdriver.screen.dashboard.notification.NotificationListScreen
+import com.headway.bablicabdriver.screen.dashboard.settings.SettingsScreen
 import com.headway.bablicabdriver.screen.dashboard.settings.bankdetails.BankDetailsScreen
 import com.headway.bablicabdriver.screen.dashboard.settings.documentinfo.DocumentDetailsScreen
 import com.headway.bablicabdriver.screen.dashboard.settings.documentinfo.DocumentInfoScreen
+import com.headway.bablicabdriver.screen.dashboard.settings.drivers.DriverListScreen
 import com.headway.bablicabdriver.screen.dashboard.settings.myvehicle.DriverDetailsScreen
 import com.headway.bablicabdriver.screen.dashboard.settings.myvehicle.MyVehicleScreen
 import com.headway.bablicabdriver.screen.dashboard.settings.myvehicle.VehicleDetailsScreen
+import com.headway.bablicabdriver.screen.dashboard.wallet.transactions.TransactionsScreen
 import com.headway.bablicabdriver.screen.intro.IntroScreen
 import com.headway.bablicabdriver.screen.launch.LaunchScreen
 import com.headway.bablicabdriver.screen.login.LoginScreen
@@ -40,7 +42,6 @@ import com.headway.bablicabdriver.viewmodel.MainViewModel
 fun NavigationGraph(
     mainViewModel: MainViewModel
 ) {
-
     val context = LocalContext.current
     //navigation host
     val navHostController = rememberNavController()
@@ -62,7 +63,7 @@ fun NavigationGraph(
     }
 
     //map initialize
-    MapsInitializer.initialize(context)
+//    MapsInitializer.initialize(context)
 
     Box {
 
@@ -273,6 +274,36 @@ fun NavigationGraph(
                     )
                 }
             )
+
+            composable2 (
+                route = Routes.DriverListScreen.route,
+                content = { backStackEntry ->
+                    DriverListScreen(
+                        navHostController = navHostController
+                    )
+                }
+            )
+
+
+            composable2 (
+                route = Routes.SettingsScreen.route,
+                content = { backStackEntry ->
+                    SettingsScreen(
+                        navHostController,
+                        mainViewModel
+                    )
+                }
+            )
+
+            composable2 (
+                route = Routes.TransactionsScreen.route,
+                content = {
+                    TransactionsScreen(
+                        navHostController = navHostController
+                    )
+                }
+            )
+
 
 
 

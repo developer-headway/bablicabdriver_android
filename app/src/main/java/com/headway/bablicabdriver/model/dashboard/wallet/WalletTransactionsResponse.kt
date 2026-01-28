@@ -4,6 +4,7 @@ import com.headway.bablicabdriver.model.commondataclass.Pagination
 
 data class WalletTransactionsRequest(
     val page: String = "1",
+    val filter_date: String = "",
 )
 
 data class WalletTransactionsResponse(
@@ -23,6 +24,7 @@ data class WalletTransactionsData(
 data class Transaction(
     val amount: Double,
     val date_time: String,
+    val created_at: String,
     val description: String,
     val id: String,
     val rejected_reason: String,

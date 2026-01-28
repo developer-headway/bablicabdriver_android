@@ -70,14 +70,14 @@ import dev.materii.pullrefresh.pullRefresh
 import dev.materii.pullrefresh.rememberPullRefreshState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import okhttp3.Route
 import kotlin.collections.forEachIndexed
 import kotlin.collections.lastIndex
 
 @Composable
 fun SettingsScreen(
     navHostController: NavHostController,
-    mainViewModel: MainViewModel,
-    errorStatesDashboard: ErrorsData
+    mainViewModel: MainViewModel
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -192,7 +192,7 @@ fun SettingsScreen(
         Pair(R.drawable.ic_term_condition, R.string.terms_conditions),
         Pair(R.drawable.ic_about, R.string.about),
     )
-
+    val showBackIcon = navHostController.previousBackStackEntry?.savedStateHandle?.get("show_back_icon")?:false
 
     Scaffold(
         modifier = Modifier
@@ -201,8 +201,11 @@ fun SettingsScreen(
         contentWindowInsets = WindowInsets(0.dp),
         topBar = {
             TopNavigationBar(
-                showBackIcon = false,
-                title = stringResource(R.string.rewards)
+                showBackIcon = showBackIcon,
+                title = stringResource(R.string.setting),
+                onBackPress = {
+                    navHostController.popBackStack()
+                }
             )
         }
     ) { innerPadding ->
@@ -334,12 +337,74 @@ fun SettingsScreen(
                 }
 
 
+                if (sharedPreferenceManager.getUserType().lowercase()=="owner" && !sharedPreferenceManager.getIsOwnerDriver()) {
+                    Spacer(
+                        modifier = Modifier
+                            .height(12.dp)
+                    )
+                    Column (
+                        modifier = Modifier
+                            .padding(horizontal = 12.dp)
+                            .fillMaxWidth()
+                            .neu(
+                                shape = Flat(RoundedCorner(16.dp)),
+                                lightShadowColor = MyColors.clr_7E7E7E_13,
+                                darkShadowColor = MyColors.clr_7E7E7E_13,
+                                shadowElevation = 2.dp
+                            )
+                            .clip( shape = RoundedCornerShape(16.dp))
+                            .background(
+                                color = MyColors.clr_white_100,
+                                shape = RoundedCornerShape(16.dp)
+                            ),
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .height(48.dp)
+                                .fillMaxWidth()
+                                .clickable {
+                                    navHostController.navigate(Routes.DriverListScreen.route) {
+                                        launchSingleTop = true
+                                    }
+                                }
+                                .padding(start = 20.dp, end = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Image(
+                                painter = painterResource(R.drawable.ic_doc),
+                                contentDescription = stringResource(R.string.img_des),
+                                modifier = Modifier
+                                    .size(22.dp)
+                            )
+                            Spacer(
+                                modifier = Modifier
+                                    .width(12.dp)
+                            )
+                            TextView(
+                                text = stringResource(R.string.driver_details),
+                                textColor = MyColors.clr_132234_100,
+                                fontFamily = MyFonts.fontRegular,
+                                fontSize = 14.sp,
+                                modifier = Modifier
+                                    .weight(1f)
+                            )
+                            Image(
+                                painter = painterResource(R.drawable.ic_next_arrow),
+                                contentDescription = stringResource(R.string.img_des),
+                                modifier = Modifier
+                                    .size(18.dp)
+                            )
+
+
+                        }
+                    }
+                }
+
                 Spacer(
                     modifier = Modifier
                         .height(12.dp)
                 )
-
-
 
                 Column (
                     modifier = Modifier

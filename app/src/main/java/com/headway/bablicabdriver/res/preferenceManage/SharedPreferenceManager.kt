@@ -75,13 +75,21 @@ class SharedPreferenceManager(private val context: Context){
         return sharedPreferenceManager.getString("user_id", "") ?: ""
     }
 
-
+    fun getUserType(): String{
+        return sharedPreferenceManager.getString("user_type", "") ?: ""
+    }
     fun getMobile(): String{
         return sharedPreferenceManager.getString("phone_number", "") ?: ""
     }
     fun getIsLogin(): Boolean {
         return sharedPreferenceManager.getBoolean("is_login",false)
     }
+
+    fun getIsOwnerDriver(): Boolean {
+        return sharedPreferenceManager.getBoolean("is_owner_driver",false)
+    }
+
+
 
 
 
@@ -96,6 +104,8 @@ class SharedPreferenceManager(private val context: Context){
             putString("email", data.email)
             putString("phone_number", data.phone_number)
             putString("profile_photo", data.profile_photo)
+            putString("user_type", data.user_type)
+            putBoolean("is_owner_driver", data.is_owner_driver)
             apply()
         }
     }

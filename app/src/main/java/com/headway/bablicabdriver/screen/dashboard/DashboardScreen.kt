@@ -47,6 +47,7 @@ import com.headway.bablicabdriver.api.ErrorsData
 import com.headway.bablicabdriver.model.dashboard.BottomTab
 import com.headway.bablicabdriver.res.components.textview.TextView
 import com.headway.bablicabdriver.res.components.dialog.CommonErrorDialogs
+import com.headway.bablicabdriver.res.preferenceManage.SharedPreferenceManager
 import com.headway.bablicabdriver.screen.dashboard.home.HomeScreen
 import com.headway.bablicabdriver.screen.dashboard.myride.MyRideScreen
 import com.headway.bablicabdriver.screen.dashboard.settings.SettingsScreen
@@ -54,6 +55,7 @@ import com.headway.bablicabdriver.screen.dashboard.wallet.WalletScreen
 import com.headway.bablicabdriver.ui.theme.MyColors
 import com.headway.bablicabdriver.ui.theme.MyFonts
 import com.headway.bablicabdriver.viewmodel.MainViewModel
+import com.headway.bablicabdriver.screen.dashboard.ownerDashboardScreen.OwnerDashboardScreen
 import kotlinx.coroutines.launch
 import kotlin.collections.forEachIndexed
 
@@ -67,7 +69,7 @@ fun DashboardScreen(
     val context = LocalContext.current
     val activity = LocalActivity.current
     val scope = rememberCoroutineScope()
-
+    val sharedPreferenceManager = SharedPreferenceManager(context)
     var selBottomTab by rememberSaveable  {
         mutableStateOf(R.string.home)
     }
@@ -110,100 +112,113 @@ fun DashboardScreen(
         contentWindowInsets = WindowInsets(0.dp),
     ) { innerPadding ->
 
-        Column(
+        Box(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
         ) {
 
-
-            HorizontalPager(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                state = pagerState,
-                userScrollEnabled = false
-            ) { page: Int ->
-                when(page) {
-                    0->  HomeScreen(navHostController, mainViewModel, errorStates)
-                    1->  MyRideScreen(navHostController, mainViewModel, errorStates)
-                    2->  WalletScreen(navHostController, mainViewModel, errorStates)
-                    3->  SettingsScreen(navHostController, mainViewModel, errorStates)
-                    else -> {}
-                }
-            }
-
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .neu(
-                        lightShadowColor = MyColors.clr_7E7E7E_13,
-                        darkShadowColor = MyColors.clr_7E7E7E_13,
-                        shape = Flat(RoundedCorner(20.dp)),
-                        shadowElevation = 2.dp
-                    )
-                    .clip(RoundedCornerShape(topEnd = 20.dp, topStart = 20.dp))
-                    .background(
-                        color = MyColors.clr_white_100,
-                        shape = RoundedCornerShape(topEnd = 20.dp, topStart = 20.dp)
-                    ),
-            ) {
-                bottomTabModel.forEachIndexed { index, item ->
-                    var isScaled by remember { mutableStateOf(false) }
-                    isScaled = selBottomTab==item.title
-                    val scale by animateFloatAsState(targetValue = if (isScaled) 1.4f else 1f)
-                    Box (
+            if (sharedPreferenceManager.getUserType().lowercase()=="owner") {
+                OwnerDashboardScreen(
+                    navHostController = navHostController
+                )
+            } else {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                ) {
+                    HorizontalPager(
                         modifier = Modifier
-                            .weight(1f)
-                            .clickable(
-                                interactionSource = null,
-                                indication = null
-                            ) {
-                                selBottomTab = item.title
-                                scope.launch {
-                                    pagerState.scrollToPage(index)
-                                }
-                            }
-                            .padding(vertical = 12.dp),
-                        contentAlignment = Alignment.Center
+                            .fillMaxWidth()
+                            .weight(1f),
+                        state = pagerState,
+                        userScrollEnabled = false
+                    ) { page: Int ->
+                        when(page) {
+                            0->  HomeScreen(navHostController, mainViewModel, errorStates)
+                            1->  MyRideScreen(navHostController, mainViewModel, errorStates)
+                            2->  WalletScreen(navHostController, mainViewModel, errorStates)
+                            3->  SettingsScreen(navHostController, mainViewModel)
+                            else -> {}
+                        }
+                    }
+
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .neu(
+                                lightShadowColor = MyColors.clr_7E7E7E_13,
+                                darkShadowColor = MyColors.clr_7E7E7E_13,
+                                shape = Flat(RoundedCorner(20.dp)),
+                                shadowElevation = 2.dp
+                            )
+                            .clip(RoundedCornerShape(topEnd = 20.dp, topStart = 20.dp))
+                            .background(
+                                color = MyColors.clr_white_100,
+                                shape = RoundedCornerShape(topEnd = 20.dp, topStart = 20.dp)
+                            ),
                     ) {
-
-
-
-
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Image(
-                                painter = painterResource(if(selBottomTab==item.title) item.selIcon else item.icon),
-                                contentDescription = stringResource(item.title),
+                        bottomTabModel.forEachIndexed { index, item ->
+                            var isScaled by remember { mutableStateOf(false) }
+                            isScaled = selBottomTab==item.title
+                            val scale by animateFloatAsState(targetValue = if (isScaled) 1.4f else 1f)
+                            Box (
                                 modifier = Modifier
-                                    .size(20.dp)
-                                    .graphicsLayer {
-                                        scaleX = scale
-                                        scaleY = scale
-                                    },
-                            )
-                            Spacer(
-                                modifier = Modifier
-                                    .height(5.dp)
-                            )
-                            TextView(
-                                modifier = Modifier,
-                                text = stringResource(item.title),
-                                fontFamily = MyFonts.fontRegular,
-                                fontSize = 10.sp,
-                                textColor = if(selBottomTab==item.title) MyColors.clr_00BCF1_100 else MyColors.clr_black_100
-                            )
+                                    .weight(1f)
+                                    .clickable(
+                                        interactionSource = null,
+                                        indication = null
+                                    ) {
+                                        selBottomTab = item.title
+                                        scope.launch {
+                                            pagerState.scrollToPage(index)
+                                        }
+                                    }
+                                    .padding(vertical = 12.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+
+
+
+
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Image(
+                                        painter = painterResource(if(selBottomTab==item.title) item.selIcon else item.icon),
+                                        contentDescription = stringResource(item.title),
+                                        modifier = Modifier
+                                            .size(20.dp)
+                                            .graphicsLayer {
+                                                scaleX = scale
+                                                scaleY = scale
+                                            },
+                                    )
+                                    Spacer(
+                                        modifier = Modifier
+                                            .height(5.dp)
+                                    )
+                                    TextView(
+                                        modifier = Modifier,
+                                        text = stringResource(item.title),
+                                        fontFamily = MyFonts.fontRegular,
+                                        fontSize = 10.sp,
+                                        textColor = if(selBottomTab==item.title) MyColors.clr_00BCF1_100 else MyColors.clr_black_100
+                                    )
+                                }
+
+                            }
                         }
 
                     }
-                }
 
+                }
             }
 
         }
+
+
 
 
     }
@@ -211,13 +226,11 @@ fun DashboardScreen(
     CommonErrorDialogs(
         showToast = false,
         errorStates = errorStates,
-        onNoInternetRetry = {
-
-        },
+        onNoInternetRetry = {},
     )
 
-
-
-
 }
+
+
+
 

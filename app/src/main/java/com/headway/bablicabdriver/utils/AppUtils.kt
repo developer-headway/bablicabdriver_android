@@ -23,7 +23,7 @@ import java.util.Locale
 import java.util.regex.Pattern
 
 object AppUtils {
-
+    val currency = "₹"
     val profileImgae = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6Hb5xzFZJCTW4cMqmPwsgfw-gILUV7QevvQ&s"
     val bannerImgae = "https://img.freepik.com/free-psd/horizontal-banner-template-fashion-shopping-store_23-2148786821.jpg"
 

@@ -77,6 +77,7 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.MarkerState.Companion.invoke
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.google.maps.android.compose.rememberMarkerState
 import com.headway.bablicabdriver.R
 import com.headway.bablicabdriver.api.ErrorsData
 import com.headway.bablicabdriver.api.NetWorkFail
@@ -142,7 +143,6 @@ fun HomeScreen(
     errorStatesDashboard: ErrorsData
 ) {
     val context = LocalContext.current
-    val activity = LocalActivity.current
     val scope = rememberCoroutineScope()
     val sharedPreferenceManager = SharedPreferenceManager(context)
     var isRefreshing by remember {
@@ -176,7 +176,6 @@ fun HomeScreen(
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(LatLng(23.2599, 77.4126), 15f)
     }
-
 
 
     ////////////////////////////////////////////////////////
@@ -311,8 +310,6 @@ fun HomeScreen(
                                     update = CameraUpdateFactory.newLatLngBounds(bounds, 100)
                                 )
                             }
-
-
                             callComputeRoutesApi()
                         }
 
@@ -680,7 +677,6 @@ fun HomeScreen(
     })
 
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
-//    val cameraPositionState = rememberCameraPositionState {}
     val coroutineScope = rememberCoroutineScope()
     var locationPermissions : MultiplePermissionsState? = null
 
@@ -745,7 +741,6 @@ fun HomeScreen(
     DisposableEffect(true) {
         val broadcastReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
-                Log.d("msg","received")
                 val rideRequests = intent.getSerializableExtra("ride_request", RideRequests::class.java)
                 Log.d("msg","received: $rideRequests")
                 rideRequests?.let {
@@ -786,243 +781,238 @@ fun HomeScreen(
 
         Box(
             modifier = Modifier
+                .padding(innerPadding)
                 .fillMaxSize()
+                .pullRefresh(refreshState)
+
         ) {
 
-            Box(
-                modifier = Modifier
-                    .padding(innerPadding)
-                    .fillMaxSize()
-                    .pullRefresh(refreshState)
 
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
             ) {
 
+                Box {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                    ) {
 
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                ) {
-
-                    Box {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                        ) {
-
-                            // Map setup
-                            GoogleMap(
-                                modifier = Modifier.fillMaxSize(),
-                                cameraPositionState = cameraPositionState,
-                                properties = MapProperties(
-                                    isMyLocationEnabled = locationPermissions.allPermissionsGranted,
-                                    mapType = MapType.NORMAL,
-                                ),
-                                uiSettings = MapUiSettings(
-                                    zoomControlsEnabled = false,  // hide plus/minus
-                                    compassEnabled = false,       // hide compass
-                                    myLocationButtonEnabled = false, // hide default location button
-                                    mapToolbarEnabled = false,    // hide navigation toolbar
-                                    rotationGesturesEnabled = true,
-                                    tiltGesturesEnabled = false
-                                )
-                            ) {
-                                // Add markers, circles, polylines, etc. here
-
-                                if (routeData!=null) {
-                                    val path: List<LatLng> = PolyUtil.decode(routeData?.polyline?.encodedPolyline?:"")
-                                    Polyline(
-                                        points = path,
-                                        color = Color.Blue, // Example color
-                                        width = 10f,        // Example width
-                                        clickable = true,
-                                        onClick = { polyline ->
-                                            // Handle polyline click event
-                                        },
-                                        endCap = ButtCap()
-                                    )
-                                }
-
-
-                                val pickupLatLng = if (currentRide?.ride_status=="started") {
-                                    LatLng(
-                                        currentRide?.pickup_Latitude?:0.0,
-                                        currentRide?.pickup_Longitude?:0.0
-                                    )
-                                } else {
-                                    LatLng(
-                                        currentLocation.value?.latitude?:0.0,
-                                        currentLocation.value?.longitude?:0.0
-                                    )
-                                }
-
-
-                                Marker(
-                                    state = MarkerState(position = pickupLatLng),
-                                    title = "Vehicle",
-                                    snippet = "Location: ${pickupLatLng.latitude}, ${pickupLatLng.longitude}",
-                                    draggable = true,
-                                )
-
-                                val dropLatLng = if (currentRide?.ride_status=="started") {
-                                    LatLng(
-                                        currentRide?.destination_Latitude?:0.0,
-                                        currentRide?.destination_Longitude?:0.0
-                                    )
-                                } else {
-                                    LatLng(
-                                        currentRide?.pickup_Latitude?:0.0,
-                                        currentRide?.pickup_Longitude?:0.0
-                                    )
-                                }
-                                Marker(
-                                    state = MarkerState(position = dropLatLng),
-                                    title = "Vehicle",
-                                    snippet = "Location: ${dropLatLng.latitude}, ${dropLatLng.longitude}",
-                                    draggable = true,
-                                )
-                            }
-
-                        }
-
-
-                        AvailableForRideBox(
-                            check = check,
-                            onChangeClick = {
-                                showServiceDialog = true
-                            },
-                            onAvailabilityChange = {checked->
-                                if (!checked) {
-                                    check = false
-                                    callSetOnlineStatusApi()
-                                } else {
-                                    showServiceDialog = true
-                                }
-                            },
-                            homePageVm = homePageVm
-                        )
-
-                        Box(
-                            modifier = Modifier
-                                .padding(end = 16.dp, bottom = 30.dp)
-                                .size(40.dp)
-                                .align(Alignment.BottomEnd)
-                                .neu(
-                                    darkShadowColor = MyColors.clr_7E7E7E_13,
-                                    lightShadowColor = MyColors.clr_7E7E7E_13,
-                                    shadowElevation = 2.dp,
-                                    shape = Flat(Oval),
-                                )
-                                .background(
-                                    color = MyColors.clr_white_100,
-                                    shape = CircleShape
-                                )
-                                .clickable {
-                                    if (locationPermissions?.allPermissionsGranted == true) {
-                                        coroutineScope.launch {
-                                            cameraPositionState.animate(
-                                                update = CameraUpdateFactory.newLatLngZoom(
-                                                    LatLng(
-                                                        mainViewModel.currentLocation.value?.latitude
-                                                            ?: 0.0,
-                                                        mainViewModel.currentLocation.value?.longitude
-                                                            ?: 0.0
-                                                    ),
-                                                    16f // zoom level
-                                                ),
-                                                durationMs = 500
-                                            )
-                                        }
-                                    } else {
-                                        locationPermissions?.launchPermissionRequestsAndAction()
-                                    }
-
-                                },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Image(
-                                painter = painterResource(R.drawable.ic_location_recenter),
-                                modifier = Modifier
-                                    .size(22.dp),
-                                contentDescription = stringResource(R.string.img_des)
+                        // Map setup
+                        GoogleMap(
+                            modifier = Modifier.fillMaxSize(),
+                            cameraPositionState = cameraPositionState,
+                            properties = MapProperties(
+                                isMyLocationEnabled = locationPermissions.allPermissionsGranted,
+                                mapType = MapType.NORMAL,
+                            ),
+                            uiSettings = MapUiSettings(
+                                zoomControlsEnabled = false,  // hide plus/minus
+                                compassEnabled = false,       // hide compass
+                                myLocationButtonEnabled = false, // hide default location button
+                                mapToolbarEnabled = false,    // hide navigation toolbar
+                                rotationGesturesEnabled = true,
+                                tiltGesturesEnabled = false
                             )
-                        }
-
-
-                        when(currentRide?.ride_status) {
-                            "accepted" -> {
-                                PickupDialog(
-                                    modifier = Modifier
-                                        .align(Alignment.BottomCenter)
-                                        .clickable(
-                                            interactionSource = null,
-                                            enabled = false
-                                        ) {},
-                                    currentRide = currentRide,
-                                    onArrivedClick = {
-                                        callArrivedPickupApi()
-                                    }
-                                )
-                            }
-                            "arrived" -> {
-                                StartRideDialog(
-                                    modifier = Modifier
-                                        .align(Alignment.BottomCenter)
-                                        .clickable(
-                                            interactionSource = null,
-                                            enabled = false
-                                        ) {},
-                                    vehicleIdealNumber = homePageData?.vehicle_ideal_number
-                                )
-                            }
-                            "started" -> {
-                                DestinationDialog(
-                                    modifier = Modifier
-                                        .align(Alignment.BottomCenter)
-                                        .clickable(
-                                            interactionSource = null,
-                                            enabled = false
-                                        ) {},
-                                    onCompleteRideClick = {
-                                        selRideId = currentRide?.ride_id?:""
-                                        callCompleteRideApi()
+                        ) {
+                            // Add markers, circles, polylines, etc. here
+                            if (routeData!=null) {
+                                val path: List<LatLng> = PolyUtil.decode(routeData?.polyline?.encodedPolyline?:"")
+                                Polyline(
+                                    points = path,
+                                    color = Color.Blue, // Example color
+                                    width = 10f,        // Example width
+                                    clickable = true,
+                                    onClick = { polyline ->
+                                        // Handle polyline click event
                                     },
-                                    currentRide = currentRide
+                                    endCap = ButtCap()
                                 )
                             }
-                        }
 
-                        if(!homePageData?.Current_shuttle_ride_passengers.isNullOrEmpty()) {
-                            Log.d("msg","homePageData: ${homePageData?.Current_shuttle_ride_passengers}")
-                            CurrentShuttleCustomersDialog(
-                                modifier = Modifier
-                                    .align(Alignment.BottomCenter)
-                                    .clickable(
-                                        interactionSource = null,
-                                        enabled = false
-                                    ) {
+                            val pickupLatLng = if (currentRide?.ride_status=="started") {
+                                LatLng(
+                                    currentRide?.pickup_Latitude?:0.0,
+                                    currentRide?.pickup_Longitude?:0.0
+                                )
+                            } else {
+                                LatLng(
+                                    currentLocation.value?.latitude?:0.0,
+                                    currentLocation.value?.longitude?:0.0
+                                )
+                            }
 
-                                    },
-                                list = homePageData?.Current_shuttle_ride_passengers,
-                                finishRideDialog = {
-                                    selRideId = it?:""
-                                    finishRideDialog = true
-                                }
+                            val markerState = remember { MarkerState(position = pickupLatLng) }
+                            Marker(
+                                state = markerState,
+                                title = "Vehicle",
+                                snippet = "Location: ${pickupLatLng.latitude}, ${pickupLatLng.longitude}",
+                                draggable = true,
+                            )
+
+                            val dropLatLng = if (currentRide?.ride_status=="started") {
+                                LatLng(
+                                    currentRide?.destination_Latitude?:0.0,
+                                    currentRide?.destination_Longitude?:0.0
+                                )
+                            } else {
+                                LatLng(
+                                    currentRide?.pickup_Latitude?:0.0,
+                                    currentRide?.pickup_Longitude?:0.0
+                                )
+                            }
+
+
+                            val dropMarkerState = remember { MarkerState(position = dropLatLng) }
+                            Marker(
+                                state = dropMarkerState,
+                                title = "Vehicle",
+                                snippet = "Location: ${dropLatLng.latitude}, ${dropLatLng.longitude}",
+                                draggable = true,
                             )
                         }
 
                     }
 
+
+                    AvailableForRideBox(
+                        check = check,
+                        onChangeClick = {
+                            showServiceDialog = true
+                        },
+                        onAvailabilityChange = {checked->
+                            if (!checked) {
+                                check = false
+                                callSetOnlineStatusApi()
+                            } else {
+                                showServiceDialog = true
+                            }
+                        },
+                        homePageVm = homePageVm,
+                        navHostController = navHostController
+                    )
+
+                    Box(
+                        modifier = Modifier
+                            .padding(end = 16.dp, bottom = 30.dp)
+                            .size(40.dp)
+                            .align(Alignment.BottomEnd)
+                            .neu(
+                                darkShadowColor = MyColors.clr_7E7E7E_13,
+                                lightShadowColor = MyColors.clr_7E7E7E_13,
+                                shadowElevation = 2.dp,
+                                shape = Flat(Oval),
+                            )
+                            .background(
+                                color = MyColors.clr_white_100,
+                                shape = CircleShape
+                            )
+                            .clickable {
+                                if (locationPermissions.allPermissionsGranted) {
+                                    coroutineScope.launch {
+                                        cameraPositionState.animate(
+                                            update = CameraUpdateFactory.newLatLngZoom(
+                                                LatLng(
+                                                    mainViewModel.currentLocation.value?.latitude
+                                                        ?: 0.0,
+                                                    mainViewModel.currentLocation.value?.longitude
+                                                        ?: 0.0
+                                                ),
+                                                16f // zoom level
+                                            ),
+                                            durationMs = 500
+                                        )
+                                    }
+                                } else {
+                                    locationPermissions.launchPermissionRequestsAndAction()
+                                }
+
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.ic_location_recenter),
+                            modifier = Modifier
+                                .size(22.dp),
+                            contentDescription = stringResource(R.string.img_des)
+                        )
+                    }
+
+
+                    when(currentRide?.ride_status) {
+                        "accepted" -> {
+                            PickupDialog(
+                                modifier = Modifier
+                                    .align(Alignment.BottomCenter)
+                                    .clickable(
+                                        interactionSource = null,
+                                        enabled = false
+                                    ) {},
+                                currentRide = currentRide,
+                                onArrivedClick = {
+                                    callArrivedPickupApi()
+                                }
+                            )
+                        }
+                        "arrived" -> {
+                            StartRideDialog(
+                                modifier = Modifier
+                                    .align(Alignment.BottomCenter)
+                                    .clickable(
+                                        interactionSource = null,
+                                        enabled = false
+                                    ) {},
+                                vehicleIdealNumber = homePageData?.vehicle_ideal_number
+                            )
+                        }
+                        "started" -> {
+                            DestinationDialog(
+                                modifier = Modifier
+                                    .align(Alignment.BottomCenter)
+                                    .clickable(
+                                        interactionSource = null,
+                                        enabled = false
+                                    ) {},
+                                onCompleteRideClick = {
+                                    selRideId = currentRide?.ride_id?:""
+                                    callCompleteRideApi()
+                                },
+                                currentRide = currentRide
+                            )
+                        }
+                    }
+
+                    if(!homePageData?.Current_shuttle_ride_passengers.isNullOrEmpty()) {
+                        Log.d("msg","homePageData: ${homePageData?.Current_shuttle_ride_passengers}")
+                        CurrentShuttleCustomersDialog(
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .clickable(
+                                    interactionSource = null,
+                                    enabled = false
+                                ) {
+
+                                },
+                            list = homePageData?.Current_shuttle_ride_passengers,
+                            finishRideDialog = {
+                                selRideId = it?:""
+                                finishRideDialog = true
+                            }
+                        )
+                    }
+
                 }
 
-                PullRefreshIndicator(
-                    modifier = Modifier
-                        .align(Alignment.TopCenter),
-                    state = refreshState
-                )
-
-
-
             }
+
+            PullRefreshIndicator(
+                modifier = Modifier
+                    .align(Alignment.TopCenter),
+                state = refreshState
+            )
+
+
 
         }
 
@@ -1032,7 +1022,7 @@ fun HomeScreen(
             showToast = false,
             errorStates = errorStates,
             onNoInternetRetry = {
-                if (networkError== NetWorkFail.NetworkError.ordinal) {
+                if (networkError == NetWorkFail.NetworkError.ordinal) {
                     errorStates.showInternetError.value = false
                     networkError = NetWorkFail.NoError.ordinal
                     callHomePageApi()
@@ -1175,7 +1165,8 @@ fun AvailableForRideBox(
     check: Boolean = true,
     onAvailabilityChange: (Boolean) -> Unit = {},
     homePageVm: HomePageVm,
-    onChangeClick: () -> Unit = {}
+    onChangeClick: () -> Unit = {},
+    navHostController: NavHostController
 ) {
     val homePageData by homePageVm.homePageData.collectAsState()
     Column(
@@ -1223,13 +1214,29 @@ fun AvailableForRideBox(
 
 
             Spacer(modifier = Modifier.width(8.dp))
-            Icon(
-                painter = painterResource(R.drawable.ic_notification),
-                contentDescription = stringResource(R.string.img_des),
+
+
+            Box(
                 modifier = Modifier
-                    .size(18.dp),
-                tint = MyColors.clr_132234_100,
-            )
+                    .size(24.dp)
+                    .clip(CircleShape)
+                    .clickable {
+                        navHostController.navigate(Routes.NotificationListScreen.route) {
+                            launchSingleTop = true
+                        }
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_notification),
+                    contentDescription = stringResource(R.string.img_des),
+                    modifier = Modifier
+                        .size(18.dp),
+                    tint = MyColors.clr_132234_100,
+                )
+            }
+
+
         }
 
         if (check) {

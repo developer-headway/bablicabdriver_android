@@ -10,7 +10,6 @@ data class HomePageResponse(
 
 data class HomePageData(
     val Current_ride: CurrentRide?,
-//    val Current_shuttle_ride_passengers: List<CurrentShuttleRidePassenger?>?,
     val Current_shuttle_ride_passengers: List<CurrentShuttleRidePassenger>,
     val Ride_requests: List<RideRequests?>?,
     val current_ride_type: CurrentRideType?,

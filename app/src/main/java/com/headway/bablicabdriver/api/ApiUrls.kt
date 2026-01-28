@@ -41,6 +41,7 @@ const val SET_RIDE_TYPE = "shuttle-instance/set-ride-type"
 const val MY_VEHICLES = "owner/my-vehicles"
 const val VEHICLE_DETAILS = "owner/vehicle-detail"
 const val DRIVER_DETAILS = "owner/driver-detail"
+const val MY_DRIVERS = "owner/my-drivers"
 
 
 

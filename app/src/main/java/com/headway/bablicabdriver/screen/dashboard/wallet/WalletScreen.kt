@@ -57,6 +57,7 @@ import com.headway.bablicabdriver.res.components.dialog.CommonErrorDialogs
 import com.headway.bablicabdriver.res.components.dialog.WithdrawAmountDialog
 import com.headway.bablicabdriver.res.components.textview.TextView
 import com.headway.bablicabdriver.res.preferenceManage.SharedPreferenceManager
+import com.headway.bablicabdriver.res.routes.Routes
 import com.headway.bablicabdriver.ui.theme.MyColors
 import com.headway.bablicabdriver.ui.theme.MyFonts
 import com.headway.bablicabdriver.utils.AppUtils
@@ -357,6 +358,20 @@ fun WalletScreen(
                                 fontSize = 14.sp,
                                 fontFamily = MyFonts.fontRegular,
                                 textColor = MyColors.clr_607080_100
+                            )
+                            TextView(
+                                text = stringResource(R.string.see_all),
+                                fontSize = 12.sp,
+                                fontFamily = MyFonts.fontRegular,
+                                textColor = MyColors.clr_00BCF1_100,
+                                modifier = Modifier
+                                    .clickable {
+                                        navHostController.currentBackStackEntry?.savedStateHandle?.set("is_today_earning",false)
+                                        navHostController.navigate(Routes.TransactionsScreen.route) {
+                                            launchSingleTop = true
+                                        }
+                                    }
+                                    .padding(5.dp)
                             )
                         }
                     }

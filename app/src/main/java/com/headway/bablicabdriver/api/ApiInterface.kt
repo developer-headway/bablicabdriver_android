@@ -42,6 +42,7 @@ import com.headway.bablicabdriver.model.registration.profile.UpdateProfileRespon
 import com.headway.bablicabdriver.model.dashboard.home.ShuttleRouteResponse
 import com.headway.bablicabdriver.model.dashboard.settings.myvehicles.DriverDetailsRequest
 import com.headway.bablicabdriver.model.dashboard.settings.myvehicles.DriverDetailsResponse
+import com.headway.bablicabdriver.model.dashboard.settings.myvehicles.DriverListResponse
 import com.headway.bablicabdriver.model.dashboard.settings.myvehicles.MyVehiclesResponse
 import com.headway.bablicabdriver.model.dashboard.settings.myvehicles.VehicleDetailRequest
 import com.headway.bablicabdriver.model.dashboard.settings.myvehicles.VehicleDetailResponse
@@ -267,6 +268,10 @@ interface ApiInterface {
     ): Response<DriverDetailsResponse>
 
 
+    @POST(MY_DRIVERS)
+    suspend fun callDriverListApi(
+        @Header("Authorization") token: String
+    ): Response<DriverListResponse>
 
     @POST(COMPUTE_ROUTE)
     suspend fun callComputeRoutesApi(

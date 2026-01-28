@@ -104,7 +104,7 @@
     <string name="my_ride">My Ride</string>
     <string name="wallet">Wallet</string>
     <string name="rewards">Rewards</string>
-    <string name="setting">Setting</string>
+    <string name="setting">Settings</string>
     <string name="cancel_ride">Cancel Ride</string>
     <string name="skip_ride">Skip Ride</string>
     <string name="accept_ride">Accept Ride</string>
@@ -221,6 +221,12 @@
     <string name="account_holder_name">Account Holder Name</string>
     <string name="account_number">Account Number</string>
     <string name="ifsc_code">IFSC Code</string>
+
+    <!--  Owner Dashboard Screen  -->
+    <string name="vehicle">Vehicle</string>
+    <string name="driver">Driver</string>
+    <string name="today_earning">Today’s earning</string>
+
 
     <!--  Photo dialog  -->
     <string name="select_camera_gallery">Select Camera or Gallery</string>

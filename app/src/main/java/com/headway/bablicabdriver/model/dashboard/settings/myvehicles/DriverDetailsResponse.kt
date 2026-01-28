@@ -4,6 +4,8 @@ data class DriverDetailsRequest(
     val driver_id: String
 )
 
+
+
 data class DriverDetailsResponse(
     val data: DriverDetailsData?,
     val message: String,
