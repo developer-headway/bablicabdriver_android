@@ -117,8 +117,7 @@ fun DashboardScreen(
                 .padding(innerPadding)
                 .fillMaxSize()
         ) {
-
-            if (sharedPreferenceManager.getUserType().lowercase()=="owner") {
+            if (sharedPreferenceManager.getUserType().lowercase()=="owner" && !sharedPreferenceManager.getIsOwnerDriver()) {
                 OwnerDashboardScreen(
                     navHostController = navHostController
                 )

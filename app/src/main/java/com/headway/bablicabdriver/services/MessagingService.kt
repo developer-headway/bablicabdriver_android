@@ -15,7 +15,6 @@ import com.google.firebase.messaging.RemoteMessage
 import com.headway.bablicabdriver.MainActivity
 import com.headway.bablicabdriver.R
 import com.headway.bablicabdriver.model.dashboard.home.RideRequests
-import com.headway.bablicabdriver.utils.AppUtils
 import java.util.Random
 
 class MessagingService : FirebaseMessagingService() {

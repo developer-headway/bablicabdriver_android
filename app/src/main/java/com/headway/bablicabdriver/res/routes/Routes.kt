@@ -1,5 +1,12 @@
 package com.headway.bablicabdriver.res.routes
 
+import kotlinx.coroutines.flow.MutableSharedFlow
+
+
+object UiEventBus {
+    val openHome = MutableSharedFlow<Unit>()
+}
+
 sealed class Routes(val route: String) {
     data object LaunchScreen : Routes(route = "LaunchScreen")
     data object IntroScreen : Routes(route = "IntroScreen")

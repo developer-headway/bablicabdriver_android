@@ -8,7 +8,7 @@ import android.content.IntentFilter
 import android.location.Location
 import android.os.Build
 import android.util.Log
-import androidx.activity.compose.LocalActivity
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -25,8 +25,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -59,10 +57,8 @@ import androidx.navigation.NavHostController
 import com.gandiva.neumorphic.neu
 import com.gandiva.neumorphic.shape.Flat
 import com.gandiva.neumorphic.shape.Oval
-import com.gandiva.neumorphic.shape.RoundedCorner
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.MapsInitializer
 import com.google.android.gms.maps.model.ButtCap
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -74,10 +70,8 @@ import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
-import com.google.maps.android.compose.MarkerState.Companion.invoke
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
-import com.google.maps.android.compose.rememberMarkerState
 import com.headway.bablicabdriver.R
 import com.headway.bablicabdriver.api.ErrorsData
 import com.headway.bablicabdriver.api.NetWorkFail
@@ -85,7 +79,6 @@ import com.headway.bablicabdriver.model.dashboard.home.AcceptRideRequest
 import com.headway.bablicabdriver.model.dashboard.home.ArrivedPickupRequest
 import com.headway.bablicabdriver.model.dashboard.home.CompleteRideRequest
 import com.headway.bablicabdriver.model.dashboard.home.ComputeRoutesRequest
-import com.headway.bablicabdriver.model.dashboard.home.CurrentShuttleRidePassenger
 import com.headway.bablicabdriver.model.dashboard.home.Destination
 import com.headway.bablicabdriver.model.dashboard.home.Origin
 import com.headway.bablicabdriver.model.dashboard.home.RideRequests
@@ -110,6 +103,7 @@ import com.headway.bablicabdriver.screen.dashboard.home.rideDialogs.CurrentShutt
 import com.headway.bablicabdriver.screen.dashboard.home.rideDialogs.DestinationDialog
 import com.headway.bablicabdriver.screen.dashboard.home.rideDialogs.PickupDialog
 import com.headway.bablicabdriver.screen.dashboard.home.rideDialogs.StartRideDialog
+import com.headway.bablicabdriver.services.LocationService
 import com.headway.bablicabdriver.ui.theme.MyColors
 import com.headway.bablicabdriver.ui.theme.MyFonts
 import com.headway.bablicabdriver.utils.AppUtils
@@ -150,7 +144,7 @@ fun HomeScreen(
     }
     var showServiceDialog by remember { mutableStateOf(false) }
 
-    var currentLocation = remember {
+    val currentLocation = remember {
         mutableStateOf<Location?>(null)
     }
 
@@ -171,12 +165,9 @@ fun HomeScreen(
     val rideRequestList by homePageVm.rideRequestList.collectAsState()
     val homePageData by homePageVm.homePageData.collectAsState()
 
-
-
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(LatLng(23.2599, 77.4126), 15f)
     }
-
 
     ////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////
@@ -259,9 +250,6 @@ fun HomeScreen(
         }
     }
 
-    //////////////////////////////////////////////
-    //////////////////////////////////////////////
-
     ////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////
 
@@ -269,7 +257,14 @@ fun HomeScreen(
         mutableIntStateOf(NetWorkFail.NoError.ordinal)
     }
 
-
+    fun isLocationService (serviceAction: String = LocationService.ACTION_SERVICE_START) {
+//        Toast.makeText(context, "Service Start button clicked", Toast.LENGTH_SHORT).show()
+        Intent(context, LocationService::class.java).apply {
+//            action = LocationService.ACTION_SERVICE_START
+            action = serviceAction
+            context.startService(this)
+        }
+    }
 
     fun callHomePageApi() {
         if (AppUtils.isInternetAvailable(context)) {
@@ -288,31 +283,34 @@ fun HomeScreen(
                         val data = response.data
                         check = data.is_online
 
-
-                        scope.launch {
-                            delay(500)
-
-                            val pickupLocation = LatLng(
-                                currentRide?.pickup_Latitude?:0.0,
-                                currentRide?.pickup_Longitude?:0.0
-                            )
-                            val dropLocation = LatLng(
-                                currentRide?.destination_Latitude?:0.0,
-                                currentRide?.destination_Longitude?:0.0
-                            )
-
-                            scope.launch {
-                                val bounds = LatLngBounds.Builder()
-                                    .include(pickupLocation)
-                                    .include(dropLocation)
-                                    .build()
-                                cameraPositionState.animate(
-                                    update = CameraUpdateFactory.newLatLngBounds(bounds, 100)
-                                )
-                            }
-                            callComputeRoutesApi()
+                        if (check) {
+                            isLocationService(serviceAction = LocationService.ACTION_SERVICE_START)
                         }
+                        if (!response.data.Current_ride?.ride_id.isNullOrEmpty()) {
+                            scope.launch {
+                                delay(500)
 
+                                val pickupLocation = LatLng(
+                                    currentRide?.pickup_Latitude?:0.0,
+                                    currentRide?.pickup_Longitude?:0.0
+                                )
+                                val dropLocation = LatLng(
+                                    currentRide?.destination_Latitude?:0.0,
+                                    currentRide?.destination_Longitude?:0.0
+                                )
+
+                                scope.launch {
+                                    val bounds = LatLngBounds.Builder()
+                                        .include(pickupLocation)
+                                        .include(dropLocation)
+                                        .build()
+                                    cameraPositionState.animate(
+                                        update = CameraUpdateFactory.newLatLngBounds(bounds, 100)
+                                    )
+                                }
+                                callComputeRoutesApi()
+                            }
+                        }
                     } else {
                         errorStates.bottomToastText.value = response?.message?:""
                         AppUtils.showToastBottom(errorStates.showBottomToast)
@@ -324,6 +322,7 @@ fun HomeScreen(
             networkError = NetWorkFail.NetworkError.ordinal
         }
     }
+
     ////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////
     var setOnlineNetworkError by rememberSaveable {
@@ -351,7 +350,9 @@ fun HomeScreen(
                     if (response?.status == true) {
                         val data = response.data
                         check = data.is_online
-                        sendNotification(context = context, title = "BabliCab Driver", mess =response.message)
+
+                        isLocationService(serviceAction = if (check) LocationService.ACTION_SERVICE_START else  LocationService.ACTION_SERVICE_STOP)
+//                        sendNotification(context = context, title = "BabliCab Driver", mess =response.message)
                     } else {
                         errorStates.bottomToastText.value = response?.message?:""
                         AppUtils.showToastBottom(errorStates.showBottomToast)
@@ -487,7 +488,6 @@ fun HomeScreen(
     }
     ////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////
-
 
     var startRideNetworkError by rememberSaveable {
         mutableIntStateOf(NetWorkFail.NoError.ordinal)
@@ -689,10 +689,9 @@ fun HomeScreen(
             Manifest.permission.ACCESS_COARSE_LOCATION
         ),
         onGrantedAction = {
-            val gpsLocationClient = GPSLocationClient()
-            gpsLocationClient.getLocationUpdates(context = context, mainViewModel = mainViewModel)
+//            val gpsLocationClient = GPSLocationClient()
+//            gpsLocationClient.getLocationUpdates(context = context, mainViewModel = mainViewModel)
             fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-
                 location?.let {
                     currentLocation.value = location
                     coroutineScope.launch {
@@ -803,10 +802,10 @@ fun HomeScreen(
                         GoogleMap(
                             modifier = Modifier.fillMaxSize(),
                             cameraPositionState = cameraPositionState,
-                            properties = MapProperties(
-                                isMyLocationEnabled = locationPermissions.allPermissionsGranted,
-                                mapType = MapType.NORMAL,
-                            ),
+//                            properties = MapProperties(
+//                                isMyLocationEnabled = locationPermissions.allPermissionsGranted,
+//                                mapType = MapType.NORMAL,
+//                            ),
                             uiSettings = MapUiSettings(
                                 zoomControlsEnabled = false,  // hide plus/minus
                                 compassEnabled = false,       // hide compass
@@ -831,46 +830,63 @@ fun HomeScreen(
                                 )
                             }
 
-                            val pickupLatLng = if (currentRide?.ride_status=="started") {
-                                LatLng(
-                                    currentRide?.pickup_Latitude?:0.0,
-                                    currentRide?.pickup_Longitude?:0.0
+                            if (!homePageData?.Current_ride?.ride_id.isNullOrEmpty()) {
+                                Log.d("msg","current ride: $currentRide")
+                                val pickupLatLng = if (currentRide?.ride_status=="started") {
+                                    LatLng(
+                                        currentRide?.pickup_Latitude?:0.0,
+                                        currentRide?.pickup_Longitude?:0.0
+                                    )
+                                } else {
+                                    LatLng(
+                                        currentLocation.value?.latitude?:0.0,
+                                        currentLocation.value?.longitude?:0.0
+                                    )
+                                }
+
+                                val markerState = remember { MarkerState(position = pickupLatLng) }
+                                Marker(
+                                    state = markerState,
+                                    title = "Vehicle",
+                                    snippet = "Location: ${pickupLatLng.latitude}, ${pickupLatLng.longitude}",
+                                    draggable = true,
+                                )
+
+                                val dropLatLng = if (currentRide?.ride_status=="started") {
+                                    LatLng(
+                                        currentRide?.destination_Latitude?:0.0,
+                                        currentRide?.destination_Longitude?:0.0
+                                    )
+                                } else {
+                                    LatLng(
+                                        currentRide?.pickup_Latitude?:0.0,
+                                        currentRide?.pickup_Longitude?:0.0
+                                    )
+                                }
+
+
+                                val dropMarkerState = remember { MarkerState(position = dropLatLng) }
+                                Marker(
+                                    state = dropMarkerState,
+                                    title = "Vehicle",
+                                    snippet = "Location: ${dropLatLng.latitude}, ${dropLatLng.longitude}",
+                                    draggable = true,
                                 )
                             } else {
-                                LatLng(
+                                val curLatLng = LatLng(
                                     currentLocation.value?.latitude?:0.0,
                                     currentLocation.value?.longitude?:0.0
                                 )
-                            }
 
-                            val markerState = remember { MarkerState(position = pickupLatLng) }
-                            Marker(
-                                state = markerState,
-                                title = "Vehicle",
-                                snippet = "Location: ${pickupLatLng.latitude}, ${pickupLatLng.longitude}",
-                                draggable = true,
-                            )
-
-                            val dropLatLng = if (currentRide?.ride_status=="started") {
-                                LatLng(
-                                    currentRide?.destination_Latitude?:0.0,
-                                    currentRide?.destination_Longitude?:0.0
-                                )
-                            } else {
-                                LatLng(
-                                    currentRide?.pickup_Latitude?:0.0,
-                                    currentRide?.pickup_Longitude?:0.0
+                                val markerState = remember { MarkerState(position = curLatLng) }
+                                Marker(
+                                    state = markerState,
+                                    title = "Vehicle",
+                                    snippet = "",
+                                    draggable = true,
                                 )
                             }
 
-
-                            val dropMarkerState = remember { MarkerState(position = dropLatLng) }
-                            Marker(
-                                state = dropMarkerState,
-                                title = "Vehicle",
-                                snippet = "Location: ${dropLatLng.latitude}, ${dropLatLng.longitude}",
-                                draggable = true,
-                            )
                         }
 
                     }
@@ -914,9 +930,9 @@ fun HomeScreen(
                                         cameraPositionState.animate(
                                             update = CameraUpdateFactory.newLatLngZoom(
                                                 LatLng(
-                                                    mainViewModel.currentLocation.value?.latitude
+                                                    /*mainViewModel.*/currentLocation.value?.latitude
                                                         ?: 0.0,
-                                                    mainViewModel.currentLocation.value?.longitude
+                                                    /*mainViewModel.*/currentLocation.value?.longitude
                                                         ?: 0.0
                                                 ),
                                                 16f // zoom level

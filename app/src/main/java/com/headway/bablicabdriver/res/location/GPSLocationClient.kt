@@ -27,7 +27,7 @@ class GPSLocationClient {
         this.locationUpdatesCallBack = locationUpdatesCallBack
     }
 
-    fun getLocationUpdates(context: Context, mainViewModel: MainViewModel) {
+    fun getLocationUpdates(context: Context) {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
         val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         val isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
@@ -49,7 +49,7 @@ class GPSLocationClient {
                 super.onLocationResult(result)
                 result.locations.lastOrNull()?.let { location ->
                     locationUpdatesCallBack?.onLocationUpdate(location)
-                    mainViewModel.updateCurrentLocation(location)
+//                    mainViewModel.updateCurrentLocation(location)
                 }
             }
         }

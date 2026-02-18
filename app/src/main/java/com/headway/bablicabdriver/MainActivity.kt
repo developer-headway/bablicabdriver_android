@@ -2,7 +2,6 @@ package com.headway.bablicabdriver
 
 import android.location.Location
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -28,9 +27,9 @@ import com.headway.bablicabdriver.viewmodel.MainViewModel
 
 
 class MainActivity : ComponentActivity(), LocationUpdatesCallBack {
-
+    val mainViewModel = MainViewModel()
     override fun onCreate(savedInstanceState: Bundle?) {
-        val mainViewModel = MainViewModel()
+
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
@@ -95,7 +94,7 @@ class MainActivity : ComponentActivity(), LocationUpdatesCallBack {
     }
 
     override fun onLocationUpdate(location: Location) {
-
+        mainViewModel.updateCurrentLocation(location)
     }
 
     override fun locationException(message: String) {
