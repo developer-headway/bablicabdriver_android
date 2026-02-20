@@ -1,7 +1,10 @@
 package com.headway.bablicabdriver.screen.navgraph
 
 import android.Manifest
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
+import android.provider.Settings
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,6 +39,7 @@ import com.headway.bablicabdriver.screen.registration.rcBookDetails.RCBookDetail
 import com.headway.bablicabdriver.utils.composable2
 import com.headway.bablicabdriver.utils.permissionhandler.rememberPermissionsState
 import com.headway.bablicabdriver.viewmodel.MainViewModel
+import androidx.core.net.toUri
 
 
 @Composable
@@ -64,6 +68,15 @@ fun NavigationGraph(
 
     //map initialize
 //    MapsInitializer.initialize(context)
+
+    if (!Settings.canDrawOverlays(context)) {
+        val intent = Intent(
+            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+            "package:${context.packageName}".toUri()
+        )
+        context.startActivity(intent)
+    }
+
 
     Box {
 

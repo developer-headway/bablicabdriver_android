@@ -8,7 +8,6 @@ import android.content.IntentFilter
 import android.location.Location
 import android.os.Build
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -103,6 +102,7 @@ import com.headway.bablicabdriver.screen.dashboard.home.rideDialogs.CurrentShutt
 import com.headway.bablicabdriver.screen.dashboard.home.rideDialogs.DestinationDialog
 import com.headway.bablicabdriver.screen.dashboard.home.rideDialogs.PickupDialog
 import com.headway.bablicabdriver.screen.dashboard.home.rideDialogs.StartRideDialog
+import com.headway.bablicabdriver.services.FloatingService
 import com.headway.bablicabdriver.services.LocationService
 import com.headway.bablicabdriver.ui.theme.MyColors
 import com.headway.bablicabdriver.ui.theme.MyFonts
@@ -110,7 +110,6 @@ import com.headway.bablicabdriver.utils.AppUtils
 import com.headway.bablicabdriver.utils.permissionhandler.MultiplePermissionsState
 import com.headway.bablicabdriver.utils.permissionhandler.goToSettings
 import com.headway.bablicabdriver.utils.permissionhandler.rememberPermissionsState
-import com.headway.bablicabdriver.utils.sendNotification
 import com.headway.bablicabdriver.viewmodel.MainViewModel
 import com.headway.bablicabdriver.viewmodel.dashboard.home.AcceptRideVm
 import com.headway.bablicabdriver.viewmodel.dashboard.home.ArrivedPickupVm
@@ -127,7 +126,6 @@ import dev.materii.pullrefresh.pullRefresh
 import dev.materii.pullrefresh.rememberPullRefreshState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -151,12 +149,9 @@ fun HomeScreen(
     var finishRideDialog by rememberSaveable {
         mutableStateOf(false)
     }
-
-
     var check by rememberSaveable {
         mutableStateOf(false)
     }
-
 
     ////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////
@@ -229,9 +224,6 @@ fun HomeScreen(
                 origin = origin,
                 destination = destination
             )
-
-
-
             Log.d("msg","request: $request")
             computeRouteVm.callComputeRoutesApi(
                 request = request,
@@ -240,9 +232,7 @@ fun HomeScreen(
                     errorStates.bottomToastText.value = it?:""
                     AppUtils.showToastBottom(errorStates.showBottomToast)
                 },
-                onSuccess = {response->
-
-                }
+                onSuccess = {response-> }
             )
         } else {
             errorStates.showInternetError.value = true
@@ -260,7 +250,6 @@ fun HomeScreen(
     fun isLocationService (serviceAction: String = LocationService.ACTION_SERVICE_START) {
 //        Toast.makeText(context, "Service Start button clicked", Toast.LENGTH_SHORT).show()
         Intent(context, LocationService::class.java).apply {
-//            action = LocationService.ACTION_SERVICE_START
             action = serviceAction
             context.startService(this)
         }
@@ -351,8 +340,12 @@ fun HomeScreen(
                         val data = response.data
                         check = data.is_online
 
+//                        if (check) {
+//                            context.startService(Intent(context, FloatingService::class.java))
+//                        }else {
+//                            context.stopService(Intent(context, FloatingService::class.java))
+//                        }
                         isLocationService(serviceAction = if (check) LocationService.ACTION_SERVICE_START else  LocationService.ACTION_SERVICE_STOP)
-//                        sendNotification(context = context, title = "BabliCab Driver", mess =response.message)
                     } else {
                         errorStates.bottomToastText.value = response?.message?:""
                         AppUtils.showToastBottom(errorStates.showBottomToast)
@@ -391,10 +384,8 @@ fun HomeScreen(
                 },
                 onSuccess = {response->
                     isRefreshing = false
-                    if (response?.status == true) {
-
-                    } else {
-                        errorStates.bottomToastText.value = response?.message?:""
+                    if (response?.status == false) {
+                        errorStates.bottomToastText.value = response.message
                         AppUtils.showToastBottom(errorStates.showBottomToast)
                     }
                 }
@@ -666,8 +657,6 @@ fun HomeScreen(
         }
     }
 
-
-
     val refreshState = rememberPullRefreshState(refreshing = isRefreshing, onRefresh = {
         scope.launch {
             isRefreshing = true
@@ -689,8 +678,6 @@ fun HomeScreen(
             Manifest.permission.ACCESS_COARSE_LOCATION
         ),
         onGrantedAction = {
-//            val gpsLocationClient = GPSLocationClient()
-//            gpsLocationClient.getLocationUpdates(context = context, mainViewModel = mainViewModel)
             fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                 location?.let {
                     currentLocation.value = location
@@ -1094,10 +1081,7 @@ fun HomeScreen(
                     computeRouteNetworkError = NetWorkFail.NoError.ordinal
                     callComputeRoutesApi()
                 }
-
-
-
-            },
+            }
         )
 
 
@@ -1111,7 +1095,6 @@ fun HomeScreen(
                 },
                 onShuttleSelected = {
                     showServiceDialog = false
-//                    onChangeClick()
                     navHostController.navigate(Routes.SetRouteScreen.route) {
                         launchSingleTop = true
                     }

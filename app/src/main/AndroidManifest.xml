@@ -22,6 +22,10 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
 
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
+
+
     <application
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -74,6 +78,12 @@
             android:name=".services.LocationService"
             android:exported="false"
             android:foregroundServiceType="location" />
+
+        <service
+            android:name=".services.FloatingService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync"/>
+
 
     </application>
 

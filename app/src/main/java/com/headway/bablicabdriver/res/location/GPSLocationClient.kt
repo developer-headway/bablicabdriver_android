@@ -49,7 +49,6 @@ class GPSLocationClient {
                 super.onLocationResult(result)
                 result.locations.lastOrNull()?.let { location ->
                     locationUpdatesCallBack?.onLocationUpdate(location)
-//                    mainViewModel.updateCurrentLocation(location)
                 }
             }
         }
