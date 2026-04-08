@@ -46,6 +46,7 @@ import com.headway.bablicabdriver.model.dashboard.settings.myvehicles.DriverList
 import com.headway.bablicabdriver.model.dashboard.settings.myvehicles.MyVehiclesResponse
 import com.headway.bablicabdriver.model.dashboard.settings.myvehicles.VehicleDetailRequest
 import com.headway.bablicabdriver.model.dashboard.settings.myvehicles.VehicleDetailResponse
+import com.headway.bablicabdriver.model.ownerDashboard.OwnerDashboardResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
@@ -72,20 +73,14 @@ interface ApiInterface {
         @Header("Authorization") token: String,
         @Body request: DeviceUIdRequest
     ): Response<CommonResponse>
-
     @POST(DELETE_ACCOUNT)
     suspend fun callDeleteAccountApi(
         @Header("Authorization") token: String
     ): Response<CommonResponse>
-
-
     @POST(REGISTRATION_DETAIL)
     suspend fun callRegistrationDetailsApi(
         @Header("Authorization") token: String
     ): Response<RegistrationDetailsResponse>
-
-
-
 
     @Multipart
     @POST(UPLOAD_DOCUMENT)
@@ -279,6 +274,13 @@ interface ApiInterface {
         @Header("X-Goog-Api-Key") token: String,
         @Body request: ComputeRoutesRequest
     ): Response<ComputeRoutesResponse>
+
+    @POST(OWNER_DASHBOARD)
+    suspend fun callOwnerDashboardApi(
+        @Header("Authorization") token: String
+    ): Response<OwnerDashboardResponse>
+
+
 
 }
 

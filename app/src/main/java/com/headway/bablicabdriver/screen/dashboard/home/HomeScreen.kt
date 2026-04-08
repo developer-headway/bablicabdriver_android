@@ -153,6 +153,8 @@ fun HomeScreen(
         mutableStateOf(false)
     }
 
+    var locationPermissions : MultiplePermissionsState? = null
+
     ////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////
     val homePageVm : HomePageVm = viewModel()
@@ -248,7 +250,6 @@ fun HomeScreen(
     }
 
     fun isLocationService (serviceAction: String = LocationService.ACTION_SERVICE_START) {
-//        Toast.makeText(context, "Service Start button clicked", Toast.LENGTH_SHORT).show()
         Intent(context, LocationService::class.java).apply {
             action = serviceAction
             context.startService(this)
@@ -272,7 +273,7 @@ fun HomeScreen(
                         val data = response.data
                         check = data.is_online
 
-                        if (check) {
+                        if (check && locationPermissions?.allPermissionsGranted == true) {
                             isLocationService(serviceAction = LocationService.ACTION_SERVICE_START)
                         }
                         if (!response.data.Current_ride?.ride_id.isNullOrEmpty()) {
@@ -667,7 +668,7 @@ fun HomeScreen(
 
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
     val coroutineScope = rememberCoroutineScope()
-    var locationPermissions : MultiplePermissionsState? = null
+
 
     fun callLocationPermission() {
         locationPermissions?.launchPermissionRequestsAndAction()

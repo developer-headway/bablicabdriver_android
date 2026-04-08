@@ -1,6 +1,5 @@
 package com.headway.bablicabdriver.model.registration
 
-import android.net.Uri
 
 data class RegistrationDetailsResponse(
     val data: RegistrationDetailsData,

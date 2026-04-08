@@ -17,8 +17,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -59,7 +61,7 @@ import com.headway.bablicabdriver.ui.theme.MyColors
 import com.headway.bablicabdriver.ui.theme.MyFonts
 import com.headway.bablicabdriver.utils.AppUtils
 import com.headway.bablicabdriver.utils.shimmerEffect
-import com.headway.bablicabdriver.viewmodel.dashboard.home.HomePageVm
+import com.headway.bablicabdriver.viewmodel.ownerDashboard.OwnerDashboardVm
 import dev.materii.pullrefresh.PullRefreshIndicator
 import dev.materii.pullrefresh.pullRefresh
 import dev.materii.pullrefresh.rememberPullRefreshState
@@ -86,12 +88,12 @@ fun OwnerDashboardScreen(navHostController: NavHostController) {
     var networkError by rememberSaveable {
         mutableIntStateOf(NetWorkFail.NoError.ordinal)
     }
-    val homePageVm : HomePageVm = viewModel()
-    val homePageData by homePageVm.homePageData.collectAsState()
-    fun callHomePageApi() {
+    val ownerDashboardVm : OwnerDashboardVm = viewModel()
+    val ownerDashboardData by ownerDashboardVm.ownerDashboardData.collectAsState()
+    fun callOwnerDashboardApi() {
         if (AppUtils.isInternetAvailable(context)) {
             val token = sharedPreferenceManager.getToken()
-            homePageVm.callHomePageApi(
+            ownerDashboardVm.callOwnerDashboardApi(
                 token = token,
                 errorStates = errorStates,
                 onError = {
@@ -127,7 +129,7 @@ fun OwnerDashboardScreen(navHostController: NavHostController) {
         if (isFirstTime || isRefresh) {
             navHostController.currentBackStackEntry?.savedStateHandle?.set("refresh",false)
             isFirstTime = false
-            callHomePageApi()
+            callOwnerDashboardApi()
         }
     }
 
@@ -135,7 +137,7 @@ fun OwnerDashboardScreen(navHostController: NavHostController) {
         scope.launch {
             isRefreshing = true
             delay(300)
-            callHomePageApi()
+            callOwnerDashboardApi()
         }
     })
     Scaffold(
@@ -252,6 +254,7 @@ fun OwnerDashboardScreen(navHostController: NavHostController) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
             ) {
 
 
@@ -317,7 +320,7 @@ fun OwnerDashboardScreen(navHostController: NavHostController) {
                                 .height(7.dp)
                         )
                         TextView(
-                            text = "12 Active",
+                            text = "${ownerDashboardData?.total_vehicles?:0} Active",
                             textColor = MyColors.clr_364B63_100,
                             fontSize = 20.sp,
                             fontFamily = MyFonts.fontSemiBold
@@ -386,7 +389,7 @@ fun OwnerDashboardScreen(navHostController: NavHostController) {
                                 .height(7.dp)
                         )
                         TextView(
-                            text = "12 Active",
+                            text = "${ownerDashboardData?.total_drivers ?: 0} Active",
                             textColor = MyColors.clr_364B63_100,
                             fontSize = 20.sp,
                             fontFamily = MyFonts.fontSemiBold
@@ -467,7 +470,7 @@ fun OwnerDashboardScreen(navHostController: NavHostController) {
                                 .height(7.dp)
                         )
                         TextView(
-                            text = "₹ 2580/-",
+                            text = "₹${ownerDashboardData?.today_earning ?: 0.0}",
                             textColor = MyColors.clr_364B63_100,
                             fontSize = 20.sp,
                             fontFamily = MyFonts.fontSemiBold
@@ -537,7 +540,7 @@ fun OwnerDashboardScreen(navHostController: NavHostController) {
                                 .height(7.dp)
                         )
                         TextView(
-                            text = "₹ 2580/-",
+                            text = "₹${ownerDashboardData?.total_earning?:0.0}",
                             textColor = MyColors.clr_364B63_100,
                             fontSize = 20.sp,
                             fontFamily = MyFonts.fontSemiBold
@@ -561,13 +564,6 @@ fun OwnerDashboardScreen(navHostController: NavHostController) {
 
             }
 
-
-            PullRefreshIndicator(
-                modifier = Modifier
-                    .align(Alignment.TopCenter),
-                state = refreshState
-            )
-
             Image(
                 painter = painterResource(R.drawable.ic_background_layer),
                 contentDescription = stringResource(R.string.img_des),
@@ -576,6 +572,13 @@ fun OwnerDashboardScreen(navHostController: NavHostController) {
                     .height(160.dp)
                     .align(Alignment.BottomStart)
            )
+
+
+            PullRefreshIndicator(
+                modifier = Modifier
+                    .align(Alignment.TopCenter),
+                state = refreshState
+            )
         }
 
     }
@@ -588,12 +591,12 @@ fun OwnerDashboardScreen(navHostController: NavHostController) {
             if (networkError == NetWorkFail.NetworkError.ordinal) {
                 errorStates.showInternetError.value = false
                 networkError = NetWorkFail.NoError.ordinal
-                callHomePageApi()
+                callOwnerDashboardApi()
             }
         }
     )
 
-    if (homePageVm._isLoading.collectAsState().value) {
+    if (ownerDashboardVm._isLoading.collectAsState().value) {
         Loader()
     }
 }

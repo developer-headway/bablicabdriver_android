@@ -69,13 +69,13 @@ fun NavigationGraph(
     //map initialize
 //    MapsInitializer.initialize(context)
 
-    if (!Settings.canDrawOverlays(context)) {
-        val intent = Intent(
-            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-            "package:${context.packageName}".toUri()
-        )
-        context.startActivity(intent)
-    }
+//    if (!Settings.canDrawOverlays(context)) {
+//        val intent = Intent(
+//            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+//            "package:${context.packageName}".toUri()
+//        )
+//        context.startActivity(intent)
+//    }
 
 
     Box {
