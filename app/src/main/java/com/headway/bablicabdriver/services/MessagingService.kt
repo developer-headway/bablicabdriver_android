@@ -79,8 +79,6 @@ class MessagingService : FirebaseMessagingService() {
             sendUserNotification(title = title?:"", mess =  body?:"", rideRequests)
         }
 
-
-
     }
 
     @SuppressLint("RemoteViewLayout", "RestrictedApi")
@@ -88,8 +86,6 @@ class MessagingService : FirebaseMessagingService() {
         val notifyID = System.currentTimeMillis().toInt()
         val intent = Intent(this, MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-
-//        AppUtils.notificationData = notificationData
 
         try {
 
@@ -141,6 +137,7 @@ class MessagingService : FirebaseMessagingService() {
             notificationManager.notify(notifyID, notificationBuilder.build())
         }catch (_:Exception) {}
     }
+
 
 }
 
