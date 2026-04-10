@@ -730,9 +730,10 @@ fun HomeScreen(
             override fun onReceive(context: Context, intent: Intent) {
                 val rideRequests = intent.getSerializableExtra("ride_request", RideRequests::class.java)
                 Log.d("msg","received: $rideRequests")
-                rideRequests?.let {
-                    homePageVm.updateRideRequestList(rideRequests)
-                }
+//                rideRequests?.let {
+//                    homePageVm.updateRideRequestList(rideRequests)
+//                }
+                callHomePageApi()
             }
         }
         val intentFilter = IntentFilter("com.notification.ride_request")

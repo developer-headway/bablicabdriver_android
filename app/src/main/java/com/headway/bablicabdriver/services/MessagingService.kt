@@ -50,35 +50,38 @@ class MessagingService : FirebaseMessagingService() {
         val total_price = intent.getStringExtra("total_price")
         val type = intent.getStringExtra("type")
 
+        Log.d("msg","type: $type")
 
-        if (type=="ride_request") {
+        val rideRequests = RideRequests(
+            ride_id = ride_id,
+            booking_type = booking_type,
+            ride_type = ride_type,
+            pickup_address = pickup_address,
+            pickup_Latitude = pickup_Latitude,
+            pickup_Longitude = pickup_Longitude,
+            destination_address = destination_address,
+            destination_Latitude = destination_Latitude,
+            destination_Longitude = destination_Longitude,
+            trip_distance = trip_distance,
+            ride_status = ride_status,
+            customer_name = customer_name,
+            customer_profile_image = customer_profile_image,
+            customer_phone_number = customer_phone_number,
+            total_price = total_price,
+            type = type
+        )
 
-            val rideRequests = RideRequests(
-                ride_id = ride_id,
-                booking_type = booking_type,
-                ride_type = ride_type,
-                pickup_address = pickup_address,
-                pickup_Latitude = pickup_Latitude,
-                pickup_Longitude = pickup_Longitude,
-                destination_address = destination_address,
-                destination_Latitude = destination_Latitude,
-                destination_Longitude = destination_Longitude,
-                trip_distance = trip_distance,
-                ride_status = ride_status,
-                customer_name = customer_name,
-                customer_profile_image = customer_profile_image,
-                customer_phone_number = customer_phone_number,
-                total_price = total_price,
-                type = type
-            )
+        //user_started_ride
+        if (type == "ride_request" || type=="user_started_ride") {
             val broadcastIntent = Intent()
             broadcastIntent.action = "com.notification.ride_request"
             broadcastIntent.putExtra("ride_request",rideRequests)
             sendBroadcast(broadcastIntent)
 
             sendUserNotification(title = title?:"", mess =  body?:"", rideRequests)
+        } else {
+            sendUserNotification(title = title?:"", mess =  body?:"", rideRequests)
         }
-
     }
 
     @SuppressLint("RemoteViewLayout", "RestrictedApi")
@@ -137,6 +140,7 @@ class MessagingService : FirebaseMessagingService() {
             notificationManager.notify(notifyID, notificationBuilder.build())
         }catch (_:Exception) {}
     }
+
 
 
 }
