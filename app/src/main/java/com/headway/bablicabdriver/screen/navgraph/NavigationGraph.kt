@@ -19,6 +19,7 @@ import com.headway.bablicabdriver.screen.dashboard.home.completeRide.PaymentSucc
 import com.headway.bablicabdriver.screen.dashboard.myride.ridedetails.MyRideDetailsScreen
 import com.headway.bablicabdriver.screen.dashboard.notification.NotificationListScreen
 import com.headway.bablicabdriver.screen.dashboard.settings.SettingsScreen
+import com.headway.bablicabdriver.screen.dashboard.settings.refreshment.RefreshmentScreen
 import com.headway.bablicabdriver.screen.dashboard.settings.bankdetails.BankDetailsScreen
 import com.headway.bablicabdriver.screen.dashboard.settings.documentinfo.DocumentDetailsScreen
 import com.headway.bablicabdriver.screen.dashboard.settings.documentinfo.DocumentInfoScreen
@@ -312,6 +313,15 @@ fun NavigationGraph(
                 route = Routes.TransactionsScreen.route,
                 content = {
                     TransactionsScreen(
+                        navHostController = navHostController
+                    )
+                }
+            )
+
+            composable2(
+                route = Routes.RefreshmentScreen.route,
+                content = {
+                    RefreshmentScreen(
                         navHostController = navHostController
                     )
                 }

@@ -185,6 +185,7 @@ fun SettingsScreen(
         Pair(R.drawable.ic_doc, R.string.document_info),
         Pair(R.drawable.ic_bank, R.string.bank_details),
         Pair(R.drawable.ic_safety, R.string.safety),
+        Pair(R.drawable.ic_my_rides, R.string.refreshments),
     )
 
     val menu2Item = listOf(
@@ -440,6 +441,11 @@ fun SettingsScreen(
                                         }
                                         R.string.bank_details -> {
                                             navHostController.navigate(Routes.BankDetailsScreen.route) {
+                                                launchSingleTop = true
+                                            }
+                                        }
+                                        R.string.refreshments -> {
+                                            navHostController.navigate(Routes.RefreshmentScreen.route) {
                                                 launchSingleTop = true
                                             }
                                         }
