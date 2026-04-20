@@ -86,7 +86,7 @@ class MainActivity : ComponentActivity(), LocationUpdatesCallBack {
                                 }
                             )
                     ) {
-                        NavigationGraph(mainViewModel)
+                        NavigationGraph(mainViewModel,)
                     }
                 }
             }

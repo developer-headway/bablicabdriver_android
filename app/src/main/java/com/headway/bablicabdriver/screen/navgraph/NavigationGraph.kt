@@ -1,10 +1,7 @@
 package com.headway.bablicabdriver.screen.navgraph
 
 import android.Manifest
-import android.content.Intent
-import android.net.Uri
 import android.os.Build
-import android.provider.Settings
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -20,6 +17,7 @@ import com.headway.bablicabdriver.screen.dashboard.myride.ridedetails.MyRideDeta
 import com.headway.bablicabdriver.screen.dashboard.notification.NotificationListScreen
 import com.headway.bablicabdriver.screen.dashboard.settings.SettingsScreen
 import com.headway.bablicabdriver.screen.dashboard.settings.refreshment.RefreshmentScreen
+import com.headway.bablicabdriver.screen.dashboard.settings.refreshment.NearbyStoresScreen
 import com.headway.bablicabdriver.screen.dashboard.settings.bankdetails.BankDetailsScreen
 import com.headway.bablicabdriver.screen.dashboard.settings.documentinfo.DocumentDetailsScreen
 import com.headway.bablicabdriver.screen.dashboard.settings.documentinfo.DocumentInfoScreen
@@ -40,12 +38,13 @@ import com.headway.bablicabdriver.screen.registration.rcBookDetails.RCBookDetail
 import com.headway.bablicabdriver.utils.composable2
 import com.headway.bablicabdriver.utils.permissionhandler.rememberPermissionsState
 import com.headway.bablicabdriver.viewmodel.MainViewModel
-import androidx.core.net.toUri
+import androidx.navigation.NavHostController
+import com.headway.bablicabdriver.screen.dashboard.settings.refreshment.ScanQrCodeScreen
 
 
 @Composable
 fun NavigationGraph(
-    mainViewModel: MainViewModel
+    mainViewModel: MainViewModel,
 ) {
     val context = LocalContext.current
     //navigation host
@@ -321,7 +320,22 @@ fun NavigationGraph(
             composable2(
                 route = Routes.RefreshmentScreen.route,
                 content = {
-                    RefreshmentScreen(
+                    RefreshmentScreen(navHostController = navHostController)
+                }
+            )
+
+            composable2(
+                route = Routes.NearbyStoresScreen.route,
+                content = {
+                    NearbyStoresScreen(navHostController = navHostController)
+                }
+            )
+
+            composable2(
+                route = Routes.QrScannerScreen.route,
+                content = { backStackEntry ->
+                    val totalAmount = backStackEntry.arguments?.getString("totalAmount")?.toIntOrNull() ?: 0
+                    ScanQrCodeScreen(
                         navHostController = navHostController
                     )
                 }

@@ -13,6 +13,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,6 +31,8 @@ import com.headway.bablicabdriver.R
 import com.headway.bablicabdriver.res.components.textview.TextView
 import com.headway.bablicabdriver.ui.theme.MyColors
 import com.headway.bablicabdriver.ui.theme.MyFonts
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -34,7 +42,10 @@ fun TopNavigationBar(
     backIcon: Int = R.drawable.ic_back,
     onBackPress: () -> Unit = {}
 ) {
-
+    var clickAction by rememberSaveable {
+        mutableStateOf(true)
+    }
+    val scope = rememberCoroutineScope()
     Column {
 
         Row (
@@ -53,10 +64,18 @@ fun TopNavigationBar(
             verticalAlignment = Alignment.CenterVertically
         ) {
 
+
             if (showBackIcon) {
                 IconButton(
                     onClick = {
-                        onBackPress()
+
+                        if (!clickAction) return@IconButton
+                        scope.launch {
+                            clickAction = false
+                            onBackPress()
+                            delay(500)
+                            clickAction = true
+                        }
                     }
                 ) {
                     Image(
