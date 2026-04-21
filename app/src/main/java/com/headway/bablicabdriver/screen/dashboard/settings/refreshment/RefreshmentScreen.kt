@@ -1,14 +1,11 @@
 package com.headway.bablicabdriver.screen.dashboard.settings.refreshment
 
-import android.content.Intent
-import android.net.Uri
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -33,7 +30,6 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Store
 import androidx.compose.material3.HorizontalDivider
@@ -41,18 +37,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -62,15 +55,11 @@ import androidx.navigation.NavHostController
 import com.gandiva.neumorphic.neu
 import com.gandiva.neumorphic.shape.Flat
 import com.gandiva.neumorphic.shape.RoundedCorner
-import com.headway.bablicabdriver.R
 import com.headway.bablicabdriver.res.components.bar.TopNavigationBar
-import com.headway.bablicabdriver.res.components.buttons.FilledButtonGradient
 import com.headway.bablicabdriver.res.components.textview.TextView
 import com.headway.bablicabdriver.res.routes.Routes
 import com.headway.bablicabdriver.ui.theme.MyColors
 import com.headway.bablicabdriver.ui.theme.MyFonts
-import kotlinx.coroutines.delay
-import androidx.compose.ui.platform.LocalContext
 
 // ─── Data models ────────────────────────────────────────────────────────────
 
@@ -186,7 +175,6 @@ fun RefreshmentScreen(navHostController: NavHostController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
-//                    .background(MyColors.clr_white_100)
                     .background(if (isEditMode) {if (totalAmount>0) MyColors.clr_00BCF1_100 else MyColors.clr_7E7E7E_100} else MyColors.clr_00BCF1_100)
                     .clickable {
                         if (isEditMode) {
@@ -202,28 +190,8 @@ fun RefreshmentScreen(navHostController: NavHostController) {
                             ) { launchSingleTop = true }
                         }
                     },
-//                    .padding(horizontal = 16.dp, vertical = 14.dp),
                 contentAlignment = Alignment.Center
             ) {
-//                FilledButtonGradient(
-//                    text = if (isEditMode) { "Pay ₹$totalAmount" } else "Scan QR Code",
-//                    headingIconColor = MyColors.clr_white_100,
-//                    backgroundColor = if (isEditMode) {if (totalAmount>0) MyColors.clr_00BCF1_100 else MyColors.clr_7E7E7E_100} else MyColors.clr_00BCF1_100,
-//                    onClick = {
-//                        if (isEditMode) {
-//                            if (validate()) {
-//                                isEditMode = false
-//                                errors = List(dummyItems.size) { "" }
-//                                editQtys = List(dummyItems.size) { "0" }
-//                                Toast.makeText(context, "Purchase Success", Toast.LENGTH_SHORT).show()
-//                            }
-//                        } else {
-//                            navHostController.navigate(
-//                                Routes.QrScannerScreen.createRoute(totalAmount)
-//                            ) { launchSingleTop = true }
-//                        }
-//                    }
-//                )
                 TextView(
                     text = if (isEditMode) { "Pay ₹$totalAmount" } else "Scan QR Code",
                     fontSize = 14.sp,
