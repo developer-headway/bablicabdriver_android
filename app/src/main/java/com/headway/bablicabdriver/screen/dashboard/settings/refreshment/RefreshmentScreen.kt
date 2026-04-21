@@ -37,7 +37,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -51,34 +53,24 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.gandiva.neumorphic.neu
 import com.gandiva.neumorphic.shape.Flat
 import com.gandiva.neumorphic.shape.RoundedCorner
+import com.headway.bablicabdriver.api.ErrorsData
+import com.headway.bablicabdriver.api.NetWorkFail
+import com.headway.bablicabdriver.model.dashboard.settings.refreshment.RefreshmentItemData
+import com.headway.bablicabdriver.res.Loader
 import com.headway.bablicabdriver.res.components.bar.TopNavigationBar
+import com.headway.bablicabdriver.res.components.dialog.CommonErrorDialogs
 import com.headway.bablicabdriver.res.components.textview.TextView
+import com.headway.bablicabdriver.res.preferenceManage.SharedPreferenceManager
 import com.headway.bablicabdriver.res.routes.Routes
 import com.headway.bablicabdriver.ui.theme.MyColors
 import com.headway.bablicabdriver.ui.theme.MyFonts
-
-// ─── Data models ────────────────────────────────────────────────────────────
-
-data class RefreshmentItem(
-    val id: Int,
-    val name: String,
-    val unit: String,
-    val qty: String,
-    val price: String
-)
-
-data class NearbyStore(
-    val id: Int,
-    val name: String,
-    val address: String,
-    val phone: String,
-    val lat: Double,
-    val lng: Double
-)
+import com.headway.bablicabdriver.utils.AppUtils
+import com.headway.bablicabdriver.viewmodel.dashboard.settings.RefreshmentItemsVm
 
 // ─── Screen ─────────────────────────────────────────────────────────────────
 
@@ -86,59 +78,76 @@ data class NearbyStore(
 fun RefreshmentScreen(navHostController: NavHostController) {
 
     val context = LocalContext.current
+    val sharedPreferenceManager = SharedPreferenceManager(context)
 
-    // Dummy refreshment items
-    val dummyItems = listOf(
-        RefreshmentItem(1, "Water Bottle",   "Bottle", "10", "10"),
-        RefreshmentItem(2, "Juice Pack",     "Pack",   "5",  "25"),
-        RefreshmentItem(3, "Biscuit Pack",   "Pack",   "8",  "15"),
-        RefreshmentItem(4, "Tissue Box",     "Box",    "2",  "30"),
-        RefreshmentItem(5, "Hand Sanitizer", "Bottle", "3",  "50"),
-        RefreshmentItem(6, "Mint Candy",     "Piece",  "20", "2"),
-    )
+    val vm: RefreshmentItemsVm = viewModel()
+    val itemsData by vm.itemsData.collectAsState()
+    val isLoading by vm._isLoading.collectAsState()
 
-    // Dummy nearby stores
-    val nearbyStores = listOf(
-        NearbyStore(1, "Quick Mart",       "Shop 12, MG Road, Bhopal",       "9876543210", 23.2599, 77.4126),
-        NearbyStore(2, "Daily Needs Store","Near Bus Stand, Arera Colony",   "9812345678", 23.2450, 77.4200),
-        NearbyStore(3, "Fresh Supplies",   "Plot 5, Hoshangabad Road",       "9898989898", 23.2700, 77.3900),
-    )
+    val items = itemsData?.items ?: emptyList()
 
-    var qtys     by rememberSaveable { mutableStateOf(dummyItems.map { it.qty }) } // View mode: actual qty
-    var errors   by rememberSaveable { mutableStateOf(List(dummyItems.size) { "" }) }
+    val errorStates by remember { mutableStateOf(ErrorsData()) }
+    var networkError by rememberSaveable { mutableIntStateOf(NetWorkFail.NoError.ordinal) }
+
+    fun loadItems() {
+        if (AppUtils.isInternetAvailable(context)) {
+            vm.callRefreshmentItemsApi(
+                token = sharedPreferenceManager.getToken(),
+                errorStates = errorStates,
+                onError = {
+                    errorStates.bottomToastText.value = it ?: ""
+                    AppUtils.showToastBottom(errorStates.showBottomToast)
+                }
+            )
+        } else {
+            networkError = NetWorkFail.NetworkError.ordinal
+            errorStates.showInternetError.value = true
+        }
+    }
+
+    LaunchedEffect(true) { loadItems() }
+
+    // Edit mode state - separate from view qty
     var isEditMode by rememberSaveable { mutableStateOf(false) }
+    var editQtys by rememberSaveable { mutableStateOf(listOf<String>()) }
+    var errors by rememberSaveable { mutableStateOf(listOf<String>()) }
 
-    // In edit mode, track separately so view mode qty is preserved
-    var editQtys by rememberSaveable { mutableStateOf(List(dummyItems.size) { "0" }) }
-
-    // Total = sum of (editQty * price) for each item
-    var totalAmount by remember {
-        mutableStateOf(0)
+    // Reset editQtys when items load or edit mode starts
+    LaunchedEffect(items.size) {
+        editQtys = List(items.size) { "0" }
+        errors = List(items.size) { "" }
     }
 
-    var hasChanges by remember {
-        mutableStateOf(false)
+    // Total amount from editQtys
+    val totalAmount = items.mapIndexed { i, item ->
+        val q = editQtys.getOrNull(i)?.toIntOrNull() ?: 0
+        val p = item.price ?: 0
+        q * p
+    }.sum()
+
+    val hasChanges = editQtys.any { (it.toIntOrNull() ?: 0) > 0 }
+
+    // QR scan success - enable edit mode
+    val scanSuccess = navHostController.currentBackStackEntry
+        ?.savedStateHandle?.get<Boolean>("scan_success") ?: false
+
+    LaunchedEffect(scanSuccess) {
+        if (scanSuccess) {
+            navHostController.currentBackStackEntry?.savedStateHandle?.set("scan_success", false)
+            editQtys = List(items.size) { "0" }
+            errors = List(items.size) { "" }
+            isEditMode = true
+        }
     }
 
-    LaunchedEffect(editQtys) {
-        hasChanges = editQtys.any { (it.toIntOrNull() ?: 0) > 0 }
-
-        totalAmount = dummyItems.mapIndexed { i, item ->
-            val q = editQtys[i].toIntOrNull() ?: 0
-            val p = item.price.toIntOrNull() ?: 0
-            q * p
-        }.sum()
-    }
-
-
-
-
+    // Also handle legacy is_scan_qr_code key
     LaunchedEffect(true) {
-        val isScanQrCode = navHostController.currentBackStackEntry?.savedStateHandle?.get<Boolean?>("is_scan_qr_code")?:false
-        if (isScanQrCode) {
+        val isScan = navHostController.currentBackStackEntry
+            ?.savedStateHandle?.get<Boolean?>("is_scan_qr_code") ?: false
+        if (isScan) {
             navHostController.currentBackStackEntry?.savedStateHandle?.set("is_scan_qr_code", false)
-            errors = List(dummyItems.size) { "" }
-            editQtys = List(dummyItems.size) { "0" }
+            editQtys = List(items.size) { "0" }
+            errors = List(items.size) { "" }
             isEditMode = true
         }
     }
@@ -157,9 +166,6 @@ fun RefreshmentScreen(navHostController: NavHostController) {
         return newErrors.all { it.isEmpty() }
     }
 
-
-
-    // ── Main scaffold ───────────────────────────────────────────────────────
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = MyColors.clr_F7F7F7_100,
@@ -171,31 +177,44 @@ fun RefreshmentScreen(navHostController: NavHostController) {
             )
         },
         bottomBar = {
-            Box (
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
-                    .background(if (isEditMode) {if (totalAmount>0) MyColors.clr_00BCF1_100 else MyColors.clr_7E7E7E_100} else MyColors.clr_00BCF1_100)
+                    .background(
+                        if (isEditMode) {
+                            if (hasChanges) MyColors.clr_00BCF1_100 else MyColors.clr_7E7E7E_100
+                        } else {
+                            MyColors.clr_00BCF1_100
+                        }
+                    )
                     .clickable {
                         if (isEditMode) {
-                            if (validate()) {
+                            if (hasChanges && validate()) {
+                                // TODO: API call to submit purchase
                                 isEditMode = false
-                                errors = List(dummyItems.size) { "" }
-                                editQtys = List(dummyItems.size) { "0" }
-                                Toast.makeText(context, "Purchase Success", Toast.LENGTH_SHORT).show()
+                                editQtys = List(items.size) { "0" }
+                                errors = List(items.size) { "" }
+                                Toast.makeText(context, "Purchase Successful!", Toast.LENGTH_SHORT).show()
                             }
                         } else {
                             navHostController.navigate(
-                                Routes.QrScannerScreen.createRoute(totalAmount)
+                                Routes.QrScannerScreen.createRoute(0)
                             ) { launchSingleTop = true }
                         }
                     },
                 contentAlignment = Alignment.Center
             ) {
                 TextView(
-                    text = if (isEditMode) { "Pay ₹$totalAmount" } else "Scan QR Code",
+                    text = if (isEditMode) {
+                        if (totalAmount > 0) "Pay Rs.$totalAmount" else "Add Items to Pay"
+                    } else {
+                        "Scan QR Code"
+                    },
                     fontSize = 14.sp,
-                    textColor = MyColors.clr_white_100
+                    fontFamily = MyFonts.fontSemiBold,
+                    textColor = MyColors.clr_white_100,
+                    modifier = Modifier
                 )
             }
         }
@@ -214,7 +233,7 @@ fun RefreshmentScreen(navHostController: NavHostController) {
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
 
-                // ── Nearby stores banner ────────────────────────────────────
+                // Nearby stores banner
                 item {
                     Row(
                         modifier = Modifier
@@ -250,7 +269,7 @@ fun RefreshmentScreen(navHostController: NavHostController) {
                                 modifier = Modifier
                             )
                             TextView(
-                                text = "View nearby stores →",
+                                text = "View nearby stores",
                                 textColor = MyColors.clr_00BCF1_100,
                                 fontFamily = MyFonts.fontRegular,
                                 fontSize = 12.sp,
@@ -261,34 +280,43 @@ fun RefreshmentScreen(navHostController: NavHostController) {
                     Spacer(modifier = Modifier.height(4.dp))
                 }
 
-                // ── Refreshment item cards ──────────────────────────────────
-                itemsIndexed(dummyItems) { index, item ->
+                // Item cards from API
+                itemsIndexed(items) { index, item ->
                     RefreshmentCard(
-                        item       = item,
-                        qty        = if (isEditMode) editQtys[index] else qtys[index],
-                        error      = errors[index],
+                        item = item,
+                        qty = if (isEditMode) editQtys.getOrElse(index) { "0" }
+                              else "${item.stock_quantity ?: 0}",
+                        error = errors.getOrElse(index) { "" },
                         isEditMode = isEditMode,
                         onQtyChange = { newQty ->
                             editQtys = editQtys.toMutableList().also { it[index] = newQty }
-                            errors   = errors.toMutableList().also   { it[index] = "" }
+                            errors = errors.toMutableList().also { it[index] = "" }
                         }
                     )
                 }
             }
-
-
-
-
-
         }
     }
+
+    if (isLoading) Loader()
+
+    CommonErrorDialogs(
+        errorStates = errorStates,
+        onNoInternetRetry = {
+            if (networkError == NetWorkFail.NetworkError.ordinal) {
+                networkError = NetWorkFail.NoError.ordinal
+                errorStates.showInternetError.value = false
+                loadItems()
+            }
+        }
+    )
 }
 
 // ─── Refreshment item card ───────────────────────────────────────────────────
 
 @Composable
 private fun RefreshmentCard(
-    item: RefreshmentItem,
+    item: RefreshmentItemData,
     qty: String,
     error: String,
     isEditMode: Boolean,
@@ -318,11 +346,15 @@ private fun RefreshmentCard(
                     Box(
                         modifier = Modifier
                             .size(8.dp)
-                            .background(MyColors.clr_00BCF1_100, CircleShape)
+                            .background(
+                                if (item.is_in_stock == true) MyColors.clr_00BCF1_100
+                                else MyColors.clr_D3DDE7_100,
+                                CircleShape
+                            )
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     TextView(
-                        text = item.name,
+                        text = item.name ?: "",
                         textColor = MyColors.clr_132234_100,
                         fontFamily = MyFonts.fontSemiBold,
                         fontSize = 14.sp,
@@ -331,23 +363,32 @@ private fun RefreshmentCard(
                 }
                 Spacer(modifier = Modifier.height(4.dp))
                 TextView(
-                    text = "₹${item.price} / ${item.unit}",
+                    text = "Rs.${item.price ?: 0} / piece",
                     textColor = MyColors.clr_08875D_100,
                     fontFamily = MyFonts.fontMedium,
                     fontSize = 12.sp,
                     modifier = Modifier.padding(start = 16.dp)
                 )
+                if (!item.description.isNullOrEmpty()) {
+                    Spacer(modifier = Modifier.height(2.dp))
+                    TextView(
+                        text = item.description,
+                        textColor = MyColors.clr_607080_100,
+                        fontFamily = MyFonts.fontRegular,
+                        fontSize = 11.sp,
+                        modifier = Modifier.padding(start = 16.dp)
+                    )
+                }
             }
 
             // Right: qty badge (view) or stepper (edit)
             if (isEditMode) {
                 QtyStepper(
-                    qty      = qty,
+                    qty = qty,
                     onQtyChange = onQtyChange,
                     hasError = error.isNotEmpty()
                 )
             } else {
-                // Read-only qty pill
                 Box(
                     modifier = Modifier
                         .background(MyColors.clr_F0FCFF_100, RoundedCornerShape(10.dp))
@@ -378,8 +419,8 @@ private fun RefreshmentCard(
         // Error strip
         AnimatedVisibility(
             visible = error.isNotEmpty(),
-            enter   = slideInVertically { -it } + fadeIn(),
-            exit    = slideOutVertically { -it } + fadeOut()
+            enter = slideInVertically { -it } + fadeIn(),
+            exit = slideOutVertically { -it } + fadeOut()
         ) {
             Column {
                 HorizontalDivider(color = MyColors.clr_FA4949_100.copy(alpha = 0.3f))
@@ -390,7 +431,7 @@ private fun RefreshmentCard(
                         .padding(horizontal = 16.dp, vertical = 6.dp)
                 ) {
                     TextView(
-                        text = "⚠ $error",
+                        text = "  $error",
                         textColor = MyColors.clr_FA4949_100,
                         fontFamily = MyFonts.fontRegular,
                         fontSize = 11.sp,
@@ -401,8 +442,6 @@ private fun RefreshmentCard(
         }
     }
 }
-
-// ─── Nearby store card - moved to NearbyStoresScreen.kt ─────────────────────
 
 // ─── Qty stepper ─────────────────────────────────────────────────────────────
 
@@ -425,8 +464,10 @@ private fun QtyStepper(
                 .clickable { if (current > 0) onQtyChange("${current - 1}") },
             contentAlignment = Alignment.Center
         ) {
-            Icon(Icons.Default.Remove, contentDescription = "Decrease",
-                tint = MyColors.clr_white_100, modifier = Modifier.size(16.dp))
+            Icon(
+                Icons.Default.Remove, contentDescription = "Decrease",
+                tint = MyColors.clr_white_100, modifier = Modifier.size(16.dp)
+            )
         }
 
         Box(
@@ -464,8 +505,10 @@ private fun QtyStepper(
                 .clickable { if (current < 9999) onQtyChange("${current + 1}") },
             contentAlignment = Alignment.Center
         ) {
-            Icon(Icons.Default.Add, contentDescription = "Increase",
-                tint = MyColors.clr_white_100, modifier = Modifier.size(16.dp))
+            Icon(
+                Icons.Default.Add, contentDescription = "Increase",
+                tint = MyColors.clr_white_100, modifier = Modifier.size(16.dp)
+            )
         }
     }
 }

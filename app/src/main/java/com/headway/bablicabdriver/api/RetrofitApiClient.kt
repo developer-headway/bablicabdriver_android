@@ -42,4 +42,5 @@ object RetrofitApiClient {
         .build()
 
     val googleRouteApiInterface : ApiInterface = googleRouteRetrofit.create(ApiInterface::class.java)
+
 }

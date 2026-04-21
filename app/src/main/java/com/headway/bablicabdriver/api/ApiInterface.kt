@@ -47,14 +47,18 @@ import com.headway.bablicabdriver.model.dashboard.settings.myvehicles.MyVehicles
 import com.headway.bablicabdriver.model.dashboard.settings.myvehicles.VehicleDetailRequest
 import com.headway.bablicabdriver.model.dashboard.settings.myvehicles.VehicleDetailResponse
 import com.headway.bablicabdriver.model.ownerDashboard.OwnerDashboardResponse
+import com.headway.bablicabdriver.model.dashboard.settings.refreshment.NearbyStoresResponse
+import com.headway.bablicabdriver.model.dashboard.settings.refreshment.RefreshmentItemsResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
+import retrofit2.http.Query
 
 interface ApiInterface {
 
@@ -280,7 +284,18 @@ interface ApiInterface {
         @Header("Authorization") token: String
     ): Response<OwnerDashboardResponse>
 
+    @GET(NEARBY_STORES)
+    suspend fun callNearbyStoresApi(
+        @Header("Authorization") token: String,
+        @Query("lat") lat: Double,
+        @Query("lon") lon: Double,
+        @Query("radius") radius: Int = 100
+    ): Response<NearbyStoresResponse>
 
+    @GET(REFRESHMENT_ITEMS)
+    suspend fun callRefreshmentItemsApi(
+        @Header("Authorization") token: String
+    ): Response<RefreshmentItemsResponse>
 
 }
 

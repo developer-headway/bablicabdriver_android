@@ -43,6 +43,8 @@ const val VEHICLE_DETAILS = "owner/vehicle-detail"
 const val DRIVER_DETAILS = "owner/driver-detail"
 const val MY_DRIVERS = "owner/my-drivers"
 const val OWNER_DASHBOARD = "owner/dashboard"
+const val NEARBY_STORES = "nearby-stores"
+const val REFRESHMENT_ITEMS = "refreshment-items"
 
 
 
