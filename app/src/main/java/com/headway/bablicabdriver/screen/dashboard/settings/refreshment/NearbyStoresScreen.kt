@@ -242,7 +242,7 @@ private fun StoreItemCard(
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.Store,
+                    painter = painterResource(R.drawable.ic_storeicon),
                     contentDescription = null,
                     tint = MyColors.clr_00BCF1_100,
                     modifier = Modifier.size(24.dp)
