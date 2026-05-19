@@ -184,7 +184,7 @@ fun SettingsScreen(
         Pair(R.drawable.ic_my_rides, R.string.my_vehicle_details),
         Pair(R.drawable.ic_doc, R.string.document_info),
         Pair(R.drawable.ic_bank, R.string.bank_details),
-        Pair(R.drawable.ic_water_bottle, R.string.refreshments),
+        Pair(R.drawable.ic_water_bottle, R.string.stoke_management),
         Pair(R.drawable.ic_safety, R.string.safety),
     )
 
@@ -444,7 +444,7 @@ fun SettingsScreen(
                                                 launchSingleTop = true
                                             }
                                         }
-                                        R.string.refreshments -> {
+                                        R.string.stoke_management -> {
                                             navHostController.navigate(Routes.RefreshmentScreen.route) {
                                                 launchSingleTop = true
                                             }

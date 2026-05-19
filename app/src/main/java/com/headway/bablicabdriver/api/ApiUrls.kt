@@ -1,14 +1,16 @@
 package com.headway.bablicabdriver.api
 
-
-
-const val BASE_URL = "http://192.168.1.12:2025/api/mobile/driver/"
+const val BASE_URL = "http://babli.cab/api/mobile/driver/"
 const val GOOGLE_APIS_BASE_URL = "https://maps.googleapis.com/"
 const val GOOGLE_ROUTES_BASE_URL = "https://routes.googleapis.com/"
-
 const val GOOGLE_API_KEY = "AIzaSyDcU6D_1PZxvoQ-s3VFIjHfySAx1jMVqQ8"
 
 const val COMPUTE_ROUTE = "directions/v2:computeRoutes"
+
+//razorpay
+const val RAZORPAY_BASE_URL = "https://api.razorpay.com/v1/"
+const val ORDER_ID = "orders"
+
 const val SEND_OTP = "send-otp"
 const val VERIFY_OTP = "verify-otp"
 const val LOGOUT = "logout"
@@ -45,6 +47,7 @@ const val MY_DRIVERS = "owner/my-drivers"
 const val OWNER_DASHBOARD = "owner/dashboard"
 const val NEARBY_STORES = "nearby-stores"
 const val REFRESHMENT_ITEMS = "refreshment-items"
+const val ADD_MONEY = "add-money"
 
 
 

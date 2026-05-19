@@ -1,7 +1,7 @@
 package com.headway.bablicabdriver
 
-import android.location.Location
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -19,14 +19,14 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import com.headway.bablicabdriver.res.components.bar.ShowSnackBar
-import com.headway.bablicabdriver.res.location.LocationUpdatesCallBack
 import com.headway.bablicabdriver.screen.navgraph.NavigationGraph
 import com.headway.bablicabdriver.ui.theme.BabliCabDriverTheme
 import com.headway.bablicabdriver.utils.KeyBoardManager
 import com.headway.bablicabdriver.viewmodel.MainViewModel
+import com.razorpay.PaymentResultListener
 
 
-class MainActivity : ComponentActivity(), LocationUpdatesCallBack {
+class MainActivity : ComponentActivity(), PaymentResultListener {
     val mainViewModel = MainViewModel()
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -93,12 +93,16 @@ class MainActivity : ComponentActivity(), LocationUpdatesCallBack {
         }
     }
 
-    override fun onLocationUpdate(location: Location) {
-        mainViewModel.updateCurrentLocation(location)
+
+
+    override fun onPaymentSuccess(p0: String?) {
+        Log.d("msg", "Payment success: $p0")
+        mainViewModel.onPaymentSuccess(p0)
     }
 
-    override fun locationException(message: String) {
-
+    override fun onPaymentError(p0: Int, p1: String?) {
+        Log.d("msg", "Payment Error: $p1")
+        mainViewModel.onPaymentError(p1)
     }
 }
 

@@ -16,22 +16,9 @@ class SharedPreferenceManager(private val context: Context){
         }
     }
 
-
     fun getShowIntro(): Boolean {
         return introPreferenceManager.getBoolean("show_intro", true)
     }
-
-
-    fun storeToken(
-        token : String
-    ){
-        with(sharedPreferenceManager.edit()){
-            putString("token", token)
-            apply()
-        }
-    }
-
-
 
 //    fun storeSelCompanyData(data: CompanyListResponseData, isBusinessLogin:Boolean = true) {
 //        val jsonString = Gson().toJson(data)

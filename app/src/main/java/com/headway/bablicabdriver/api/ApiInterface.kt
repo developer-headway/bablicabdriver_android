@@ -49,6 +49,10 @@ import com.headway.bablicabdriver.model.dashboard.settings.myvehicles.VehicleDet
 import com.headway.bablicabdriver.model.ownerDashboard.OwnerDashboardResponse
 import com.headway.bablicabdriver.model.dashboard.settings.refreshment.NearbyStoresResponse
 import com.headway.bablicabdriver.model.dashboard.settings.refreshment.RefreshmentItemsResponse
+import com.headway.bablicabdriver.model.dashboard.wallet.AddMoneyRequest
+import com.headway.bablicabdriver.model.dashboard.wallet.AddMoneyResponse
+import com.headway.bablicabdriver.model.dashboard.wallet.CreateIdResponse
+import com.headway.bablicabdriver.model.dashboard.wallet.CreateOrderIdRequest
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
@@ -296,6 +300,18 @@ interface ApiInterface {
     suspend fun callRefreshmentItemsApi(
         @Header("Authorization") token: String
     ): Response<RefreshmentItemsResponse>
+
+    @POST(ADD_MONEY)
+    suspend fun callAddMoneyApi(
+        @Header("Authorization") token: String,
+        @Body request: AddMoneyRequest
+    ): Response<AddMoneyResponse>
+
+    @POST(ORDER_ID)
+    suspend fun callCreateOrderIdApi(
+        @Header("Authorization") token: String,
+        @Body request: CreateOrderIdRequest
+    ): Response<CreateIdResponse>
 
 }
 

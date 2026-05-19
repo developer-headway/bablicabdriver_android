@@ -9,6 +9,7 @@ data class RefreshmentItemsResponse(
 data class RefreshmentItemsData(
     val driver_id: String? = null,
     val driver_name: String? = null,
+    val wallet_balance: Float? = null,
     val vehicle_info: VehicleInfo? = null,
     val items: List<RefreshmentItemData>? = null
 )

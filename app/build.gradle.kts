@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.headway.bablicabdriver"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.headway.bablicabdriver"
@@ -29,12 +29,12 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
+//    kotlinOptions {
+//        jvmTarget = "17"
+//    }
     buildFeatures {
         compose = true
     }
@@ -108,7 +108,6 @@ dependencies {
     // Import the Firebase BoM
     implementation(platform("com.google.firebase:firebase-bom:33.16.0")) // Use the latest version
     implementation("com.google.firebase:firebase-analytics-ktx")
-    implementation("com.google.firebase:firebase-database-ktx")
     implementation("com.google.firebase:firebase-messaging")
 
 
@@ -119,21 +118,24 @@ dependencies {
     //viewmodel life cycle
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.10.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0")
-    // Lifecycle components
-//    implementation(libs.androidx.lifecycle.viewmodel.ktx)
-//    implementation(libs.androidx.lifecycle.viewmodel.compose)
 
-    implementation("androidx.compose.material:material-icons-extended:1.7.8")
+    //icons
+    implementation(libs.androidx.compose.material.icons.extended)
 
 
     // qr code scan
-    implementation("com.google.zxing:core:3.5.4")
-    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+//    implementation("com.google.zxing:core:3.5.4")
+//    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
 
-    implementation ("androidx.camera:camera-core:1.6.0")
-    implementation ("androidx.camera:camera-camera2:1.6.0")
-    implementation ("androidx.camera:camera-lifecycle:1.6.0")
-    implementation ("androidx.camera:camera-view:1.6.0")
+    implementation ("androidx.camera:camera-core:1.6.1")
+    implementation ("androidx.camera:camera-camera2:1.6.1")
+    implementation ("androidx.camera:camera-lifecycle:1.6.1")
+    implementation ("androidx.camera:camera-view:1.6.1")
 
     implementation("com.google.mlkit:barcode-scanning:17.3.0")
+
+
+    //razorpay
+    implementation("com.razorpay:checkout:1.6.41")
+
 }

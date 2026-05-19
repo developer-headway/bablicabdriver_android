@@ -43,4 +43,13 @@ object RetrofitApiClient {
 
     val googleRouteApiInterface : ApiInterface = googleRouteRetrofit.create(ApiInterface::class.java)
 
+
+
+    private val razorpayRetrofit = Retrofit.Builder()
+        .baseUrl(RAZORPAY_BASE_URL) // Replace with your API base URL
+        .client(client)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+
+    val razorpayInterface : ApiInterface = razorpayRetrofit.create(ApiInterface::class.java)
 }

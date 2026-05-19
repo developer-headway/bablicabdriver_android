@@ -66,6 +66,7 @@ object MyColors {
     val clr_364B63_100 = Color(0xFF364B63)
     val clr_E7F4FE_50 = Color(0x80E7F4FE)
     val clr_00BCF1_100 = Color(0xFF00BCF1)
+    val clr_00BCF1_10 = Color(0x1A00BCF1)
     val clr_00BCF1_20 = Color(0x3300BCF1)
     val clr_F0F0F0_100 = Color(0xFFF0F0F0)
     val clr_FAFAFA_100 = Color(0xFFFAFAFA)

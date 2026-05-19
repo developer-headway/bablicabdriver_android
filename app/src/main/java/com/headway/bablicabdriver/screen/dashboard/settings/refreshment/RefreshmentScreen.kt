@@ -1,6 +1,5 @@
 package com.headway.bablicabdriver.screen.dashboard.settings.refreshment
 
-import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -31,7 +30,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
-import androidx.compose.material.icons.filled.Store
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -48,9 +46,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -58,6 +59,7 @@ import androidx.navigation.NavHostController
 import com.gandiva.neumorphic.neu
 import com.gandiva.neumorphic.shape.Flat
 import com.gandiva.neumorphic.shape.RoundedCorner
+import com.headway.bablicabdriver.R
 import com.headway.bablicabdriver.api.ErrorsData
 import com.headway.bablicabdriver.api.NetWorkFail
 import com.headway.bablicabdriver.model.dashboard.settings.refreshment.RefreshmentItemData
@@ -72,7 +74,6 @@ import com.headway.bablicabdriver.ui.theme.MyFonts
 import com.headway.bablicabdriver.utils.AppUtils
 import com.headway.bablicabdriver.viewmodel.dashboard.settings.RefreshmentItemsVm
 
-// ─── Screen ─────────────────────────────────────────────────────────────────
 
 @Composable
 fun RefreshmentScreen(navHostController: NavHostController) {
@@ -108,7 +109,6 @@ fun RefreshmentScreen(navHostController: NavHostController) {
     LaunchedEffect(true) { loadItems() }
 
     // Edit mode state - separate from view qty
-    var isEditMode by rememberSaveable { mutableStateOf(false) }
     var editQtys by rememberSaveable { mutableStateOf(listOf<String>()) }
     var errors by rememberSaveable { mutableStateOf(listOf<String>()) }
 
@@ -136,7 +136,6 @@ fun RefreshmentScreen(navHostController: NavHostController) {
             navHostController.currentBackStackEntry?.savedStateHandle?.set("scan_success", false)
             editQtys = List(items.size) { "0" }
             errors = List(items.size) { "" }
-            isEditMode = true
         }
     }
 
@@ -148,7 +147,6 @@ fun RefreshmentScreen(navHostController: NavHostController) {
             navHostController.currentBackStackEntry?.savedStateHandle?.set("is_scan_qr_code", false)
             editQtys = List(items.size) { "0" }
             errors = List(items.size) { "" }
-            isEditMode = true
         }
     }
 
@@ -172,7 +170,7 @@ fun RefreshmentScreen(navHostController: NavHostController) {
         contentWindowInsets = WindowInsets(0.dp),
         topBar = {
             TopNavigationBar(
-                title = if (isEditMode) "Update Refreshment" else "Refreshment",
+                title = stringResource(R.string.stoke_management),
                 onBackPress = { navHostController.popBackStack() }
             )
         },
@@ -181,36 +179,19 @@ fun RefreshmentScreen(navHostController: NavHostController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
-                    .background(
-                        if (isEditMode) {
-                            if (hasChanges) MyColors.clr_00BCF1_100 else MyColors.clr_7E7E7E_100
-                        } else {
-                            MyColors.clr_00BCF1_100
-                        }
-                    )
+                    .background(if (hasChanges) MyColors.clr_00BCF1_100 else MyColors.clr_7E7E7E_100)
                     .clickable {
-                        if (isEditMode) {
-                            if (hasChanges && validate()) {
-                                // TODO: API call to submit purchase
-                                isEditMode = false
-                                editQtys = List(items.size) { "0" }
-                                errors = List(items.size) { "" }
-                                Toast.makeText(context, "Purchase Successful!", Toast.LENGTH_SHORT).show()
-                            }
-                        } else {
+                        if (totalAmount>0) {
                             navHostController.navigate(
                                 Routes.QrScannerScreen.createRoute(0)
                             ) { launchSingleTop = true }
                         }
+
                     },
                 contentAlignment = Alignment.Center
             ) {
                 TextView(
-                    text = if (isEditMode) {
-                        if (totalAmount > 0) "Pay Rs.$totalAmount" else "Add Items to Pay"
-                    } else {
-                        "Scan QR Code"
-                    },
+                    text ="Scan To Pay (Rs.$totalAmount)",
                     fontSize = 14.sp,
                     fontFamily = MyFonts.fontSemiBold,
                     textColor = MyColors.clr_white_100,
@@ -233,8 +214,77 @@ fun RefreshmentScreen(navHostController: NavHostController) {
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
 
+                item {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(MyColors.clr_00BCF1_10)
+                            .border(
+                                width = 1.dp,
+                                color = MyColors.clr_00BCF1_100.copy(alpha = 0.3f),
+                                shape = RoundedCornerShape(12.dp)
+                            )
+                            .clickable {
+                                navHostController.navigate(Routes.NearbyStoresScreen.route) {
+                                    launchSingleTop = true
+                                }
+                            }
+                            .padding(horizontal = 14.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                        ) {
+
+                            TextView(
+                                text = "Wallet Balance",
+                                textColor = MyColors.clr_7E7E7E_100,
+                                fontFamily = MyFonts.fontRegular,
+                                fontSize = 14.sp,
+                                modifier = Modifier
+                            )
+
+                            Spacer(
+                                modifier = Modifier
+                                    .height(8.dp)
+                            )
+
+                            TextView(
+                                text = "${itemsData?.wallet_balance?:0.0}",
+                                textColor = MyColors.clr_black_100,
+                                fontFamily = MyFonts.fontSemiBold,
+                                fontSize = 18.sp,
+                                modifier = Modifier
+                            )
+                        }
+
+
+                        TextView(
+                            text = "Add Money To Wallet",
+                            textColor = MyColors.clr_7E7E7E_100,
+                            fontFamily = MyFonts.fontRegular,
+                            fontSize = 12.sp,
+                            modifier = Modifier
+                                .padding(bottom = 20.dp)
+                                .clickable {
+                                    navHostController.navigate(Routes.AddMoneyScreen.route) {
+                                        launchSingleTop = true
+                                    }
+                                },
+                            textDecoration = TextDecoration.Underline
+                        )
+
+
+
+                    }
+                }
                 // Nearby stores banner
                 item {
+
+
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -254,10 +304,10 @@ fun RefreshmentScreen(navHostController: NavHostController) {
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Store,
+                            painter = painterResource(R.drawable.ic_storeicon),
                             contentDescription = null,
                             tint = MyColors.clr_00BCF1_100,
-                            modifier = Modifier.size(20.dp)
+                            modifier = Modifier.size(24.dp)
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                         Column(modifier = Modifier.weight(1f)) {
@@ -276,18 +326,25 @@ fun RefreshmentScreen(navHostController: NavHostController) {
                                 modifier = Modifier
                             )
                         }
+
+
+
+                        Icon(
+                            painter = painterResource(R.drawable.ic_next_arrow),
+                            contentDescription = stringResource(R.string.img_des),
+                            modifier = Modifier.size(20.dp)
+                        )
                     }
                     Spacer(modifier = Modifier.height(4.dp))
+
                 }
 
                 // Item cards from API
                 itemsIndexed(items) { index, item ->
                     RefreshmentCard(
                         item = item,
-                        qty = if (isEditMode) editQtys.getOrElse(index) { "0" }
-                              else "${item.stock_quantity ?: 0}",
+                        qty = editQtys.getOrElse(index) { "0" },
                         error = errors.getOrElse(index) { "" },
-                        isEditMode = isEditMode,
                         onQtyChange = { newQty ->
                             editQtys = editQtys.toMutableList().also { it[index] = newQty }
                             errors = errors.toMutableList().also { it[index] = "" }
@@ -319,7 +376,6 @@ private fun RefreshmentCard(
     item: RefreshmentItemData,
     qty: String,
     error: String,
-    isEditMode: Boolean,
     onQtyChange: (String) -> Unit
 ) {
     Column(
@@ -363,57 +419,29 @@ private fun RefreshmentCard(
                 }
                 Spacer(modifier = Modifier.height(4.dp))
                 TextView(
-                    text = "Rs.${item.price ?: 0} / piece",
+                    text = "${AppUtils.currency}${item.price ?: 0} / piece",
                     textColor = MyColors.clr_08875D_100,
                     fontFamily = MyFonts.fontMedium,
                     fontSize = 12.sp,
                     modifier = Modifier.padding(start = 16.dp)
                 )
-                if (!item.description.isNullOrEmpty()) {
-                    Spacer(modifier = Modifier.height(2.dp))
-                    TextView(
-                        text = item.description,
-                        textColor = MyColors.clr_607080_100,
-                        fontFamily = MyFonts.fontRegular,
-                        fontSize = 11.sp,
-                        modifier = Modifier.padding(start = 16.dp)
-                    )
-                }
+                Spacer(modifier = Modifier.height(2.dp))
+                TextView(
+                    text = "In Stoke Qty: ${item.stock_quantity?:0}",
+                    textColor = MyColors.clr_607080_100,
+                    fontFamily = MyFonts.fontRegular,
+                    fontSize = 11.sp,
+                    modifier = Modifier.padding(start = 16.dp)
+                )
             }
 
-            // Right: qty badge (view) or stepper (edit)
-            if (isEditMode) {
-                QtyStepper(
-                    qty = qty,
-                    onQtyChange = onQtyChange,
-                    hasError = error.isNotEmpty()
-                )
-            } else {
-                Box(
-                    modifier = Modifier
-                        .background(MyColors.clr_F0FCFF_100, RoundedCornerShape(10.dp))
-                        .border(1.dp, MyColors.clr_00BCF1_20, RoundedCornerShape(10.dp))
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        TextView(
-                            text = qty,
-                            textColor = MyColors.clr_132234_100,
-                            fontFamily = MyFonts.fontBold,
-                            fontSize = 18.sp,
-                            modifier = Modifier
-                        )
-                        TextView(
-                            text = "qty",
-                            textColor = MyColors.clr_607080_100,
-                            fontFamily = MyFonts.fontRegular,
-                            fontSize = 10.sp,
-                            modifier = Modifier
-                        )
-                    }
-                }
-            }
+
+            QtyStepper(
+                qty = qty,
+                onQtyChange = onQtyChange,
+                hasError = error.isNotEmpty()
+            )
+
         }
 
         // Error strip

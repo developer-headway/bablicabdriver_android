@@ -2,6 +2,7 @@ package com.headway.bablicabdriver.screen.login
 
 import android.provider.Settings
 import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
@@ -28,8 +30,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -48,8 +52,10 @@ import com.headway.bablicabdriver.api.ErrorsData
 import com.headway.bablicabdriver.api.NetWorkFail
 import com.headway.bablicabdriver.api.PRIVACY_POLICY
 import com.headway.bablicabdriver.api.TERMS_CONDITION
+import com.headway.bablicabdriver.model.login.SendOtpRequest
 import com.headway.bablicabdriver.model.login.VerifyOtpRequest
 import com.headway.bablicabdriver.res.Loader
+import com.headway.bablicabdriver.res.components.bar.TopNavigationBar
 import com.headway.bablicabdriver.res.components.buttons.FilledButtonGradient
 import com.headway.bablicabdriver.res.components.textfields.OtpInputField
 import com.headway.bablicabdriver.res.components.textview.TextView
@@ -60,6 +66,7 @@ import com.headway.bablicabdriver.res.routes.Routes
 import com.headway.bablicabdriver.ui.theme.MyColors
 import com.headway.bablicabdriver.ui.theme.MyFonts
 import com.headway.bablicabdriver.utils.AppUtils
+import com.headway.bablicabdriver.viewmodel.login.SendOtpVm
 import com.headway.bablicabdriver.viewmodel.login.VerifyOtpVm
 import kotlinx.coroutines.delay
 
@@ -75,12 +82,6 @@ fun OTPVerificationScreen(navHostController: NavHostController) {
     var otpError by rememberSaveable {
         mutableStateOf(false)
     }
-    val showDialog = remember {
-        mutableStateOf(false)
-    }
-    var isFromStatus by remember {
-        mutableStateOf("")
-    }
 
     var otpTime by rememberSaveable {
         mutableStateOf(60)
@@ -95,7 +96,6 @@ fun OTPVerificationScreen(navHostController: NavHostController) {
             otpTime--
         }
         isTimerRunning = false
-
     }
     var deviceFcmToken by rememberSaveable {
         mutableStateOf("")
@@ -195,6 +195,49 @@ fun OTPVerificationScreen(navHostController: NavHostController) {
 
     ////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////
+
+    var loginNetworkError by rememberSaveable {
+        mutableIntStateOf(NetWorkFail.NoError.ordinal)
+    }
+
+    val sendOtpVm : SendOtpVm = viewModel()
+
+    fun callSendOtpApi() {
+        focusManager.clearFocus()
+        if (AppUtils.isInternetAvailable(context)) {
+            val request = SendOtpRequest(
+                phone_number = mobileNum
+            )
+            sendOtpVm.callSendOtpApi(
+                request = request,
+                errorStates = errorStates,
+                onError = {
+                    errorStates.bottomToastText.value = it?:""
+                    AppUtils.showToastBottom(errorStates.showBottomToast)
+                },
+                onSuccess = {response->
+                    if (response?.status == true) {
+                        AppUtils.showToast(
+                            context = context,
+                            message = response.data.otp
+                        )
+                    } else {
+                        errorStates.bottomToastText.value = response?.message?:""
+                        AppUtils.showToastBottom(errorStates.showBottomToast)
+                    }
+
+                }
+            )
+        } else {
+            errorStates.showInternetError.value = true
+            loginNetworkError = NetWorkFail.NetworkError.ordinal
+        }
+    }
+
+    ////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////
+
+
     DisposableEffect(key1 = Unit) {
         getFCMToken()
         onDispose {  }
@@ -319,6 +362,14 @@ fun OTPVerificationScreen(navHostController: NavHostController) {
                 )
             }
         },
+        topBar = {
+            TopNavigationBar(
+                title = "",
+                onBackPress = {
+                    navHostController.popBackStack()
+                }
+            )
+        },
         containerColor = MyColors.clr_white_100
     ) { innerPadding ->
 
@@ -329,16 +380,24 @@ fun OTPVerificationScreen(navHostController: NavHostController) {
                 .verticalScroll(rememberScrollState())
         ) {
 
+            Image(
+                painter = painterResource(R.drawable.ic_splash_logo),
+                contentDescription = stringResource(R.string.img_des),
+                modifier = Modifier
+                    .padding(start = 20.dp)
+                    .width(120.dp)
+                    .height(46.dp),
+                contentScale = ContentScale.Crop
+            )
             Spacer(
                 modifier = Modifier
-                    .height(76.dp)
+                    .height(12.dp)
             )
-
             TextView(
-                text = stringResource(R.string.otp_verification),
+                text = "Verify Phone Number",
                 textColor = MyColors.clr_black_100,
-                fontSize = 28.sp,
-                fontFamily = MyFonts.fontBold,
+                fontSize = 18.sp,
+                fontFamily = MyFonts.fontSemiBold,
                 modifier = Modifier
                     .padding(horizontal = 20.dp)
             )
@@ -347,21 +406,18 @@ fun OTPVerificationScreen(navHostController: NavHostController) {
                     .height(12.dp)
             )
             TextView(
-                text = stringResource(R.string.enter_the_verification),
-                textColor = MyColors.clr_707070_100,
-                fontSize = 14.sp,
-                fontFamily = MyFonts.fontMedium,
+                text = "The confirmation code was sent on\n+91$mobileNum",
+                textColor = MyColors.clr_364B63_100,
+                fontSize = 12.sp,
+                fontFamily = MyFonts.fontRegular,
                 modifier = Modifier
                     .padding(horizontal = 20.dp)
             )
 
-
             Spacer(
                 modifier = Modifier
-                    .height(44.dp)
-
+                    .height(20.dp)
             )
-
 
             OtpInputField(
                 otp,
@@ -390,13 +446,13 @@ fun OTPVerificationScreen(navHostController: NavHostController) {
 
             Spacer(
                 modifier = Modifier
-                    .height(46.dp)
+                    .height(10.dp)
             )
             TextView(
                 text = "${stringResource(R.string.resend_otp_in)} ${otpTime}s",
                 textColor = MyColors.clr_243369_100,
-                fontSize = 14.sp,
-                fontFamily = MyFonts.fontSemiBold,
+                fontSize = 12.sp,
+                fontFamily = MyFonts.fontMedium,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
@@ -404,15 +460,15 @@ fun OTPVerificationScreen(navHostController: NavHostController) {
 
             Spacer(
                 modifier = Modifier
-                    .height(16.dp)
+                    .height(12.dp)
             )
 
 
             TextView(
                 text = stringResource(R.string.resend_otp),
-                textColor = if (isTimerRunning) MyColors.clr_707070_100 else MyColors.clr_243369_100,
-                fontSize = 14.sp,
-                fontFamily = MyFonts.fontSemiBold,
+                textColor = if (isTimerRunning) MyColors.clr_707070_100 else MyColors.clr_FA4949_100,
+                fontSize = 12.sp,
+                fontFamily = MyFonts.fontMedium,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
@@ -420,11 +476,12 @@ fun OTPVerificationScreen(navHostController: NavHostController) {
                         if (!isTimerRunning) {
                             otpTime = 60
                             isTimerRunning = true
+
+                            callSendOtpApi()
                         }
                     }
                     .padding(5.dp)
             )
-
 
             Spacer(
                 modifier = Modifier
@@ -447,6 +504,12 @@ fun OTPVerificationScreen(navHostController: NavHostController) {
                 networkError = NetWorkFail.NoError.ordinal
                 callVerifyOtpApi()
             }
+            if (loginNetworkError==NetWorkFail.NetworkError.ordinal) {
+                errorStates.showInternetError.value = false
+                loginNetworkError = NetWorkFail.NoError.ordinal
+                callSendOtpApi()
+            }
+
         },
     )
 

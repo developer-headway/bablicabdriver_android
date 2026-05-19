@@ -30,4 +30,16 @@ class MainViewModel: ViewModel() {
         snackBarText.value = string
     }
 
+    var paymentSuccess = MutableStateFlow<String?>(null)
+        private set
+
+    var paymentError = MutableStateFlow<String?>(null)
+        private set
+    fun onPaymentSuccess(message : String?){
+        paymentSuccess.value = message
+    }
+    fun onPaymentError(message : String?){
+        paymentError.value = message
+    }
+
 }
