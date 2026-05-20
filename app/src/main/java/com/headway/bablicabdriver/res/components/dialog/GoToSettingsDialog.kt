@@ -7,7 +7,8 @@ import com.headway.bablicabdriver.R
 
 fun goToSettingsDialog(
     context : Context,
-    onGoToSettings : () -> Unit
+    onGoToSettings : () -> Unit,
+    onCancel:()-> Unit = { }
 ){
     val dialogBuilder = AlertDialog.Builder(context)
     dialogBuilder.setCancelable(true)
@@ -23,6 +24,7 @@ fun goToSettingsDialog(
         context.getString(R.string.cancel)
     ) { dialog, _ ->
         dialog.cancel()
+        onCancel()
     }
 
     dialogBuilder.create()

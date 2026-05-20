@@ -1,6 +1,6 @@
 package com.headway.bablicabdriver.api
 
-const val BASE_URL = "http://babli.cab/api/mobile/driver/"
+const val BASE_URL = "https://babli.cab/api/mobile/driver/"
 const val GOOGLE_APIS_BASE_URL = "https://maps.googleapis.com/"
 const val GOOGLE_ROUTES_BASE_URL = "https://routes.googleapis.com/"
 const val GOOGLE_API_KEY = "AIzaSyDcU6D_1PZxvoQ-s3VFIjHfySAx1jMVqQ8"

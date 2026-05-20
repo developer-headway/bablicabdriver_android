@@ -5,8 +5,12 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.location.Location
+import android.net.Uri
 import android.os.Build
+import android.os.Looper
+import android.provider.Settings
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -33,6 +37,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -51,12 +56,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.gandiva.neumorphic.neu
 import com.gandiva.neumorphic.shape.Flat
 import com.gandiva.neumorphic.shape.Oval
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.ButtCap
 import com.google.android.gms.maps.model.CameraPosition
@@ -64,13 +74,12 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.PolyUtil
 import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.MapProperties
-import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.google.maps.android.compose.rememberUpdatedMarkerState
 import com.headway.bablicabdriver.R
 import com.headway.bablicabdriver.api.ErrorsData
 import com.headway.bablicabdriver.api.NetWorkFail
@@ -89,11 +98,11 @@ import com.headway.bablicabdriver.res.Loader
 import com.headway.bablicabdriver.res.components.buttons.CustomSwitchButton1
 import com.headway.bablicabdriver.res.components.dialog.CommonErrorDialogs
 import com.headway.bablicabdriver.res.components.dialog.FinishRideDialog
+import com.headway.bablicabdriver.res.components.dialog.PermissionsRequiredDialog
 import com.headway.bablicabdriver.res.components.dialog.goToSettingsDialog
 import com.headway.bablicabdriver.res.components.dialog.permissionDeniedDialog
 import com.headway.bablicabdriver.res.components.textview.TextView
 import com.headway.bablicabdriver.res.components.toast.ToastExpandHorizontal
-import com.headway.bablicabdriver.res.location.GPSLocationClient
 import com.headway.bablicabdriver.res.preferenceManage.SharedPreferenceManager
 import com.headway.bablicabdriver.res.routes.Routes
 import com.headway.bablicabdriver.screen.dashboard.home.chooseservicedialog.ChooseServiceDialog
@@ -102,13 +111,11 @@ import com.headway.bablicabdriver.screen.dashboard.home.rideDialogs.CurrentShutt
 import com.headway.bablicabdriver.screen.dashboard.home.rideDialogs.DestinationDialog
 import com.headway.bablicabdriver.screen.dashboard.home.rideDialogs.PickupDialog
 import com.headway.bablicabdriver.screen.dashboard.home.rideDialogs.StartRideDialog
-import com.headway.bablicabdriver.services.FloatingService
 import com.headway.bablicabdriver.services.LocationService
 import com.headway.bablicabdriver.ui.theme.MyColors
 import com.headway.bablicabdriver.ui.theme.MyFonts
 import com.headway.bablicabdriver.utils.AppUtils
 import com.headway.bablicabdriver.utils.permissionhandler.MultiplePermissionsState
-import com.headway.bablicabdriver.utils.permissionhandler.goToSettings
 import com.headway.bablicabdriver.utils.permissionhandler.rememberPermissionsState
 import com.headway.bablicabdriver.viewmodel.MainViewModel
 import com.headway.bablicabdriver.viewmodel.dashboard.home.AcceptRideVm
@@ -153,7 +160,7 @@ fun HomeScreen(
         mutableStateOf(false)
     }
 
-    var locationPermissions : MultiplePermissionsState? = null
+    var locationPermission : MultiplePermissionsState? = null
 
     ////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////
@@ -250,10 +257,10 @@ fun HomeScreen(
     }
 
     fun isLocationService (serviceAction: String = LocationService.ACTION_SERVICE_START) {
-        Intent(context, LocationService::class.java).apply {
-            action = serviceAction
-            context.startService(this)
-        }
+//        Intent(context, LocationService::class.java).apply {
+//            action = serviceAction
+//            context.startService(this)
+//        }
     }
 
     fun callHomePageApi() {
@@ -273,7 +280,7 @@ fun HomeScreen(
                         val data = response.data
                         check = data.is_online
 
-                        if (check && locationPermissions?.allPermissionsGranted == true) {
+                        if (check && locationPermission?.allPermissionsGranted == true) {
                             isLocationService(serviceAction = LocationService.ACTION_SERVICE_START)
                         }
                         if (!response.data.Current_ride?.ride_id.isNullOrEmpty()) {
@@ -615,8 +622,6 @@ fun HomeScreen(
     }
     ////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////
 
     var setShuttleNetworkError by rememberSaveable {
         mutableIntStateOf(NetWorkFail.NoError.ordinal)
@@ -666,10 +671,12 @@ fun HomeScreen(
         }
     })
 
+    ////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////
+
+/*
+
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
-    val coroutineScope = rememberCoroutineScope()
-
-
     fun callLocationPermission() {
         locationPermissions?.launchPermissionRequestsAndAction()
     }
@@ -682,7 +689,7 @@ fun HomeScreen(
             fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                 location?.let {
                     currentLocation.value = location
-                    coroutineScope.launch {
+                    scope.launch {
                         cameraPositionState.animate(
                             update = CameraUpdateFactory.newLatLngZoom(
                                 LatLng(it.latitude, it.longitude),
@@ -723,16 +730,167 @@ fun HomeScreen(
             callHomePageApi()
         }
     }
-    //////////////////
-    //////////////////
+
+*/
+
+
+    ////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////
+    // Location state
+    var currentLat by remember { mutableStateOf(0.0) }
+    var currentLng by remember { mutableStateOf(0.0) }
+    var currentAddress by remember { mutableStateOf("") }
+    var isLocationLoading by remember { mutableStateOf(false) }
+
+    val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
+
+    fun fetchLocation() {
+        isLocationLoading = true
+        currentAddress = ""
+        try {
+            val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000L)
+                .setMaxUpdates(1)
+                .build()
+            val callback = object : LocationCallback() {
+                override fun onLocationResult(result: LocationResult) {
+                    val loc = result.lastLocation ?: return
+                    currentLat = loc.latitude
+                    currentLng = loc.longitude
+
+                    //added
+                    currentLocation.value = loc
+                    scope.launch {
+                        cameraPositionState.animate(
+                            update = CameraUpdateFactory.newLatLngZoom(
+                                LatLng(loc.latitude, loc.longitude),
+                                16f // zoom level
+                            ),
+                            durationMs = 10
+                        )
+                    }
+                    callUpdateDriverLocationApi()
+
+                    isLocationLoading = false
+                    fusedLocationClient.removeLocationUpdates(this)
+                }
+            }
+            fusedLocationClient.requestLocationUpdates(
+                locationRequest,
+                callback,
+                Looper.getMainLooper()
+            )
+        } catch (e: SecurityException) {
+            isLocationLoading = false
+        }
+    }
+
+    ////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////
+    var openedSettings by rememberSaveable { mutableStateOf(false) }
+    fun openedSettings() {
+        openedSettings = true
+        context.startActivity(
+            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = Uri.fromParts("package", context.packageName, null)
+            }
+        )
+    }
+
+    var showPermissionDialog by remember { mutableStateOf(false) }
+    locationPermission = rememberPermissionsState(
+        permissions = listOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ),
+        onGrantedAction = {
+            fetchLocation()
+        },
+        onDeniedAction = {
+            permissionDeniedDialog(
+                context = context,
+                onGrant = {
+                    openedSettings()
+                },
+                onCancel = {
+                    showPermissionDialog = true
+                }
+            )
+        },
+        onPermanentlyDeniedAction = {
+            goToSettingsDialog(
+                context = context,
+                onGoToSettings = {
+                    openedSettings()
+                },
+                onCancel = {
+                    showPermissionDialog = true
+                }
+            )
+        }
+    )
+
+
+    // Check if both permissions are granted — derived from live permission state
+    val allPermissionsGranted by remember {
+        derivedStateOf {
+            locationPermission.allPermissionsGranted
+        }
+    }
+
+
+    var isFirstTime by rememberSaveable {
+        mutableStateOf(true)
+    }
+
+    LaunchedEffect(true) {
+        Log.d("msg","isFirstTime: $isFirstTime")
+        val isRefresh = navHostController.currentBackStackEntry?.savedStateHandle?.get<Boolean?>("refresh")?:false
+        if (isFirstTime || isRefresh) {
+            navHostController.currentBackStackEntry?.savedStateHandle?.set("refresh",false)
+            isFirstTime = false
+            callHomePageApi()
+        }
+
+        if (!locationPermission.allPermissionsGranted) {
+            showPermissionDialog = true
+        } else {
+            fetchLocation()
+        }
+    }
+
+
+
+    LaunchedEffect(openedSettings) {
+        Log.d("msg","opened settings")
+        if (openedSettings) {
+            openedSettings = false
+            // yahan permission check karo
+            if (!locationPermission.allPermissionsGranted) {
+                showPermissionDialog = true
+            } else {
+                fetchLocation()
+            }
+        }
+    }
+
+
+
+    /////////////////////////////////////////////
+    /////////////////////////////////////////////
     DisposableEffect(true) {
         val broadcastReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
-                val rideRequests = intent.getSerializableExtra("ride_request", RideRequests::class.java)
-                Log.d("msg","received: $rideRequests")
-//                rideRequests?.let {
-//                    homePageVm.updateRideRequestList(rideRequests)
-//                }
+//                val rideRequests = intent.getSerializableExtra("ride_request", RideRequests::class.java)
+//                Log.d("msg","received: $rideRequests")
+//                callHomePageApi()
+
+                val rideRequests = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    intent.getSerializableExtra("ride_request", RideRequests::class.java)
+                } else {
+                    @Suppress("DEPRECATION")
+                    intent.getSerializableExtra("ride_request") as? RideRequests
+                }
+                Log.d("msg", "received: $rideRequests")
                 callHomePageApi()
             }
         }
@@ -740,7 +898,12 @@ fun HomeScreen(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             context.registerReceiver(broadcastReceiver, intentFilter, Context.RECEIVER_EXPORTED)
         } else {
-            context.registerReceiver(broadcastReceiver, intentFilter, Context.RECEIVER_NOT_EXPORTED)
+            ContextCompat.registerReceiver(
+                context,
+                broadcastReceiver,
+                intentFilter,
+                ContextCompat.RECEIVER_EXPORTED
+            )
         }
         onDispose {
             context.unregisterReceiver(broadcastReceiver)
@@ -867,7 +1030,10 @@ fun HomeScreen(
                                     currentLocation.value?.longitude?:0.0
                                 )
 
-                                val markerState = remember { MarkerState(position = curLatLng) }
+//                                val markerState = remember { MarkerState(position = curLatLng) }
+                                val markerState = rememberUpdatedMarkerState(
+                                    position = curLatLng
+                                )
                                 Marker(
                                     state = markerState,
                                     title = "Vehicle",
@@ -884,14 +1050,19 @@ fun HomeScreen(
                     AvailableForRideBox(
                         check = check,
                         onChangeClick = {
+
                             showServiceDialog = true
                         },
-                        onAvailabilityChange = {checked->
+                        onAvailabilityChange = { checked->
                             if (!checked) {
                                 check = false
                                 callSetOnlineStatusApi()
                             } else {
-                                showServiceDialog = true
+                                if (allPermissionsGranted) {
+                                    showServiceDialog = true
+                                } else {
+                                    showPermissionDialog = true
+                                }
                             }
                         },
                         homePageVm = homePageVm,
@@ -914,15 +1085,13 @@ fun HomeScreen(
                                 shape = CircleShape
                             )
                             .clickable {
-                                if (locationPermissions.allPermissionsGranted) {
-                                    coroutineScope.launch {
+                                if (allPermissionsGranted) {
+                                    scope.launch {
                                         cameraPositionState.animate(
                                             update = CameraUpdateFactory.newLatLngZoom(
                                                 LatLng(
-                                                    /*mainViewModel.*/currentLocation.value?.latitude
-                                                        ?: 0.0,
-                                                    /*mainViewModel.*/currentLocation.value?.longitude
-                                                        ?: 0.0
+                                                    currentLocation.value?.latitude ?: 0.0,
+                                                    currentLocation.value?.longitude ?: 0.0
                                                 ),
                                                 16f // zoom level
                                             ),
@@ -930,9 +1099,8 @@ fun HomeScreen(
                                         )
                                     }
                                 } else {
-                                    locationPermissions.launchPermissionRequestsAndAction()
+                                    showPermissionDialog = true
                                 }
-
                             },
                         contentAlignment = Alignment.Center
                     ) {
@@ -1154,6 +1322,29 @@ fun HomeScreen(
         }
 
 
+        fun Context.checkPermission(permission: String): Boolean {
+            return ContextCompat.checkSelfPermission(this, permission) ==
+                    PackageManager.PERMISSION_GRANTED
+        }
+
+        // Permission dialog — shows whenever any permission is missing
+        if (showPermissionDialog && !allPermissionsGranted) {
+            PermissionsRequiredDialog (
+                isLocationGranted = context.checkPermission(Manifest.permission.ACCESS_COARSE_LOCATION) && context.checkPermission(
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ),
+                onGrantPermissions = {
+                    showPermissionDialog = false
+                    // Request whichever permissions are still missing
+                    if (!locationPermission.allPermissionsGranted) {
+                        locationPermission.launchPermissionRequestsAndAction()
+                    }
+                },
+                onDismiss = {
+                    showPermissionDialog = false
+                }
+            )
+        }
 
     }
 

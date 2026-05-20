@@ -6,7 +6,8 @@ import com.headway.bablicabdriver.R
 
 fun permissionDeniedDialog(
     context : Context,
-    onGrant : () -> Unit
+    onGrant : () -> Unit,
+    onCancel:()-> Unit = { }
 ){
     val dialogBuilder = AlertDialog.Builder(context)
     dialogBuilder.setCancelable(true)
@@ -21,6 +22,7 @@ fun permissionDeniedDialog(
         context.getString(R.string.cancel)
     ) { dialog, _ ->
         dialog.cancel()
+        onCancel()
     }
 
     dialogBuilder.create()

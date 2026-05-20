@@ -154,6 +154,9 @@ fun OTPVerificationScreen(navHostController: NavHostController) {
                             sharedPreferenceManager.storeVerifyOtpData(response.data)
                             navHostController.navigate(Routes.DashboardScreen.route) {
                                 launchSingleTop = true
+                                popUpTo(Routes.OTPVerificationScreen.route) {
+                                    inclusive = true
+                                }
                             }
                         } else {
                             if (data.is_Pan_completed==1 &&

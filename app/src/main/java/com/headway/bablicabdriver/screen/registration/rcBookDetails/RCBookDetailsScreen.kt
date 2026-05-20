@@ -188,12 +188,26 @@ fun RCBookDetailsScreen(
             cameraLauncher.launch(cameraUri)
         },
         onDeniedAction = {
-            permissionDeniedDialog(context) {}
+            permissionDeniedDialog(
+                context,
+                onGrant = {
+
+                },
+                onCancel = {
+
+                }
+            )
         },
         onPermanentlyDeniedAction = {
-            goToSettingsDialog(context) {
-                context.goToSettings(it)
-            }
+            goToSettingsDialog(
+                context,
+                onCancel = {
+
+                },
+                onGoToSettings = {
+                    context.goToSettings(it)
+                }
+            )
         }
     )
 
