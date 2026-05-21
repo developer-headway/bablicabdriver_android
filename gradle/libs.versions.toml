@@ -1,5 +1,6 @@
 [versions]
-agp = "8.13.0"
+agp = "8.13.2"
+#agp = "9.2.1"
 composeQrCode = "1.0.1"
 kotlin = "2.3.21"
 coreKtx = "1.18.0"
@@ -8,7 +9,7 @@ junitVersion = "1.3.0"
 espressoCore = "3.7.0"
 lifecycleRuntimeKtx = "2.10.0"
 activityCompose = "1.13.0"
-composeBom = "2026.05.00"
+composeBom = "2026.05.01"
 
 mapsUtilsKtx = "6.0.1"
 materialIconsExtended = "1.7.8"

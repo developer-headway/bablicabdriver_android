@@ -233,6 +233,41 @@ fun HomeScreen(
                 origin = origin,
                 destination = destination
             )
+
+
+            val pickupLocation = if (currentRide?.ride_status == "started") {
+                LatLng(
+                    currentRide?.pickup_Latitude?:0.0,
+                    currentRide?.pickup_Longitude?:0.0
+                )
+            } else {
+                LatLng(
+                    currentLocation.value?.latitude ?: 0.0,
+                    currentLocation.value?.longitude ?: 0.0,
+                )
+            }
+            val dropLocation = if (currentRide?.ride_status == "started") {
+                LatLng(
+                     currentRide?.destination_Latitude ?: 0.0,
+                     currentRide?.destination_Longitude ?: 0.0,
+                )
+            } else {
+                LatLng(
+                     currentRide?.pickup_Latitude ?: 0.0,
+                     currentRide?.pickup_Longitude ?: 0.0,
+                )
+            }
+            scope.launch {
+                val bounds = LatLngBounds.Builder()
+                    .include(pickupLocation)
+                    .include(dropLocation)
+                    .build()
+                cameraPositionState.animate(
+                    update = CameraUpdateFactory.newLatLngBounds(bounds, 100)
+                )
+            }
+
+
             Log.d("msg","request: $request")
             computeRouteVm.callComputeRoutesApi(
                 request = request,
@@ -280,7 +315,7 @@ fun HomeScreen(
                         val data = response.data
                         check = data.is_online
 
-                        if (check && locationPermission?.allPermissionsGranted == true) {
+                        /*if (check && locationPermission?.allPermissionsGranted == true) {
                             isLocationService(serviceAction = LocationService.ACTION_SERVICE_START)
                         }
                         if (!response.data.Current_ride?.ride_id.isNullOrEmpty()) {
@@ -307,7 +342,7 @@ fun HomeScreen(
                                 }
                                 callComputeRoutesApi()
                             }
-                        }
+                        }*/
                     } else {
                         errorStates.bottomToastText.value = response?.message?:""
                         AppUtils.showToastBottom(errorStates.showBottomToast)
@@ -743,6 +778,9 @@ fun HomeScreen(
     var isLocationLoading by remember { mutableStateOf(false) }
 
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
+    var isFirstTime by rememberSaveable {
+        mutableStateOf(true)
+    }
 
     fun fetchLocation() {
         isLocationLoading = true
@@ -769,6 +807,33 @@ fun HomeScreen(
                         )
                     }
                     callUpdateDriverLocationApi()
+                    if (!homePageData?.Current_ride?.ride_id.isNullOrEmpty()) {
+                        scope.launch {
+                            delay(500)
+
+                            val pickupLocation = LatLng(
+                                currentRide?.pickup_Latitude?:0.0,
+                                currentRide?.pickup_Longitude?:0.0
+                            )
+                            val dropLocation = LatLng(
+                                currentRide?.destination_Latitude?:0.0,
+                                currentRide?.destination_Longitude?:0.0
+                            )
+
+                            scope.launch {
+                                val bounds = LatLngBounds.Builder()
+                                    .include(pickupLocation)
+                                    .include(dropLocation)
+                                    .build()
+                                cameraPositionState.animate(
+                                    update = CameraUpdateFactory.newLatLngBounds(bounds, 100)
+                                )
+                            }
+
+
+                            callComputeRoutesApi()
+                        }
+                    }
 
                     isLocationLoading = false
                     fusedLocationClient.removeLocationUpdates(this)
@@ -838,9 +903,7 @@ fun HomeScreen(
     }
 
 
-    var isFirstTime by rememberSaveable {
-        mutableStateOf(true)
-    }
+
 
     LaunchedEffect(true) {
         Log.d("msg","isFirstTime: $isFirstTime")
@@ -851,6 +914,16 @@ fun HomeScreen(
             callHomePageApi()
         }
 
+//        val isRefresh = navHostController.currentBackStackEntry?.savedStateHandle?.get<Boolean?>("refresh")?:false
+//        if (isRefresh) {
+//            navHostController.currentBackStackEntry?.savedStateHandle?.set("refresh",false)
+//            callHomePageApi()
+//        }
+
+//        if (isFirstTime) {
+//            isFirstTime = false
+//            callHomePageApi()
+//        }
         if (!locationPermission.allPermissionsGranted) {
             showPermissionDialog = true
         } else {

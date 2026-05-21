@@ -87,7 +87,7 @@ fun WalletScreen(
         mutableStateOf(false)
     }
 
-    var showWithdrawAmountDialog = rememberSaveable {
+    val showWithdrawAmountDialog = rememberSaveable {
         mutableStateOf(false)
     }
 
@@ -320,26 +320,27 @@ fun WalletScreen(
 
                         }
 
-                        Spacer(
-                            modifier = Modifier
-                                .height(16.dp)
-                        )
 
-                        FilledButtonGradient(
-                            modifier = Modifier
-                                .padding(horizontal = 12.dp),
-                            text = stringResource(R.string.withdraw),
-                            isBorder = true,
-                            borderColor = MyColors.clr_00BCF1_100,
-                            textColor = MyColors.clr_00BCF1_100,
-                            textFontSize = 14.sp,
-                            onClick = {
-//                                navHostController.navigate(Routes.AddMoneyScreen.route) {
-//                                    launchSingleTop = true
-//                                }
-                                showWithdrawAmountDialog.value = true
-                            }
-                        )
+                        if (sharedPreferenceManager.getIsOwnerDriver()) {
+                            Spacer(
+                                modifier = Modifier
+                                    .height(16.dp)
+                            )
+
+                            FilledButtonGradient(
+                                modifier = Modifier
+                                    .padding(horizontal = 12.dp),
+                                text = stringResource(R.string.withdraw),
+                                isBorder = true,
+                                borderColor = MyColors.clr_00BCF1_100,
+                                textColor = MyColors.clr_00BCF1_100,
+                                textFontSize = 14.sp,
+                                onClick = {
+                                    showWithdrawAmountDialog.value = true
+                                }
+                            )
+                        }
+
                         Spacer(
                             modifier = Modifier
                                 .height(16.dp)

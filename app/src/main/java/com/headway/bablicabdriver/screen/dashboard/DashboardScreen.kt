@@ -59,7 +59,6 @@ import com.headway.bablicabdriver.screen.dashboard.ownerDashboardScreen.OwnerDas
 import kotlinx.coroutines.launch
 import kotlin.collections.forEachIndexed
 
-
 @Composable
 fun DashboardScreen(
     navHostController: NavHostController,
@@ -78,7 +77,7 @@ fun DashboardScreen(
             BottomTab.obj1,
             BottomTab.obj2,
             BottomTab.obj3,
-            BottomTab.obj4,
+            BottomTab.obj4
         )
     }
 
@@ -178,9 +177,6 @@ fun DashboardScreen(
                                 contentAlignment = Alignment.Center
                             ) {
 
-
-
-
                                 Column(
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
@@ -209,16 +205,11 @@ fun DashboardScreen(
 
                             }
                         }
-
                     }
 
                 }
             }
-
         }
-
-
-
 
     }
 

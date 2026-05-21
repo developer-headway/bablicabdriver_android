@@ -80,10 +80,8 @@ dependencies {
     implementation(libs.okhttp3)
     implementation(libs.logging.interceptor)
 
-
     //gson file
     implementation (libs.gson)
-
 
     //image zooming library
     implementation(libs.zoomable)
@@ -110,30 +108,18 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics-ktx")
     implementation("com.google.firebase:firebase-messaging")
 
-
     //qr generator
     implementation(libs.compose.qr.code)
-
-
-    //viewmodel life cycle
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.10.0")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0")
 
     //icons
     implementation(libs.androidx.compose.material.icons.extended)
 
-
     // qr code scan
-//    implementation("com.google.zxing:core:3.5.4")
-//    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
-
     implementation ("androidx.camera:camera-core:1.6.1")
     implementation ("androidx.camera:camera-camera2:1.6.1")
     implementation ("androidx.camera:camera-lifecycle:1.6.1")
     implementation ("androidx.camera:camera-view:1.6.1")
-
     implementation("com.google.mlkit:barcode-scanning:17.3.0")
-
 
     //razorpay
     implementation("com.razorpay:checkout:1.6.41")

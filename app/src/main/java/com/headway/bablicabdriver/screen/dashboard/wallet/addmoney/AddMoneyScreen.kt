@@ -24,8 +24,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CurrencyRupee
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -44,8 +48,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
@@ -367,22 +374,64 @@ fun AddMoneyScreen(
                     modifier = Modifier
                         .height(10.dp)
                 )
-                TextView(
-                    text = "₹$selAmount",
-                    textColor = MyColors.clr_364B63_100,
-                    fontFamily = MyFonts.fontSemiBold,
-                    fontSize = 28.sp,
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                )
+//                TextView(
+//                    text = "₹$selAmount",
+//                    textColor = MyColors.clr_364B63_100,
+//                    fontFamily = MyFonts.fontSemiBold,
+//                    fontSize = 28.sp,
+//                    modifier = Modifier
+//                        .padding(horizontal = 16.dp)
+//                )
 
                 BasicTextField(
                     value = selAmount,
                     onValueChange = {it->
-                        selAmount = it
-                    }
-                )
+                        if (it.isDigitsOnly()) {
+                            selAmount = it
+                        }
+                    },
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .fillMaxWidth(),
+                    decorationBox = {innerTextField ->
 
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.CurrencyRupee,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(28.dp),
+                                tint = MyColors.clr_364B63_100
+                            )
+                            if (selAmount.isEmpty()) {
+                                TextView(
+                                    text = "",
+                                    textColor = MyColors.clr_364B63_100,
+                                    fontSize = 28.sp,
+                                    fontFamily = MyFonts.fontSemiBold,
+                                )
+                            }
+                            innerTextField()
+                        }
+
+
+
+                    },
+                    textStyle = TextStyle(
+                        color = MyColors.clr_364B63_100,
+                        fontSize = 28.sp,
+                        fontFamily = MyFonts.fontSemiBold
+                    ),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                    ),
+                    singleLine = true
+                )
                 Spacer(
                     modifier = Modifier
                         .height(6.dp)

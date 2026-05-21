@@ -84,43 +84,4 @@ data class CurrentRideType(
 
 
 
-//data class AAAAAAAAAAAAAAAAAA(
-//    val `data`: Data,
-//    val message: String,
-//    val status: Boolean
-//)
-//
-//data class Data(
-//    val Current_ride: CurrentRide,
-//    val Current_shuttle_ride_passengers: List<CurrentShuttleRidePassenger>,
-//    val Ride_requests: List<Any>,
-//    val current_ride_type: CurrentRideType,
-//    val is_online: Boolean,
-//    val razorpay_live_key: String,
-//    val razorpay_live_secret: String,
-//    val razorpay_test_key: String,
-//    val razorpay_test_secret: String,
-//    val vehicle_ideal_number: String
-//)
-//
-//class CurrentRide
-//
-//data class CurrentShuttleRidePassenger(
-//    val drop_address: String,
-//    val passenger_count: Int,
-//    val pickup_address: String,
-//    val ride_amount: Double,
-//    val ride_id: String,
-//    val status: String,
-//    val trip_code: String,
-//    val user_id: String
-//)
-//
-//data class CurrentRideType(
-//    val ride_type: String,
-//    val shuttle_route_end_selected_address: String,
-//    val shuttle_route_start_selected_address: String
-//)
-
-
 
