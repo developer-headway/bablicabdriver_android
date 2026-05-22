@@ -184,15 +184,16 @@ fun HomeScreen(
     val computeRouteVm : ComputeRouteVm = viewModel()
     val routeData by computeRouteVm.routeData.collectAsState()
 
-    fun callComputeRoutesApi() {
+    // rideData parameter: fresh ride data directly pass karo — stale closure se bachne ke liye
+    fun callComputeRoutesApi(rideData: com.headway.bablicabdriver.model.dashboard.home.CurrentRide? = currentRide) {
         if (AppUtils.isInternetAvailable(context)) {
 
-            val origin = if (currentRide?.ride_status == "started") {
+            val origin = if (rideData?.ride_status == "started") {
                 Origin(
                     location = com.headway.bablicabdriver.model.dashboard.home.Location(
                         latLng = com.headway.bablicabdriver.model.dashboard.home.LatLng(
-                            latitude = currentRide?.pickup_Latitude ?: 0.0,
-                            longitude = currentRide?.pickup_Longitude ?: 0.0,
+                            latitude = rideData.pickup_Latitude,
+                            longitude = rideData.pickup_Longitude,
                         )
                     )
                 )
@@ -207,39 +208,33 @@ fun HomeScreen(
                 )
             }
 
-
-            val destination =
-                if (currentRide?.ride_status == "started") {
-                    Destination(
-                        location = com.headway.bablicabdriver.model.dashboard.home.Location(
-                            latLng = com.headway.bablicabdriver.model.dashboard.home.LatLng(
-                                latitude = currentRide?.destination_Latitude ?: 0.0,
-                                longitude = currentRide?.destination_Longitude ?: 0.0,
-                            )
+            val destination = if (rideData?.ride_status == "started") {
+                Destination(
+                    location = com.headway.bablicabdriver.model.dashboard.home.Location(
+                        latLng = com.headway.bablicabdriver.model.dashboard.home.LatLng(
+                            latitude = rideData.destination_Latitude,
+                            longitude = rideData.destination_Longitude,
                         )
                     )
-                } else {
-                    Destination(
-                        location = com.headway.bablicabdriver.model.dashboard.home.Location(
-                            latLng = com.headway.bablicabdriver.model.dashboard.home.LatLng(
-                                latitude = currentRide?.pickup_Latitude ?: 0.0,
-                                longitude = currentRide?.pickup_Longitude ?: 0.0,
-                            )
+                )
+            } else {
+                Destination(
+                    location = com.headway.bablicabdriver.model.dashboard.home.Location(
+                        latLng = com.headway.bablicabdriver.model.dashboard.home.LatLng(
+                            latitude = rideData?.pickup_Latitude ?: 0.0,
+                            longitude = rideData?.pickup_Longitude ?: 0.0,
                         )
                     )
-                }
+                )
+            }
 
             val request = ComputeRoutesRequest(
                 origin = origin,
                 destination = destination
             )
 
-
-            val pickupLocation = if (currentRide?.ride_status == "started") {
-                LatLng(
-                    currentRide?.pickup_Latitude?:0.0,
-                    currentRide?.pickup_Longitude?:0.0
-                )
+            val pickupLocation = if (rideData?.ride_status == "started") {
+                LatLng(rideData.pickup_Latitude, rideData.pickup_Longitude)
             } else {
                 LatLng(
                     currentLocation.value?.latitude ?: 0.0,
@@ -247,18 +242,15 @@ fun HomeScreen(
                 )
             }
 
-
-            val dropLocation = if (currentRide?.ride_status == "started") {
-                LatLng(
-                     currentRide?.destination_Latitude ?: 0.0,
-                     currentRide?.destination_Longitude ?: 0.0,
-                )
+            val dropLocation = if (rideData?.ride_status == "started") {
+                LatLng(rideData.destination_Latitude, rideData.destination_Longitude)
             } else {
                 LatLng(
-                     currentRide?.pickup_Latitude ?: 0.0,
-                     currentRide?.pickup_Longitude ?: 0.0,
+                    rideData?.pickup_Latitude ?: 0.0,
+                    rideData?.pickup_Longitude ?: 0.0,
                 )
             }
+
             scope.launch {
                 val bounds = LatLngBounds.Builder()
                     .include(pickupLocation)
@@ -269,7 +261,6 @@ fun HomeScreen(
                 )
             }
 
-
             Log.d("msg","request: $request")
             computeRouteVm.callComputeRoutesApi(
                 request = request,
@@ -278,7 +269,7 @@ fun HomeScreen(
                     errorStates.bottomToastText.value = it?:""
                     AppUtils.showToastBottom(errorStates.showBottomToast)
                 },
-                onSuccess = {response-> }
+                onSuccess = { response -> }
             )
         } else {
             errorStates.showInternetError.value = true
@@ -317,38 +308,16 @@ fun HomeScreen(
                     if (response?.status == true) {
                         val data = response.data
                         check = data.is_online
-                        if (!response.data.Current_ride?.ride_id.isNullOrEmpty()) {
-                            Log.d("msg","abc")
-                            callComputeRoutesApi()
-                        }
-                        /*if (check && locationPermission?.allPermissionsGranted == true) {
-                            isLocationService(serviceAction = LocationService.ACTION_SERVICE_START)
-                        }
-                        if (!response.data.Current_ride?.ride_id.isNullOrEmpty()) {
+                        // Fresh ride data directly pass karo — stale currentRide closure se bachne ke liye
+                        val freshRide = data.Current_ride
+                        if (!freshRide?.ride_id.isNullOrEmpty()) {
+                            Log.d("msg","callComputeRoutesApi with fresh ride: $freshRide")
                             scope.launch {
-                                delay(500)
-
-                                val pickupLocation = LatLng(
-                                    currentRide?.pickup_Latitude?:0.0,
-                                    currentRide?.pickup_Longitude?:0.0
-                                )
-                                val dropLocation = LatLng(
-                                    currentRide?.destination_Latitude?:0.0,
-                                    currentRide?.destination_Longitude?:0.0
-                                )
-
-                                scope.launch {
-                                    val bounds = LatLngBounds.Builder()
-                                        .include(pickupLocation)
-                                        .include(dropLocation)
-                                        .build()
-                                    cameraPositionState.animate(
-                                        update = CameraUpdateFactory.newLatLngBounds(bounds, 100)
-                                    )
-                                }
-                                callComputeRoutesApi()
+                                delay(300)
+                                callComputeRoutesApi(rideData = freshRide)
                             }
-                        }*/
+                        }
+
                     } else {
                         errorStates.bottomToastText.value = response?.message?:""
                         AppUtils.showToastBottom(errorStates.showBottomToast)
@@ -388,13 +357,6 @@ fun HomeScreen(
                     if (response?.status == true) {
                         val data = response.data
                         check = data.is_online
-
-//                        if (check) {
-//                            context.startService(Intent(context, FloatingService::class.java))
-//                        }else {
-//                            context.stopService(Intent(context, FloatingService::class.java))
-//                        }
-                        isLocationService(serviceAction = if (check) LocationService.ACTION_SERVICE_START else  LocationService.ACTION_SERVICE_STOP)
                     } else {
                         errorStates.bottomToastText.value = response?.message?:""
                         AppUtils.showToastBottom(errorStates.showBottomToast)
@@ -815,7 +777,8 @@ fun HomeScreen(
                     callUpdateDriverLocationApi()
                     if (!homePageData?.Current_ride?.ride_id.isNullOrEmpty()) {
                         scope.launch {
-                            callComputeRoutesApi()
+                            // homePageData?.Current_ride directly pass karo
+                            callComputeRoutesApi(rideData = homePageData?.Current_ride)
                         }
                     }
 
@@ -1306,7 +1269,7 @@ fun HomeScreen(
                 if (computeRouteNetworkError== NetWorkFail.NetworkError.ordinal) {
                     errorStates.showInternetError.value = false
                     computeRouteNetworkError = NetWorkFail.NoError.ordinal
-                    callComputeRoutesApi()
+                    callComputeRoutesApi() // retry mein currentRide use hoga jo tab tak update ho chuka hoga
                 }
             }
         )
