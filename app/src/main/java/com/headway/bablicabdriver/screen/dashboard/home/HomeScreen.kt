@@ -312,11 +312,15 @@ fun HomeScreen(
                     AppUtils.showToastBottom(errorStates.showBottomToast)
                 },
                 onSuccess = {response->
+
                     isRefreshing = false
                     if (response?.status == true) {
                         val data = response.data
                         check = data.is_online
-
+                        if (!response.data.Current_ride?.ride_id.isNullOrEmpty()) {
+                            Log.d("msg","abc")
+                            callComputeRoutesApi()
+                        }
                         /*if (check && locationPermission?.allPermissionsGranted == true) {
                             isLocationService(serviceAction = LocationService.ACTION_SERVICE_START)
                         }
@@ -902,6 +906,14 @@ fun HomeScreen(
 
 
 
+//    LaunchedEffect(homePageData) {
+//        Log.d("msg","homePageData updated")
+//        if (!homePageData?.Current_ride?.ride_id.isNullOrEmpty()) {
+//            callComputeRoutesApi()
+//        }
+//    }
+
+
     LaunchedEffect(openedSettings) {
         Log.d("msg","opened settings")
         if (openedSettings) {
@@ -1024,61 +1036,66 @@ fun HomeScreen(
                                 )
                             }
 
-                            if (!homePageData?.Current_ride?.ride_id.isNullOrEmpty()) {
-                                Log.d("msg","current ride: $currentRide")
-                                val pickupLatLng = if (currentRide?.ride_status=="started") {
+                            // Use currentRide directly (same source as homePageData?.Current_ride)
+                            val activeRide = currentRide
+
+                            if (!activeRide?.ride_id.isNullOrEmpty()) {
+                                Log.d("msg","current ride: $activeRide")
+
+                                // Pickup marker: driver's current location (before started), pickup point (after started)
+                                val pickupLatLng = if (activeRide?.ride_status == "started") {
                                     LatLng(
-                                        currentRide?.pickup_Latitude?:0.0,
-                                        currentRide?.pickup_Longitude?:0.0
+                                        activeRide.pickup_Latitude,
+                                        activeRide.pickup_Longitude
                                     )
                                 } else {
                                     LatLng(
-                                        currentLocation.value?.latitude?:0.0,
-                                        currentLocation.value?.longitude?:0.0
+                                        currentLocation.value?.latitude ?: 0.0,
+                                        currentLocation.value?.longitude ?: 0.0
                                     )
                                 }
 
-                                val markerState = remember { MarkerState(position = pickupLatLng) }
+                                // rememberUpdatedMarkerState ensures marker moves when position changes
+                                val pickupMarkerState = rememberUpdatedMarkerState(position = pickupLatLng)
                                 Marker(
-                                    state = markerState,
-                                    title = "Vehicle",
+                                    state = pickupMarkerState,
+                                    title = if (activeRide?.ride_status == "started") "Pickup" else "Driver",
                                     snippet = "Location: ${pickupLatLng.latitude}, ${pickupLatLng.longitude}",
-                                    draggable = true,
+                                    draggable = false,
                                 )
 
-                                val dropLatLng = if (currentRide?.ride_status=="started") {
+                                // Drop marker: pickup point (before started), destination (after started)
+                                val dropLatLng = if (activeRide?.ride_status == "started") {
                                     LatLng(
-                                        currentRide?.destination_Latitude?:0.0,
-                                        currentRide?.destination_Longitude?:0.0
+                                        activeRide.destination_Latitude,
+                                        activeRide.destination_Longitude
                                     )
                                 } else {
                                     LatLng(
-                                        currentRide?.pickup_Latitude?:0.0,
-                                        currentRide?.pickup_Longitude?:0.0
+                                        activeRide?.pickup_Latitude ?: 0.0,
+                                        activeRide?.pickup_Longitude ?: 0.0
                                     )
                                 }
 
-
-                                val dropMarkerState = remember { MarkerState(position = dropLatLng) }
+                                val dropMarkerState = rememberUpdatedMarkerState(position = dropLatLng)
                                 Marker(
                                     state = dropMarkerState,
-                                    title = "Vehicle",
+                                    title = if (activeRide?.ride_status == "started") "Destination" else "Pickup",
                                     snippet = "Location: ${dropLatLng.latitude}, ${dropLatLng.longitude}",
-                                    draggable = true,
+                                    draggable = false,
                                 )
                             } else {
+                                // No active ride — show driver's current location only
                                 val curLatLng = LatLng(
-                                    currentLocation.value?.latitude?:0.0,
-                                    currentLocation.value?.longitude?:0.0
+                                    currentLocation.value?.latitude ?: 0.0,
+                                    currentLocation.value?.longitude ?: 0.0
                                 )
-                                val markerState = rememberUpdatedMarkerState(
-                                    position = curLatLng
-                                )
+                                val markerState = rememberUpdatedMarkerState(position = curLatLng)
                                 Marker(
                                     state = markerState,
-                                    title = "Vehicle",
+                                    title = "Driver",
                                     snippet = "",
-                                    draggable = true,
+                                    draggable = false,
                                 )
                             }
 

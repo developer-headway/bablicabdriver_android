@@ -24,8 +24,9 @@ class HomePageVm : ViewModel(){
     private val _homePageData = MutableStateFlow<HomePageData?>(null)
     val homePageData : MutableStateFlow<HomePageData?> = _homePageData
 
-
-
+    fun updateHomepageData(data: HomePageData?) {
+        _homePageData.value = data
+    }
 
     private val _rideRequestList = MutableStateFlow<List<RideRequests?>?>(emptyList())
     val rideRequestList : MutableStateFlow<List<RideRequests?>?> = _rideRequestList
