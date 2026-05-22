@@ -1,5 +1,6 @@
 package com.headway.bablicabdriver.api
 
+const val WEB_VIEW_BASE_URL = "https://babli.cab/"
 const val BASE_URL = "https://babli.cab/api/mobile/driver/"
 const val GOOGLE_APIS_BASE_URL = "https://maps.googleapis.com/"
 const val GOOGLE_ROUTES_BASE_URL = "https://routes.googleapis.com/"
@@ -20,9 +21,15 @@ const val UPLOAD_DOCUMENT = "upload-documents"
 const val UPDATE_PROFILE = "update-profile"
 const val PROFILE = "profile"
 const val RIDE_HISTORY = "ride-history"
-const val PRIVACY_POLICY = "privacy-policy"
-const val TERMS_CONDITION = "terms-condition"
-const val HELP_SUPPORT = "help-support"
+
+
+const val PRIVACY_POLICY = "mobile-app/driver-partner-privacy-policy"
+const val TERMS_CONDITION = "mobile-app/driver-partner-terms-and-conditions"
+const val HELP_SUPPORT = "mobile-app-faq"
+const val ABOUT_US = "mobile-app-about-us"
+const val SAFETY = "mobile-app-safety"
+
+
 
 const val HOME_PAGE = "home-page"
 const val SET_ONLINE_STATUS = "set-online-status"

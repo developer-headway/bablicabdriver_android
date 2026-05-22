@@ -50,8 +50,13 @@ import com.gandiva.neumorphic.shape.RoundedCorner
 import com.headway.bablicabdriver.res.components.dialog.ConfirmDeleteAccountDialog
 import com.headway.bablicabdriver.res.components.dialog.ConfirmLogOutDialog
 import com.headway.bablicabdriver.R
+import com.headway.bablicabdriver.api.ABOUT_US
 import com.headway.bablicabdriver.api.ErrorsData
+import com.headway.bablicabdriver.api.HELP_SUPPORT
 import com.headway.bablicabdriver.api.NetWorkFail
+import com.headway.bablicabdriver.api.SAFETY
+import com.headway.bablicabdriver.api.TERMS_CONDITION
+import com.headway.bablicabdriver.api.WEB_VIEW_BASE_URL
 import com.headway.bablicabdriver.model.commondataclass.DeviceUIdRequest
 import com.headway.bablicabdriver.res.components.bar.TopNavigationBar
 import com.headway.bablicabdriver.res.components.dialog.CommonErrorDialogs
@@ -184,7 +189,7 @@ fun SettingsScreen(
         Pair(R.drawable.ic_my_rides, R.string.my_vehicle_details),
         Pair(R.drawable.ic_doc, R.string.document_info),
         Pair(R.drawable.ic_bank, R.string.bank_details),
-        Pair(R.drawable.ic_water_bottle, R.string.stoke_management),
+//        Pair(R.drawable.ic_water_bottle, R.string.stoke_management),
         Pair(R.drawable.ic_safety, R.string.safety),
     )
 
@@ -450,6 +455,17 @@ fun SettingsScreen(
                                             }
                                         }
 
+                                        R.string.safety -> {
+                                            val url = WEB_VIEW_BASE_URL + SAFETY
+                                            navHostController.currentBackStackEntry?.savedStateHandle?.set("title", "Terms & Conditions")
+                                            navHostController.currentBackStackEntry?.savedStateHandle?.set("url", url)
+                                            navHostController.navigate(Routes.WebPageScreen.route) {
+                                                launchSingleTop = true
+                                            }
+                                        }
+
+
+
                                     }
                                 }
                         ) {
@@ -540,7 +556,37 @@ fun SettingsScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
+                                    when(item.second) {
 
+                                        R.string.about -> {
+                                            val url = WEB_VIEW_BASE_URL + ABOUT_US
+                                            navHostController.currentBackStackEntry?.savedStateHandle?.set("title", "About Us")
+                                            navHostController.currentBackStackEntry?.savedStateHandle?.set("url", url)
+                                            navHostController.navigate(Routes.WebPageScreen.route) {
+                                                launchSingleTop = true
+                                            }
+                                        }
+                                        R.string.terms_conditions -> {
+                                            val url = WEB_VIEW_BASE_URL + TERMS_CONDITION
+                                            navHostController.currentBackStackEntry?.savedStateHandle?.set("title", "Terms & Conditions")
+                                            navHostController.currentBackStackEntry?.savedStateHandle?.set("url", url)
+                                            navHostController.navigate(Routes.WebPageScreen.route) {
+                                                launchSingleTop = true
+                                            }
+                                        }
+
+
+                                        R.string.help -> {
+                                            val url = WEB_VIEW_BASE_URL + HELP_SUPPORT
+                                            navHostController.currentBackStackEntry?.savedStateHandle?.set("title", "FAQs")
+                                            navHostController.currentBackStackEntry?.savedStateHandle?.set("url", url)
+                                            navHostController.navigate(Routes.WebPageScreen.route) {
+                                                launchSingleTop = true
+                                            }
+                                        }
+
+
+                                    }
                                 }
                         ) {
                             Spacer(

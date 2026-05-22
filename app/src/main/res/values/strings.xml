@@ -20,6 +20,19 @@
     <string name="img_des">image description</string>
     <string name="kindly_select_given_filed">Kindly select given filed.</string>
 
+    <string name="something_went_wrong">"Something went Wrong. "</string>
+    <string name="please_try_again_we_are_committed_to_providing_you_with_the_best_possible_service_if_the_issue_continues_to_accrue">"Please try again. We are committed to providing you with the best possible service. If the issue continues to accrue."</string>
+    <string name="please_contact_us_by_creating_a_ticket">please contact us by creating a ticket.</string>
+    <string name="create_a_ticket">Create a ticket</string>
+    <string name="ok_understood">Ok, Understood</string>
+
+
+    <!--  Session Expire Dialog  -->
+    <string name="login_again">Login again !</string>
+    <string name="we_have_noticed_that_you_logged_in_earlier_with_a_different_device">We have noticed that you logged in earlier with a different device.</string>
+    <string name="please_login_again_to_continue">Please login again to continue.</string>
+
+
     <!--  Intro screen  -->
     <string name="skip">Skip</string>
     <string name="submit">Submit</string>
@@ -204,8 +217,8 @@
     <string name="safety">Safety</string>
     <string name="refreshments">Refreshments</string>
     <string name="stoke_management">Stoke Management</string>
-    <string name="help">Help</string>
-    <string name="about">About</string>
+    <string name="help">FAQs</string>
+    <string name="about">About Us</string>
     <string name="sign_out">Sign out</string>
     <string name="delete_account">Delete Account</string>
 

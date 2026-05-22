@@ -246,6 +246,8 @@ fun HomeScreen(
                     currentLocation.value?.longitude ?: 0.0,
                 )
             }
+
+
             val dropLocation = if (currentRide?.ride_status == "started") {
                 LatLng(
                      currentRide?.destination_Latitude ?: 0.0,
@@ -685,7 +687,7 @@ fun HomeScreen(
                 onSuccess = {response->
                     isRefreshing = false
                     if (response?.status == false) {
-                        errorStates.bottomToastText.value = response?.message?:""
+                        errorStates.bottomToastText.value = response.message
                         AppUtils.showToastBottom(errorStates.showBottomToast)
                     } else {
                         callHomePageApi()
@@ -809,28 +811,6 @@ fun HomeScreen(
                     callUpdateDriverLocationApi()
                     if (!homePageData?.Current_ride?.ride_id.isNullOrEmpty()) {
                         scope.launch {
-                            delay(500)
-
-                            val pickupLocation = LatLng(
-                                currentRide?.pickup_Latitude?:0.0,
-                                currentRide?.pickup_Longitude?:0.0
-                            )
-                            val dropLocation = LatLng(
-                                currentRide?.destination_Latitude?:0.0,
-                                currentRide?.destination_Longitude?:0.0
-                            )
-
-                            scope.launch {
-                                val bounds = LatLngBounds.Builder()
-                                    .include(pickupLocation)
-                                    .include(dropLocation)
-                                    .build()
-                                cameraPositionState.animate(
-                                    update = CameraUpdateFactory.newLatLngBounds(bounds, 100)
-                                )
-                            }
-
-
                             callComputeRoutesApi()
                         }
                     }
@@ -913,17 +893,6 @@ fun HomeScreen(
             isFirstTime = false
             callHomePageApi()
         }
-
-//        val isRefresh = navHostController.currentBackStackEntry?.savedStateHandle?.get<Boolean?>("refresh")?:false
-//        if (isRefresh) {
-//            navHostController.currentBackStackEntry?.savedStateHandle?.set("refresh",false)
-//            callHomePageApi()
-//        }
-
-//        if (isFirstTime) {
-//            isFirstTime = false
-//            callHomePageApi()
-//        }
         if (!locationPermission.allPermissionsGranted) {
             showPermissionDialog = true
         } else {
@@ -1102,8 +1071,6 @@ fun HomeScreen(
                                     currentLocation.value?.latitude?:0.0,
                                     currentLocation.value?.longitude?:0.0
                                 )
-
-//                                val markerState = remember { MarkerState(position = curLatLng) }
                                 val markerState = rememberUpdatedMarkerState(
                                     position = curLatLng
                                 )

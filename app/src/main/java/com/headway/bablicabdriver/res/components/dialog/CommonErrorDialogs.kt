@@ -58,10 +58,12 @@ fun CommonErrorDialogs(
 //            )
         }
 
-//        SessionExpiredDialog(visible = errorStates.showSessionError) { }
-//        InternalServerErrorDialog(visible = errorStates.showInternalServerError,
-//            onCreateTicket = onCreateTicket::invoke,
-//            onUnderstood = onOkUnderstood::invoke)
+        SessionExpiredDialog(visible = errorStates.showSessionError) { }
+        InternalServerErrorDialog(
+            visible = errorStates.showInternalServerError,
+            onCreateTicket = onCreateTicket::invoke,
+            onUnderstood = onOkUnderstood::invoke
+        )
 //        UnderMaintenanceDialog(errorStates.showUnderMaintenanceDialog)
     }
 }

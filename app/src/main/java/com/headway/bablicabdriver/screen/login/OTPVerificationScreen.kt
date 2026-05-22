@@ -52,6 +52,7 @@ import com.headway.bablicabdriver.api.ErrorsData
 import com.headway.bablicabdriver.api.NetWorkFail
 import com.headway.bablicabdriver.api.PRIVACY_POLICY
 import com.headway.bablicabdriver.api.TERMS_CONDITION
+import com.headway.bablicabdriver.api.WEB_VIEW_BASE_URL
 import com.headway.bablicabdriver.model.login.SendOtpRequest
 import com.headway.bablicabdriver.model.login.VerifyOtpRequest
 import com.headway.bablicabdriver.res.Loader
@@ -334,7 +335,7 @@ fun OTPVerificationScreen(navHostController: NavHostController) {
                             .firstOrNull()?.let {
                                 // Handle Terms click
                                 Log.d("ClickableText", "Clicked on Terms and Conditions")
-                                val url = BASE_URL + TERMS_CONDITION
+                                val url = WEB_VIEW_BASE_URL + TERMS_CONDITION
                                 navHostController.currentBackStackEntry?.savedStateHandle?.set("title", "Terms & Conditions")
                                 navHostController.currentBackStackEntry?.savedStateHandle?.set("url", url)
                                 navHostController.navigate(Routes.WebPageScreen.route) {
@@ -346,7 +347,7 @@ fun OTPVerificationScreen(navHostController: NavHostController) {
                             .firstOrNull()?.let {
                                 // Handle Privacy click
                                 Log.d("ClickableText", "Clicked on Privacy Policy")
-                                val url = BASE_URL + PRIVACY_POLICY
+                                val url = WEB_VIEW_BASE_URL + PRIVACY_POLICY
                                 navHostController.currentBackStackEntry?.savedStateHandle?.set("title", "Privacy Policy")
                                 navHostController.currentBackStackEntry?.savedStateHandle?.set("url", url)
                                 navHostController.navigate(Routes.WebPageScreen.route) {

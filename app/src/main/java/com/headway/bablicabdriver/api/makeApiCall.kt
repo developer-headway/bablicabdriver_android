@@ -50,6 +50,7 @@ suspend inline fun <reified T> makeApiCall(
             when (response.code()) {
                 401 -> {
                     errorStates.showSessionError.value = true
+                    onError(response.message())
                 }
                 500 -> {
                     errorStates.showInternalServerError.value = true
