@@ -184,6 +184,22 @@ fun DriverDetailsScreen(
                     )
                 }
 
+                item {
+                    VehicleInfoSection(
+                        title = stringResource(R.string.total_earning),
+                        value = "${driverDetailsData?.total_earning?:0.0}"
+                    )
+                }
+
+                item {
+                    VehicleInfoSection(
+                        title = stringResource(R.string.wallet_amount),
+                        value = "${driverDetailsData?.wallet_amount?:0.0}"
+                    )
+                }
+
+
+
 
                 // Driving Licence Book Image Section
                 item {

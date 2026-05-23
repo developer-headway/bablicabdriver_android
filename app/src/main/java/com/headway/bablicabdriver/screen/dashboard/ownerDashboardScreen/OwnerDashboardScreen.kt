@@ -34,6 +34,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
@@ -559,6 +560,71 @@ fun OwnerDashboardScreen(navHostController: NavHostController) {
                         )
                     }
 
+                }
+
+
+                Spacer(
+                    modifier = Modifier
+                        .height(16.dp)
+                )
+                Row(
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row (
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(90.dp)
+                            .border(
+                                width = 1.dp,
+                                color = MyColors.clr_00BCF1_100,
+                                shape = RoundedCornerShape(10.dp)
+                            )
+                            .clip(shape = RoundedCornerShape(10.dp))
+                            .background(
+                                brush = Brush.linearGradient(
+                                    colors = listOf( MyColors.clr_white_100,MyColors.clr_D3F5FF_100)
+                                )
+                            )
+                            .clickable {
+                                navHostController.currentBackStackEntry?.savedStateHandle?.set("show_back_icon",true)
+                                navHostController.navigate(Routes.WalletScreen.route) {
+                                    launchSingleTop = true
+                                }
+                            }
+                            .padding(10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+
+                        Image(
+                            painter = painterResource(R.drawable.ic_total_earning),
+                            contentDescription = stringResource(R.string.img_des),
+                            modifier = Modifier
+                                .size(16.dp)
+                        )
+
+                        Spacer(
+                            modifier = Modifier
+                                .width(10.dp)
+                        )
+                        TextView(
+                            modifier = Modifier
+                                .weight(1f),
+                            text = stringResource(R.string.withdraw_request_history),
+                            textColor = MyColors.clr_777777_100,
+                            fontSize = 14.sp,
+                            fontFamily = MyFonts.fontMedium
+                        )
+                        Image(
+                            painter = painterResource(R.drawable.ic_next_double),
+                            contentDescription = stringResource(R.string.img_des),
+                            modifier = Modifier
+                                .size(22.dp)
+                        )
+                    }
                 }
 
 

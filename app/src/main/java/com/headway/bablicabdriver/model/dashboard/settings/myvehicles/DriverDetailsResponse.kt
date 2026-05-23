@@ -29,7 +29,7 @@ data class DriverDetailsData(
     val pan_card_number: String,
     val phone: String,
     val police_verification_doc_url: String,
-    val total_earning: Int,
+    val total_earning: Double,
     val total_ride: Int,
     val wallet_amount: Double
 )

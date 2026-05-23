@@ -39,7 +39,9 @@ import com.headway.bablicabdriver.utils.composable2
 import com.headway.bablicabdriver.utils.permissionhandler.rememberPermissionsState
 import com.headway.bablicabdriver.viewmodel.MainViewModel
 import androidx.navigation.NavHostController
+import com.headway.bablicabdriver.api.ErrorsData
 import com.headway.bablicabdriver.screen.dashboard.settings.refreshment.ScanQrCodeScreen
+import com.headway.bablicabdriver.screen.dashboard.wallet.WalletScreen
 import com.headway.bablicabdriver.screen.dashboard.wallet.addmoney.AddMoneyScreen
 
 
@@ -343,9 +345,6 @@ fun NavigationGraph(
             )
 
 
-
-
-
             composable2 (
                 route = Routes.AddMoneyScreen.route,
                 content = {
@@ -355,6 +354,19 @@ fun NavigationGraph(
                     )
                 }
             )
+
+            composable2 (
+                route = Routes.WalletScreen.route,
+                content = {
+                    WalletScreen(
+                        navHostController = navHostController,
+                        mainViewModel = mainViewModel,
+                        errorStates = ErrorsData()
+                    )
+                }
+            )
+
+
 
 
         }

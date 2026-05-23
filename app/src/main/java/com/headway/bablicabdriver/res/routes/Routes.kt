@@ -35,6 +35,7 @@ sealed class Routes(val route: String) {
     data object RefreshmentScreen : Routes(route = "RefreshmentScreen")
     data object NearbyStoresScreen : Routes(route = "NearbyStoresScreen")
     data object AddMoneyScreen : Routes(route = "AddMoneyScreen")
+    data object WalletScreen : Routes(route = "WalletScreen")
     data object QrScannerScreen : Routes(route = "QrScannerScreen/{totalAmount}") {
         fun createRoute(totalAmount: Int) = "QrScannerScreen/$totalAmount"
     }

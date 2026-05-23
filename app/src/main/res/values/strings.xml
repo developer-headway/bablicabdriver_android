@@ -165,7 +165,8 @@
     <string name="driver_details">Driver Details</string>
     <string name="total_ride">Total Ride</string>
     <string name="total_earning">Total Earning</string>
-    <string name="driving_licence_number">Driving Licence Number</string>
+    <string name="driving_licence_number">Driving License Number</string>
+    <string name="wallet_amount">Wallet Amount</string>
 
 
     <!--  ChooseServiceDialog dialog  -->
@@ -241,6 +242,7 @@
     <string name="vehicle">Vehicle</string>
     <string name="driver">Driver</string>
     <string name="today_earning">Today’s earning</string>
+    <string name="withdraw_request_history">Withdraw Request &amp; History</string>
 
 
     <!--  Photo dialog  -->

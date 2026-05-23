@@ -86,7 +86,9 @@ fun WalletScreen(
     var isRefreshing by remember {
         mutableStateOf(false)
     }
-
+    val showBackIcon by rememberSaveable {
+        mutableStateOf(navHostController.previousBackStackEntry?.savedStateHandle?.get<Boolean?>("show_back_icon"))
+    }
     val showWithdrawAmountDialog = rememberSaveable {
         mutableStateOf(false)
     }
@@ -244,8 +246,11 @@ fun WalletScreen(
         contentWindowInsets = WindowInsets(0.dp),
         topBar = {
             TopNavigationBar(
-                showBackIcon = false,
-                title = stringResource(R.string.wallet)
+                showBackIcon = showBackIcon?:false,
+                title = stringResource(R.string.wallet),
+                onBackPress = {
+                    navHostController.popBackStack()
+                }
             )
         }
     ) { innerPadding ->
@@ -321,7 +326,7 @@ fun WalletScreen(
                         }
 
 
-                        if (sharedPreferenceManager.getIsOwnerDriver()) {
+                        if (sharedPreferenceManager.getIsOwnerDriver() || sharedPreferenceManager.getUserType().lowercase()=="owner") {
                             Spacer(
                                 modifier = Modifier
                                     .height(16.dp)
