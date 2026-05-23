@@ -165,7 +165,6 @@ fun HomeScreen(
     ////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////
     val homePageVm : HomePageVm = viewModel()
-    val currentRide by homePageVm.currentRide.collectAsState()
     val rideRequestList by homePageVm.rideRequestList.collectAsState()
     val homePageData by homePageVm.homePageData.collectAsState()
 
@@ -185,7 +184,8 @@ fun HomeScreen(
     val routeData by computeRouteVm.routeData.collectAsState()
 
     // rideData parameter: fresh ride data directly pass karo — stale closure se bachne ke liye
-    fun callComputeRoutesApi(rideData: com.headway.bablicabdriver.model.dashboard.home.CurrentRide? = currentRide) {
+    fun callComputeRoutesApi() {
+        val rideData = homePageData?.Current_ride
         if (AppUtils.isInternetAvailable(context)) {
 
             val origin = if (rideData?.ride_status == "started") {
@@ -261,7 +261,7 @@ fun HomeScreen(
                 )
             }
 
-            Log.d("msg","request: $request")
+            Log.d("msg","callComputeRoutesApi request: $request")
             computeRouteVm.callComputeRoutesApi(
                 request = request,
                 errorStates = errorStates,
@@ -302,7 +302,7 @@ fun HomeScreen(
                     errorStates.bottomToastText.value = it?:""
                     AppUtils.showToastBottom(errorStates.showBottomToast)
                 },
-                onSuccess = {response->
+                onSuccess = { response->
 
                     isRefreshing = false
                     if (response?.status == true) {
@@ -313,8 +313,8 @@ fun HomeScreen(
                         if (!freshRide?.ride_id.isNullOrEmpty()) {
                             Log.d("msg","callComputeRoutesApi with fresh ride: $freshRide")
                             scope.launch {
-                                delay(300)
-                                callComputeRoutesApi(rideData = freshRide)
+                                delay(500)
+                                callComputeRoutesApi()
                             }
                         }
 
@@ -462,7 +462,7 @@ fun HomeScreen(
             Log.d("msg","latitude: ${currentLocation.value?.latitude}")
             Log.d("msg","longitude: ${currentLocation.value?.longitude}")
             val request = ArrivedPickupRequest (
-                ride_id = currentRide?.ride_id?:""
+                ride_id = homePageData?.Current_ride?.ride_id?:""
             )
             arrivedPickupVm.callArrivedPickupApi(
                 token = token,
@@ -505,7 +505,7 @@ fun HomeScreen(
             Log.d("msg","latitude: ${currentLocation.value?.latitude}")
             Log.d("msg","longitude: ${currentLocation.value?.longitude}")
             val request = StartRideRequest (
-                ride_id = currentRide?.ride_id?:"",
+                ride_id = homePageData?.Current_ride?.ride_id?:"",
                 otp = otp
             )
             startRideVm.callStartRideApi(
@@ -565,9 +565,9 @@ fun HomeScreen(
                     if (response?.status == true) {
 
                         callHomePageApi()
-                        if (currentRide?.ride_type == "one_way") {
-                            navHostController.currentBackStackEntry?.savedStateHandle?.set("price",currentRide?.total_price.toString())
-                            navHostController.currentBackStackEntry?.savedStateHandle?.set("ride_id",currentRide?.ride_id)
+                        if (homePageData?.Current_ride?.ride_type == "one_way") {
+                            navHostController.currentBackStackEntry?.savedStateHandle?.set("price",homePageData?.Current_ride?.total_price.toString())
+                            navHostController.currentBackStackEntry?.savedStateHandle?.set("ride_id",homePageData?.Current_ride?.ride_id)
                             navHostController.navigate(Routes.PaymentSuccessScreen.route) {
                                 launchSingleTop = true
                             }
@@ -676,69 +676,6 @@ fun HomeScreen(
 
     ////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////
-
-/*
-
-    val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
-    fun callLocationPermission() {
-        locationPermissions?.launchPermissionRequestsAndAction()
-    }
-    locationPermissions = rememberPermissionsState(
-        permissions = listOf(
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        ),
-        onGrantedAction = {
-            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-                location?.let {
-                    currentLocation.value = location
-                    scope.launch {
-                        cameraPositionState.animate(
-                            update = CameraUpdateFactory.newLatLngZoom(
-                                LatLng(it.latitude, it.longitude),
-                                16f // zoom level
-                            ),
-                            durationMs = 10
-                        )
-                    }
-                    callUpdateDriverLocationApi()
-                }
-            }
-        },
-        onDeniedAction = {
-            permissionDeniedDialog(context) {
-//                context.goToSettings(it)
-                callLocationPermission()
-            }
-        },
-        onPermanentlyDeniedAction = {
-            goToSettingsDialog(context) {
-                context.goToSettings(it)
-            }
-        }
-    )
-
-    var isFirstTime by rememberSaveable {
-        mutableStateOf(true)
-    }
-
-    LaunchedEffect(true) {
-        Log.d("msg","isFirstTime: $isFirstTime")
-        val isRefresh = navHostController.currentBackStackEntry?.savedStateHandle?.get<Boolean?>("refresh")?:false
-        if (isFirstTime || isRefresh) {
-            navHostController.currentBackStackEntry?.savedStateHandle?.set("refresh",false)
-            isFirstTime = false
-
-            callLocationPermission()
-            callHomePageApi()
-        }
-    }
-
-*/
-
-
-    ////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////
     // Location state
     var currentLat by remember { mutableStateOf(0.0) }
     var currentLng by remember { mutableStateOf(0.0) }
@@ -778,7 +715,7 @@ fun HomeScreen(
                     if (!homePageData?.Current_ride?.ride_id.isNullOrEmpty()) {
                         scope.launch {
                             // homePageData?.Current_ride directly pass karo
-                            callComputeRoutesApi(rideData = homePageData?.Current_ride)
+                            callComputeRoutesApi()
                         }
                     }
 
@@ -841,16 +778,12 @@ fun HomeScreen(
         }
     )
 
-
     // Check if both permissions are granted — derived from live permission state
     val allPermissionsGranted by remember {
         derivedStateOf {
             locationPermission.allPermissionsGranted
         }
     }
-
-
-
 
     LaunchedEffect(true) {
         Log.d("msg","isFirstTime: $isFirstTime")
@@ -866,16 +799,6 @@ fun HomeScreen(
             fetchLocation()
         }
     }
-
-
-
-//    LaunchedEffect(homePageData) {
-//        Log.d("msg","homePageData updated")
-//        if (!homePageData?.Current_ride?.ride_id.isNullOrEmpty()) {
-//            callComputeRoutesApi()
-//        }
-//    }
-
 
     LaunchedEffect(openedSettings) {
         Log.d("msg","opened settings")
@@ -894,21 +817,30 @@ fun HomeScreen(
 
     /////////////////////////////////////////////
     /////////////////////////////////////////////
+    // refreshTrigger observe karo — jab bhi broadcast aaye, LaunchedEffect callHomePageApi call karega
+    // Yeh Compose ke recomposition cycle ke saath properly sync hota hai
+    val refreshTrigger by homePageVm.refreshTrigger.collectAsState()
+    LaunchedEffect(refreshTrigger) {
+        // 0 = initial value, skip karo
+        if (refreshTrigger > 0) {
+            Log.d("msg", "refreshTrigger fired: $refreshTrigger")
+            callHomePageApi()
+        }
+    }
+
     DisposableEffect(true) {
         val broadcastReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
-//                val rideRequests = intent.getSerializableExtra("ride_request", RideRequests::class.java)
-//                Log.d("msg","received: $rideRequests")
-//                callHomePageApi()
-
                 val rideRequests = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     intent.getSerializableExtra("ride_request", RideRequests::class.java)
                 } else {
                     @Suppress("DEPRECATION")
                     intent.getSerializableExtra("ride_request") as? RideRequests
                 }
-                Log.d("msg", "received: $rideRequests")
-                callHomePageApi()
+                Log.d("msg", "received broadcast: $rideRequests")
+                // callHomePageApi() directly mat karo — StateFlow trigger karo
+                // LaunchedEffect usse Compose ke main thread pe properly handle karega
+                homePageVm.triggerRefresh()
             }
         }
         val intentFilter = IntentFilter("com.notification.ride_request")
@@ -1000,7 +932,7 @@ fun HomeScreen(
                             }
 
                             // Use currentRide directly (same source as homePageData?.Current_ride)
-                            val activeRide = currentRide
+                            val activeRide = homePageData?.Current_ride
 
                             if (!activeRide?.ride_id.isNullOrEmpty()) {
                                 Log.d("msg","current ride: $activeRide")
@@ -1133,7 +1065,7 @@ fun HomeScreen(
                     }
 
 
-                    when(currentRide?.ride_status) {
+                    when(homePageData?.Current_ride?.ride_status) {
                         "accepted" -> {
                             PickupDialog(
                                 modifier = Modifier
@@ -1142,7 +1074,7 @@ fun HomeScreen(
                                         interactionSource = null,
                                         enabled = false
                                     ) {},
-                                currentRide = currentRide,
+                                currentRide = homePageData?.Current_ride,
                                 onArrivedClick = {
                                     callArrivedPickupApi()
                                 }
@@ -1168,10 +1100,10 @@ fun HomeScreen(
                                         enabled = false
                                     ) {},
                                 onCompleteRideClick = {
-                                    selRideId = currentRide?.ride_id?:""
+                                    selRideId = homePageData?.Current_ride?.ride_id?:""
                                     callCompleteRideApi()
                                 },
-                                currentRide = currentRide
+                                currentRide = homePageData?.Current_ride
                             )
                         }
                     }
@@ -1274,7 +1206,6 @@ fun HomeScreen(
             }
         )
 
-
         if (showServiceDialog) {
             ChooseServiceDialog(
                 onDismiss = { showServiceDialog = false },
@@ -1291,8 +1222,6 @@ fun HomeScreen(
                 }
             )
         }
-
-
 
         if (homePageVm._isLoading.collectAsState().value
             || setOnlineStatusVm._isLoading.collectAsState().value

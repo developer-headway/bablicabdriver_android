@@ -23,11 +23,11 @@ const val PROFILE = "profile"
 const val RIDE_HISTORY = "ride-history"
 
 
-const val PRIVACY_POLICY = "mobile-app/driver-partner-privacy-policy"
-const val TERMS_CONDITION = "mobile-app/driver-partner-terms-and-conditions"
-const val HELP_SUPPORT = "mobile-app-faq"
-const val ABOUT_US = "mobile-app-about-us"
-const val SAFETY = "mobile-app-safety"
+const val PRIVACY_POLICY = "mobile/cms/driver-privacy-policy"
+const val TERMS_CONDITION = "mobile/cms/driver-terms-and-conditions"
+const val HELP_SUPPORT = "mobile/cms/driver-faq"
+const val ABOUT_US = "mobile/cms/about-us"
+const val SAFETY = "mobile/cms/driver-safety"
 
 
 

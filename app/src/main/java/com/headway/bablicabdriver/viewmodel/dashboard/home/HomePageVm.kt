@@ -24,6 +24,14 @@ class HomePageVm : ViewModel(){
     private val _homePageData = MutableStateFlow<HomePageData?>(null)
     val homePageData : MutableStateFlow<HomePageData?> = _homePageData
 
+    // Broadcast se UI refresh trigger karne ke liye — Int counter use karo taaki same value pe bhi trigger ho
+    private val _refreshTrigger = MutableStateFlow(0)
+    val refreshTrigger : MutableStateFlow<Int> = _refreshTrigger
+
+    fun triggerRefresh() {
+        _refreshTrigger.value += 1
+    }
+
     fun updateHomepageData(data: HomePageData?) {
         _homePageData.value = data
     }
